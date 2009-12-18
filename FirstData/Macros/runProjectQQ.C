@@ -23,8 +23,8 @@ void BookHistos(){
 
   //mass
 //   Int_t nBinsMass = 20;
-  Int_t nBinsMass = 400;
-  Double_t massMin = 0.0, massMax = 4.0;
+  Int_t nBinsMass = 1200;
+  Double_t massMin = 0.0, massMax = 12.0;
   //pt
   Int_t nBinsPT = 20;
   Double_t pTMin = 0., pTMax = 10.;
