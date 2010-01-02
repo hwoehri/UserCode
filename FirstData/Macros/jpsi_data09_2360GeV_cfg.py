@@ -176,7 +176,7 @@ process.GlobalTag.globaltag = 'GR09_R_V5::All' #rereco pf 19th Dec with 336p3
 
 
 process.MuonAnalysis = cms.EDAnalyzer("Onia2MuMu",
-    OutputFileName       = cms.string('jpsi_data09_900GeV.root'),
+    OutputFileName       = cms.string('jpsi_data09_2360GeV.root'),
     OniaType             = cms.int32(443),
     OniaMaxCat           = cms.int32(6),
     skimOnOniaMaxCat     = cms.bool(False),
@@ -263,7 +263,7 @@ process.hltPhysicsDeclared = cms.EDFilter("HLTHighLevel",
 #process.load('RecoVertex.BeamSpotProducer.BeamSpot_cfi')
 
 # filter on lumisections
-from HeavyFlavorAnalysis.Onia2MuMu.goodLumiSectionList_900GeV_cfi import *
+from HeavyFlavorAnalysis.Onia2MuMu.goodLumiSectionList_2360GeV_cfi import *
 process.source.lumisToProcess = goodLumisToProcess
 
 #process.ana_step = cms.Path(process.hltLevel1GTSeed + process.hltPhysicsDeclared + process.offlineBeamSpot + process.MuonAnalysis)
