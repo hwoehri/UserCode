@@ -8,10 +8,12 @@
 #ifndef ProjectQQ_h
 #define ProjectQQ_h
 
+#if !defined (__CINT__) || defined (__MAKECINT__)
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
 #include <TLorentzVector.h>
+#endif
 
 class ProjectQQ {
 public :
@@ -19,6 +21,9 @@ public :
    Int_t           fCurrent; //!current Tree number in a TChain
 
    // Declaration of leaf types
+   Int_t           eventNb;
+   Int_t           runNb;
+   Int_t           lumiBlock;
    Int_t           Mc_ProcessId;
    Double_t        Mc_EventScale;
    Double_t        Mc_EventWeight;
@@ -27,14 +32,14 @@ public :
    TClonesArray    *Mc_QQ_3vec;
    TClonesArray    *Mc_QQmoth_4mom;
    TClonesArray    *Mc_QQmoth_3vec;
-   Int_t           Mc_QQmoth_id[2];   //[Mc_QQ_size]
-   Int_t           Mc_QQmupl_indx[2];   //[Mc_QQ_size]
-   Int_t           Mc_QQmumi_indx[2];   //[Mc_QQ_size]
+   Int_t           Mc_QQmoth_id[10];   //[Mc_QQ_size]
+   Int_t           Mc_QQmupl_indx[10];   //[Mc_QQ_size]
+   Int_t           Mc_QQmumi_indx[10];   //[Mc_QQ_size]
    Int_t           Mc_mu_size;
    TClonesArray    *Mc_mu_4mom;
    TClonesArray    *Mc_mu_3vec;
-   Int_t           Mc_mu_id[5];   //[Mc_mu_size]
-   Int_t           Mc_mumoth_id[5];   //[Mc_mu_size]
+   Int_t           Mc_mu_id[15];   //[Mc_mu_size]
+   Int_t           Mc_mumoth_id[15];   //[Mc_mu_size]
    Int_t           Reco_track_size;
    TClonesArray    *Reco_track_4mom;
    TClonesArray    *Reco_track_3vec;
@@ -58,48 +63,48 @@ public :
    TClonesArray    *Reco_mu_glb_4mom;
    TClonesArray    *Reco_mu_glb_track4mom;
    TClonesArray    *Reco_mu_glb_3vec;
-   Double_t        Reco_mu_glb_phiErr[5];   //[Reco_mu_glb_size]
-   Double_t        Reco_mu_glb_etaErr[5];   //[Reco_mu_glb_size]
-   Double_t        Reco_mu_glb_ptErr[5];   //[Reco_mu_glb_size]
-   Double_t        Reco_mu_glb_d0[5];   //[Reco_mu_glb_size]
-   Double_t        Reco_mu_glb_d0err[5];   //[Reco_mu_glb_size]
-   Double_t        Reco_mu_glb_dz[5];   //[Reco_mu_glb_size]
-   Double_t        Reco_mu_glb_dzerr[5];   //[Reco_mu_glb_size]
-   Double_t        Reco_mu_glb_normChi2[5];   //[Reco_mu_glb_size]
-   Int_t           Reco_mu_glb_nhitstrack[5];   //[Reco_mu_glb_size]
-   Int_t           Reco_mu_glb_nhitsStrip[5];   //[Reco_mu_glb_size]
-   Int_t           Reco_mu_glb_nhitsPixB[5];   //[Reco_mu_glb_size]
-   Int_t           Reco_mu_glb_nhitsPixE[5];   //[Reco_mu_glb_size]
-   Int_t           Reco_mu_glb_nhitsPix1Hit[5];   //[Reco_mu_glb_size]
-   Int_t           Reco_mu_glb_nhitsPix1HitBE[5];   //[Reco_mu_glb_size]
-   Int_t           Reco_mu_glb_nhitsDT[5];   //[Reco_mu_glb_size]
-   Int_t           Reco_mu_glb_nhitsCSC[5];   //[Reco_mu_glb_size]
-   Double_t        Reco_mu_glb_caloComp[5];   //[Reco_mu_glb_size]
-   Double_t        Reco_mu_glb_segmComp[5];   //[Reco_mu_glb_size]
-   Double_t        Reco_mu_glb_iso[5];   //[Reco_mu_glb_size]
-   Int_t           Reco_mu_glb_charge[5];   //[Reco_mu_glb_size]
+   Double_t        Reco_mu_glb_phiErr[20];   //[Reco_mu_glb_size]
+   Double_t        Reco_mu_glb_etaErr[20];   //[Reco_mu_glb_size]
+   Double_t        Reco_mu_glb_ptErr[20];   //[Reco_mu_glb_size]
+   Double_t        Reco_mu_glb_d0[20];   //[Reco_mu_glb_size]
+   Double_t        Reco_mu_glb_d0err[20];   //[Reco_mu_glb_size]
+   Double_t        Reco_mu_glb_dz[20];   //[Reco_mu_glb_size]
+   Double_t        Reco_mu_glb_dzerr[20];   //[Reco_mu_glb_size]
+   Double_t        Reco_mu_glb_normChi2[20];   //[Reco_mu_glb_size]
+   Int_t           Reco_mu_glb_nhitstrack[20];   //[Reco_mu_glb_size]
+   Int_t           Reco_mu_glb_nhitsStrip[20];   //[Reco_mu_glb_size]
+   Int_t           Reco_mu_glb_nhitsPixB[20];   //[Reco_mu_glb_size]
+   Int_t           Reco_mu_glb_nhitsPixE[20];   //[Reco_mu_glb_size]
+   Int_t           Reco_mu_glb_nhitsPix1Hit[20];   //[Reco_mu_glb_size]
+   Int_t           Reco_mu_glb_nhitsPix1HitBE[20];   //[Reco_mu_glb_size]
+   Int_t           Reco_mu_glb_nhitsDT[20];   //[Reco_mu_glb_size]
+   Int_t           Reco_mu_glb_nhitsCSC[20];   //[Reco_mu_glb_size]
+   Double_t        Reco_mu_glb_caloComp[20];   //[Reco_mu_glb_size]
+   Double_t        Reco_mu_glb_segmComp[20];   //[Reco_mu_glb_size]
+   Double_t        Reco_mu_glb_iso[20];   //[Reco_mu_glb_size]
+   Int_t           Reco_mu_glb_charge[20];   //[Reco_mu_glb_size]
    Int_t           Reco_mu_trk_size;
    TClonesArray    *Reco_mu_trk_4mom;
    TClonesArray    *Reco_mu_trk_3vec;
-   Double_t        Reco_mu_trk_phiErr[20];   //[Reco_mu_trk_size]
-   Double_t        Reco_mu_trk_etaErr[20];   //[Reco_mu_trk_size]
-   Double_t        Reco_mu_trk_ptErr[20];   //[Reco_mu_trk_size]
-   Double_t        Reco_mu_trk_d0[20];   //[Reco_mu_trk_size]
-   Double_t        Reco_mu_trk_d0err[20];   //[Reco_mu_trk_size]
-   Double_t        Reco_mu_trk_dz[20];   //[Reco_mu_trk_size]
-   Double_t        Reco_mu_trk_dzerr[20];   //[Reco_mu_trk_size]
-   Double_t        Reco_mu_trk_normChi2[20];   //[Reco_mu_trk_size]
-   Int_t           Reco_mu_trk_nhitstrack[20];   //[Reco_mu_trk_size]
-   Int_t           Reco_mu_trk_nhitsStrip[20];   //[Reco_mu_trk_size]
-   Int_t           Reco_mu_trk_nhitsPixB[20];   //[Reco_mu_trk_size]
-   Int_t           Reco_mu_trk_nhitsPixE[20];   //[Reco_mu_trk_size]
-   Int_t           Reco_mu_trk_nhitsPix1Hit[20];   //[Reco_mu_trk_size]
-   Int_t           Reco_mu_trk_nhitsPix1HitBE[20];   //[Reco_mu_trk_size]
-   Int_t           Reco_mu_trk_PIDmask[20];   //[Reco_mu_trk_size]
-   Double_t        Reco_mu_trk_caloComp[20];   //[Reco_mu_trk_size]
-   Double_t        Reco_mu_trk_segmComp[20];   //[Reco_mu_trk_size]
-   Double_t        Reco_mu_trk_iso[20];   //[Reco_mu_trk_size]
-   Int_t           Reco_mu_trk_charge[20];   //[Reco_mu_trk_size]
+   Double_t        Reco_mu_trk_phiErr[50];   //[Reco_mu_trk_size]
+   Double_t        Reco_mu_trk_etaErr[50];   //[Reco_mu_trk_size]
+   Double_t        Reco_mu_trk_ptErr[50];   //[Reco_mu_trk_size]
+   Double_t        Reco_mu_trk_d0[50];   //[Reco_mu_trk_size]
+   Double_t        Reco_mu_trk_d0err[50];   //[Reco_mu_trk_size]
+   Double_t        Reco_mu_trk_dz[50];   //[Reco_mu_trk_size]
+   Double_t        Reco_mu_trk_dzerr[50];   //[Reco_mu_trk_size]
+   Double_t        Reco_mu_trk_normChi2[50];   //[Reco_mu_trk_size]
+   Int_t           Reco_mu_trk_nhitstrack[50];   //[Reco_mu_trk_size]
+   Int_t           Reco_mu_trk_nhitsStrip[50];   //[Reco_mu_trk_size]
+   Int_t           Reco_mu_trk_nhitsPixB[50];   //[Reco_mu_trk_size]
+   Int_t           Reco_mu_trk_nhitsPixE[50];   //[Reco_mu_trk_size]
+   Int_t           Reco_mu_trk_nhitsPix1Hit[50];   //[Reco_mu_trk_size]
+   Int_t           Reco_mu_trk_nhitsPix1HitBE[50];   //[Reco_mu_trk_size]
+   Int_t           Reco_mu_trk_PIDmask[50];   //[Reco_mu_trk_size]
+   Double_t        Reco_mu_trk_caloComp[50];   //[Reco_mu_trk_size]
+   Double_t        Reco_mu_trk_segmComp[50];   //[Reco_mu_trk_size]
+   Double_t        Reco_mu_trk_iso[50];   //[Reco_mu_trk_size]
+   Int_t           Reco_mu_trk_charge[50];   //[Reco_mu_trk_size]
    Int_t           Reco_mu_cal_size;
    TClonesArray    *Reco_mu_cal_4mom;
    TClonesArray    *Reco_mu_cal_3vec;
@@ -155,57 +160,60 @@ public :
    Double_t        Reco_BeamSpot_zxE;
    Int_t           Reco_PriVtx_size;
    TClonesArray    *Reco_PriVtx_3vec;
-   Double_t        Reco_PriVtx_xxE[5];   //[Reco_PriVtx_size]
-   Double_t        Reco_PriVtx_yyE[5];   //[Reco_PriVtx_size]
-   Double_t        Reco_PriVtx_zzE[5];   //[Reco_PriVtx_size]
-   Double_t        Reco_PriVtx_yxE[5];   //[Reco_PriVtx_size]
-   Double_t        Reco_PriVtx_zyE[5];   //[Reco_PriVtx_size]
-   Double_t        Reco_PriVtx_zxE[5];   //[Reco_PriVtx_size]
-   Int_t           Reco_PriVtx_trkSize[5];   //[Reco_PriVtx_size]
-   Double_t        Reco_PriVtx_chi2[5];   //[Reco_PriVtx_size]
-   Double_t        Reco_PriVtx_ndof[5];   //[Reco_PriVtx_size]
+   Double_t        Reco_PriVtx_xxE[15];   //[Reco_PriVtx_size]
+   Double_t        Reco_PriVtx_yyE[15];   //[Reco_PriVtx_size]
+   Double_t        Reco_PriVtx_zzE[15];   //[Reco_PriVtx_size]
+   Double_t        Reco_PriVtx_yxE[15];   //[Reco_PriVtx_size]
+   Double_t        Reco_PriVtx_zyE[15];   //[Reco_PriVtx_size]
+   Double_t        Reco_PriVtx_zxE[15];   //[Reco_PriVtx_size]
+   Int_t           Reco_PriVtx_trkSize[15];   //[Reco_PriVtx_size]
+   Double_t        Reco_PriVtx_chi2[15];   //[Reco_PriVtx_size]
+   Double_t        Reco_PriVtx_ndof[15];   //[Reco_PriVtx_size]
    Int_t           L1TBits_size;
-   Char_t          L1TBits_accept[128];   //[L1TBits_size]
+   Char_t          L1TBits_accept[150];   //[L1TBits_size]
    Char_t          L1TGlobal_Decision;
    Int_t           L1_mu_size;
    TClonesArray    *L1_mu_4mom;
-   Int_t           L1_mu_charge[12];   //[L1_mu_size]
+   Int_t           L1_mu_charge[20];     //[L1_mu_size]
    Int_t           HLTBits_size;
-   Char_t          HLTBits_wasrun[10];   //[HLTBits_size]
-   Char_t          HLTBits_accept[10];   //[HLTBits_size]
-   Char_t          HLTBits_error[10];   //[HLTBits_size]
+   Char_t          HLTBits_wasrun[20];   //[HLTBits_size]
+   Char_t          HLTBits_accept[20];   //[HLTBits_size]
+   Char_t          HLTBits_error[20];   //[HLTBits_size]
    Char_t          HLTGlobal_wasrun;
    Char_t          HLTGlobal_Decision;
    Char_t          HLTGlobal_error;
    Int_t           HLT1Mu3_L3_size;
    TClonesArray    *HLT1Mu3_L3_4mom;
-   Int_t           HLT1Mu3_L3_id[1];   //[HLT1Mu3_L3_size]
+   Int_t           HLT1Mu3_L3_id[10];   //[HLT1Mu3_L3_size]
    Int_t           HLT1Mu5_L3_size;
    TClonesArray    *HLT1Mu5_L3_4mom;
-   Int_t           HLT1Mu5_L3_id[1];   //[HLT1Mu5_L3_size]
+   Int_t           HLT1Mu5_L3_id[10];   //[HLT1Mu5_L3_size]
    Int_t           HLT1Mu9_L3_size;
    TClonesArray    *HLT1Mu9_L3_4mom;
-   Int_t           HLT1Mu9_L3_id[1];   //[HLT1Mu9_L3_size]
+   Int_t           HLT1Mu9_L3_id[10];   //[HLT1Mu9_L3_size]
    Int_t           HLT1Mu11_L3_size;
    TClonesArray    *HLT1Mu11_L3_4mom;
-   Int_t           HLT1Mu11_L3_id[1];   //[HLT1Mu11_L3_size]
+   Int_t           HLT1Mu11_L3_id[10];   //[HLT1Mu11_L3_size]
    Int_t           HLT2Mu0_L3_size;
    TClonesArray    *HLT2Mu0_L3_4mom;
-   Int_t           HLT2Mu0_L3_id[1];   //[HLT2Mu0_L3_size]
+   Int_t           HLT2Mu0_L3_id[10];   //[HLT2Mu0_L3_size]
    Int_t           HLT2IsoMu3_L3_size;
    TClonesArray    *HLT2IsoMu3_L3_4mom;
-   Int_t           HLT2IsoMu3_L3_id[1];   //[HLT2IsoMu3_L3_size]
+   Int_t           HLT2IsoMu3_L3_id[10];   //[HLT2IsoMu3_L3_size]
    Int_t           HLT2Mu3_L3_size;
    TClonesArray    *HLT2Mu3_L3_4mom;
-   Int_t           HLT2Mu3_L3_id[1];   //[HLT2Mu3_L3_size]
+   Int_t           HLT2Mu3_L3_id[10];   //[HLT2Mu3_L3_size]
    Int_t           HLTJpsi2Mu_L3_size;
    TClonesArray    *HLTJpsi2Mu_L3_4mom;
-   Int_t           HLTJpsi2Mu_L3_id[1];   //[HLTJpsi2Mu_L3_size]
+   Int_t           HLTJpsi2Mu_L3_id[10];   //[HLTJpsi2Mu_L3_size]
    Int_t           HLTUpsilon2Mu_L3_size;
    TClonesArray    *HLTUpsilon2Mu_L3_4mom;
-   Int_t           HLTUpsilon2Mu_L3_id[1];   //[HLTUpsilon2Mu_L3_size]
+   Int_t           HLTUpsilon2Mu_L3_id[10];   //[HLTUpsilon2Mu_L3_size]
 
    // List of branches
+   TBranch        *b_eventNb;   //!
+   TBranch        *b_runNb;   //!
+   TBranch        *b_lumiBlock;   //!
    TBranch        *b_Mc_ProcessId;   //!
    TBranch        *b_Mc_EventScale;   //!
    TBranch        *b_Mc_EventWeight;   //!
@@ -398,7 +406,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop(Bool_t removeQQ, Bool_t matchMC);
+   virtual void     Loop(Bool_t removeQQ, Bool_t matchMC, Bool_t printGoodEvents);
    virtual int      theBestQQ();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
@@ -418,6 +426,18 @@ ProjectQQ::ProjectQQ(TTree *tree)
      TChain *ch = new TChain("T1");
      ch->Add("jPsiMuMu-900GeV-STARTUP_1.root");
      tree = ch;
+
+/*      TChain *ch = new TChain("T1"); */
+/*      ch->Add("jPsiMuMu-2360GeV-STARTUP_1.root"); */
+/*      tree = ch; */
+
+/*      TChain *ch = new TChain("T1"); */
+/*      ch->Add("jpsi_data09_900GeV.root"); */
+/*      tree = ch; */
+
+/*      TChain *ch = new TChain("T1"); */
+/*      ch->Add("jpsi_data09_2360GeV.root"); */
+/*      tree = ch; */
 
   Init(tree);
 }
@@ -496,6 +516,9 @@ void ProjectQQ::Init(TTree *tree)
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
+   fChain->SetBranchAddress("eventNb", &eventNb, &b_eventNb);
+   fChain->SetBranchAddress("runNb", &runNb, &b_runNb);
+   fChain->SetBranchAddress("lumiBlock", &lumiBlock, &b_lumiBlock);
    fChain->SetBranchAddress("Mc_ProcessId", &Mc_ProcessId, &b_Mc_ProcessId);
    fChain->SetBranchAddress("Mc_EventScale", &Mc_EventScale, &b_Mc_EventScale);
    fChain->SetBranchAddress("Mc_EventWeight", &Mc_EventWeight, &b_Mc_EventWeight);

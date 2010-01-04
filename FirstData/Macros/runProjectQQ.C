@@ -6,15 +6,19 @@ void WriteHistos(Bool_t normalize, Double_t intLumi, Char_t *fNameOut);
 void runProjectQQ(Char_t *fNameOut = "histos_jpsi_MC_900GeV_STARTUP.root", //fileName where the histos will be stored
 		  Bool_t matchMC = kFALSE,//set to kTRUE for J/psi MC sample and to kFALSE for BG MC and real data
 		  Bool_t removeQQ = kFALSE, //for MB/ppMuXLoose samples set to kTRUE; for J/psi MC and real data: set to kFALSE
-		  Bool_t normalize = kFALSE, //set to true *only* if you want to normalise the histos; in standard mode: should be kFALSE
-		  Double_t intLumi = 16.675//only relevant if "normalise"=kTRUE; 2.36 TeV: 13557/813=16.675; 900 GeV: 6724./404=16.644
+		  Bool_t printGoodEvents = kFALSE
 		  ){
+
+  Bool_t normalize = kFALSE; //set to true *only* if you want to normalise the histos; 
+                             //in standard mode: should be kFALSE
+  Double_t intLumi = 16.675; //only relevant if "normalise"=kTRUE; 
+                             //2.36 TeV: 13557/813=16.675; 900 GeV: 6724./404=16.644
 
   ProjectQQ tree;
 
   BookHistos();
 
-  tree.Loop(removeQQ, matchMC);
+  tree.Loop(removeQQ, matchMC, printGoodEvents);
   WriteHistos(normalize, intLumi, fNameOut);
 
 }
@@ -143,6 +147,14 @@ void BookHistos(){
 	hMuon_pT_eta[iSet][iCharge][iCat] = new TH2F(name, ";#eta(#mu);p_{T}(#mu) [GeV/c]", nBinsRap, rapMin, rapMax, nBinsPT, pTMin, pTMax);
 	hMuon_pT_eta[iSet][iCharge][iCat]->Sumw2();
 
+	//d0
+	sprintf(name, "hD0_%d_%s_%s", iSet, chargeName[iCharge], muCatName[iCat]);
+	hD0[iSet][iCharge][iCat] = new TH1F(name, ";d_{0} [cm]", 500, 0., 5.);
+	//dz
+	sprintf(name, "hDz_%d_%s_%s", iSet, chargeName[iCharge], muCatName[iCat]);
+	hDz[iSet][iCharge][iCat] = new TH1F(name, ";d_{z} [cm]", 200, 0., 20.);
+	
+
 	//chi2 of global fit
 	if(iCat == 0){//global muons
 	  sprintf(name, "hChi2GlobalFit_%d_%s_%s", iSet, chargeName[iCharge], muCatName[iCat]);
@@ -240,6 +252,9 @@ void WriteHistos(Bool_t normalize, Double_t intLumi, Char_t *fNameOut){
 	  hTMLastStationOptimizedLowPtLoose[iSet][iCharge]->Write();
 	  hTrackerMuonArbitrated[iSet][iCharge]->Write();
 	}
+	hD0[iSet][iCharge][iCat]->Write();
+	hDz[iSet][iCharge][iCat]->Write();
+
 	if(iCat > 0)
 	  hChi2TrackerFit[iSet][iCharge][iCat]->Write();
 

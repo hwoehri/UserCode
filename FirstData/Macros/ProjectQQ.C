@@ -24,6 +24,8 @@ TH1F *hMuon_eta[kNbDimuonSet][kNbCharge][kNbCath];
 TH1F *hMuon_pT[kNbDimuonSet][kNbCharge][kNbCath];
 TH2F *hMuon_pT_eta[kNbDimuonSet][kNbCharge][kNbMuCath];
 // quality histogams
+TH1F *hD0[kNbDimuonSet][kNbCharge][kNbMuCath];
+TH1F *hDz[kNbDimuonSet][kNbCharge][kNbMuCath];
 TH1F *hChi2GlobalFit[kNbDimuonSet][kNbCharge];
 TH1F *hChi2TrackerFit[kNbDimuonSet][kNbCharge][kNbMuCath];
 TH1F *hTM2DCompatibilityTight[kNbDimuonSet][kNbCharge];
@@ -32,9 +34,8 @@ TH1F *hTrackerMuonArbitrated[kNbDimuonSet][kNbCharge];//tracker only
 TH1F *hCaloCompatibility[kNbDimuonSet][kNbCharge][kNbMuCath];
 TH1F *hNHitsSilicon[kNbDimuonSet][kNbCharge][kNbMuCath];
 TH1F *hDimuVtxProb[kNbDimuonSet][kNbCharge][kNbCath];
-
 //=======================================
-void ProjectQQ::Loop(Bool_t removeQQ, Bool_t matchMC)
+void ProjectQQ::Loop(Bool_t removeQQ, Bool_t matchMC, Bool_t printGoodEvents)
 {
   if (fChain == 0) return;
 
@@ -359,6 +360,13 @@ void ProjectQQ::Loop(Bool_t removeQQ, Bool_t matchMC)
 	    // dimuon vertex probability
 	    if (Reco_QQ_probChi2[iQQ]<= MIN_vtxprob_jpsi)
 	      continue;
+	    else
+	      if(printGoodEvents && Reco_QQ_type[iQQ] < 3 && Reco_QQ_sign[iQQ] == 0){
+		printf("run %d, lumiSec %d event %d contains a dimuon of type %d with mass %1.2f GeV, pT %1.2f GeV, prob(vertex-chi2) = %1.3e and a cTau of %1.3e\n", 
+		       runNb, lumiBlock, eventNb, Reco_QQ_type[iQQ], mass_Reco_QQ, pT_Reco_QQ, Reco_QQ_probChi2[iQQ], Reco_QQ_ctau[iQQ]);
+// 		printf("contains a dimuon of type %d with mass %1.2f, pT %1.2f, prob(vertex-chi2) = %1.3e and a cTau of %1.3e\n", 
+// 		       Reco_QQ_type[iQQ], mass_Reco_QQ, pT_Reco_QQ, Reco_QQ_probChi2[iQQ], Reco_QQ_ctau[iQQ]);
+	      }
 	  }
 
 	  nComb[chargeID][Reco_QQ_type[iQQ]][iCut]++;
@@ -384,6 +392,7 @@ void ProjectQQ::Loop(Bool_t removeQQ, Bool_t matchMC)
 	      if(etaCorr)
 		hReco_eta1_eta2[iMassW][chargeID][Reco_QQ_type[iQQ]][iCut]->Fill(Reco_QQ_posMu->Eta(),Reco_QQ_negMu->Eta());
     
+	      // fill single muon quantities, after each successive cut
 	      // prepare single muon indices to avoid double counting
 	      int glMuID[10000], trMuID[10000],caMuID[10000];
 	      for (int i=0; i<10000; i++){
@@ -392,39 +401,88 @@ void ProjectQQ::Loop(Bool_t removeQQ, Bool_t matchMC)
 		caMuID[i] = -1;
 	      }
 
- 	    // fill single muon quantities
-// 	    if (iCut==0) { // d0 and dz
-// 	      switch (Reco_QQ_type[iQQ]) {
-// 	      case 0: // global+global
-// 		hChi2GlobalFit[0][chargeID]->Fill(Reco_mu_glb_normChi2[Reco_QQ_muhpt[iQQ]]);
-// 		hChi2GlobalFit[0][chargeID]->Fill(Reco_mu_glb_normChi2[Reco_QQ_mulpt[iQQ]]);
-// 		break;
-// 	      case 1: // global+tracker
-// 		hChi2GlobalFit[0][chargeID]->Fill(Reco_mu_glb_normChi2[Reco_QQ_muhpt[iQQ]]);
-// 		hChi2TrackerFit[0][chargeID]->Fill(Reco_mu_trk_normChi2[Reco_QQ_mulpt[iQQ]]);
-// 		break;
-// 	      case 2: // tracker+tracker
-// 		hChi2TrackerFit[0][chargeID]->Fill(Reco_mu_trk_normChi2[Reco_QQ_muhpt[iQQ]]);
-// 		hChi2TrackerFit[0][chargeID]->Fill(Reco_mu_trk_normChi2[Reco_QQ_mulpt[iQQ]]);
-// 		break;
-// 	      case 3: // global+calo
-// 		hChi2GlobalFit[0][chargeID]->Fill(Reco_mu_glb_normChi2[Reco_QQ_muhpt[iQQ]]);
-// 		hChi2TrackerFit[0][chargeID]->Fill(Reco_mu_cal_normChi2[Reco_QQ_mulpt[iQQ]]);
-// 		break;
-// 	      case 4: // tracker+calo
-// 		hChi2TrackerFit[0][chargeID]->Fill(Reco_mu_trk_normChi2[Reco_QQ_muhpt[iQQ]]);
-// 		hChi2TrackerFit[0][chargeID]->Fill(Reco_mu_cal_normChi2[Reco_QQ_mulpt[iQQ]]);
-// 		break;
-// 	      case 5: // calo+calo
-// 		hChi2TrackerFit[0][chargeID]->Fill(Reco_mu_cal_normChi2[Reco_QQ_muhpt[iQQ]]);
-// 		hChi2TrackerFit[0][chargeID]->Fill(Reco_mu_cal_normChi2[Reco_QQ_mulpt[iQQ]]);
-// 		break;
-// 	      default:
-// 		break;
-// 	      }
-// 	    }
+	      //1.) before first cut
+	      if (iCut==0) { // comp, before d0 and dz
+		switch (Reco_QQ_type[iQQ]) {
+		case 0: // global+global
+		  if(glMuID[Reco_QQ_muhpt[iQQ]]!=1){
+		    hD0[iMassW][chargeID][0]->Fill(Reco_mu_glb_d0[Reco_QQ_muhpt[iQQ]]);
+		    hDz[iMassW][chargeID][0]->Fill(Reco_mu_glb_dz[Reco_QQ_muhpt[iQQ]]);
+		    glMuID[Reco_QQ_muhpt[iQQ]]=1;
+		  }
+		  if (glMuID[Reco_QQ_mulpt[iQQ]]!=1) {
+		    hD0[iMassW][chargeID][0]->Fill(Reco_mu_glb_d0[Reco_QQ_mulpt[iQQ]]);
+		    hDz[iMassW][chargeID][0]->Fill(Reco_mu_glb_dz[Reco_QQ_mulpt[iQQ]]);
+		    glMuID[Reco_QQ_mulpt[iQQ]]=1;
+		  }
+		  break;
+		case 1: // global+tracker
+		  if(glMuID[Reco_QQ_muhpt[iQQ]]!=1){
+		    hD0[iMassW][chargeID][0]->Fill(Reco_mu_glb_d0[Reco_QQ_muhpt[iQQ]]);
+		    hDz[iMassW][chargeID][0]->Fill(Reco_mu_glb_dz[Reco_QQ_muhpt[iQQ]]);
+		    glMuID[Reco_QQ_muhpt[iQQ]]=1;
+		  }
+		  if (trMuID[Reco_QQ_mulpt[iQQ]]!=1) {
+		    hD0[iMassW][chargeID][1]->Fill(Reco_mu_trk_d0[Reco_QQ_mulpt[iQQ]]);
+		    hDz[iMassW][chargeID][1]->Fill(Reco_mu_trk_dz[Reco_QQ_mulpt[iQQ]]);
+		    trMuID[Reco_QQ_mulpt[iQQ]]=1;
+		  }
+		  break;
+		case 2: // tracker+tracker
+		  if (trMuID[Reco_QQ_muhpt[iQQ]]!=1) {
+		    hD0[iMassW][chargeID][1]->Fill(Reco_mu_trk_d0[Reco_QQ_muhpt[iQQ]]);
+		    hDz[iMassW][chargeID][1]->Fill(Reco_mu_trk_dz[Reco_QQ_muhpt[iQQ]]);
+		    trMuID[Reco_QQ_muhpt[iQQ]]=1;
+		  }
+		  if (trMuID[Reco_QQ_mulpt[iQQ]]!=1) {
+		    hD0[iMassW][chargeID][1]->Fill(Reco_mu_trk_d0[Reco_QQ_mulpt[iQQ]]);
+		    hDz[iMassW][chargeID][1]->Fill(Reco_mu_trk_dz[Reco_QQ_mulpt[iQQ]]);
+		    trMuID[Reco_QQ_mulpt[iQQ]]=1;
+		  }
+		  break;
+		case 3: // global+calo
+		  if(glMuID[Reco_QQ_muhpt[iQQ]]!=1){
+		    hD0[iMassW][chargeID][0]->Fill(Reco_mu_glb_d0[Reco_QQ_muhpt[iQQ]]);
+		    hDz[iMassW][chargeID][0]->Fill(Reco_mu_glb_dz[Reco_QQ_muhpt[iQQ]]);
+		    glMuID[Reco_QQ_muhpt[iQQ]]=1;
+		  }
+		  if (caMuID[Reco_QQ_mulpt[iQQ]]!=1) {
+		    hD0[iMassW][chargeID][2]->Fill(Reco_mu_cal_d0[Reco_QQ_mulpt[iQQ]]);
+		    hDz[iMassW][chargeID][2]->Fill(Reco_mu_cal_dz[Reco_QQ_mulpt[iQQ]]);
+		    caMuID[Reco_QQ_mulpt[iQQ]]=1;
+		  }
+		  break;
+		case 4: // tracker+calo
+		  if (trMuID[Reco_QQ_muhpt[iQQ]]!=1) {
+		    hD0[iMassW][chargeID][1]->Fill(Reco_mu_trk_d0[Reco_QQ_muhpt[iQQ]]);
+		    hDz[iMassW][chargeID][1]->Fill(Reco_mu_trk_dz[Reco_QQ_muhpt[iQQ]]);
+		    trMuID[Reco_QQ_muhpt[iQQ]]=1;
+		  }
+		  if (caMuID[Reco_QQ_mulpt[iQQ]]!=1) {
+		    hD0[iMassW][chargeID][2]->Fill(Reco_mu_cal_d0[Reco_QQ_mulpt[iQQ]]);
+		    hDz[iMassW][chargeID][2]->Fill(Reco_mu_cal_dz[Reco_QQ_mulpt[iQQ]]);
+		    caMuID[Reco_QQ_mulpt[iQQ]]=1;
+		  }
+		  break;
+		case 5: // calo+calo
+		  if (caMuID[Reco_QQ_muhpt[iQQ]]!=1) {
+		    hD0[iMassW][chargeID][2]->Fill(Reco_mu_cal_d0[Reco_QQ_muhpt[iQQ]]);
+		    hDz[iMassW][chargeID][2]->Fill(Reco_mu_cal_dz[Reco_QQ_muhpt[iQQ]]);
+		    caMuID[Reco_QQ_muhpt[iQQ]]=1;
+		  }
+		  if (caMuID[Reco_QQ_mulpt[iQQ]]!=1) {
+		    hD0[iMassW][chargeID][2]->Fill(Reco_mu_cal_d0[Reco_QQ_mulpt[iQQ]]);
+		    hDz[iMassW][chargeID][2]->Fill(Reco_mu_cal_dz[Reco_QQ_mulpt[iQQ]]);
+		    caMuID[Reco_QQ_mulpt[iQQ]]=1;
+		  }
+		  break;
+		default:
+		  break;
+		}
+	      }
 
-	      if (iCut==1) { // comp, after d0 and dz
+	      //2.) after d0 and dz cut
+	      if (iCut==1) {
 		switch (Reco_QQ_type[iQQ]) {
 		case 0: // global+global
 		  break;
@@ -499,7 +557,8 @@ void ProjectQQ::Loop(Bool_t removeQQ, Bool_t matchMC)
 		}
 	      }
 	      
-	      if (iCut==2) { // chi2, after comp
+	      //3.) after hCaloComp, TM2DCompatibilityTight, TMLastStationOptimizedLowPtTight
+	      if (iCut==2) {
 		switch (Reco_QQ_type[iQQ]) {
 		case 0: // global+global
 		  if (glMuID[Reco_QQ_muhpt[iQQ]]!=1) {
@@ -578,6 +637,7 @@ void ProjectQQ::Loop(Bool_t removeQQ, Bool_t matchMC)
 		}
 	      }
 	      
+	      //4.) after chi2 and #hits
 	      if (iCut==3) { // dimuon vertex prob, after comp
 		hDimuVtxProb[iMassW][chargeID][Reco_QQ_type[iQQ]]->Fill(Reco_QQ_probChi2[iQQ]);
 		if(chargeID == 1 || chargeID == 2) //LS histo
