@@ -30,7 +30,5 @@ process.source = cms.Source("PoolSource",
     ) )
 
 process.out = cms.OutputModule("PoolOutputModule",
-                               fileName = cms.untracked.string("dimuon_skim.root"),
-                               outputCommands = cms.untracked.vstring("keep *",
-                               "drop *_MEtoEDMConverter_*_*"))
+                               fileName = cms.untracked.string("dimuon_skim.root"))
 process.o = cms.EndPath(process.out)
