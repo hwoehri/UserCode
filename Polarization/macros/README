@@ -5,3 +5,15 @@
     histograms is done in PolData.h/C.
     --> cuts implemented in PolData.C should always be in sync with the
     one in PolMC.C
+
+(*) plotMass.C
+    macro that reads the output of "runData.C", plots the mass distribution
+    in the pT and rapidity bins, defined in ../interface/commonVar.h
+    fits them to extract the S / BG ratio in a 2.5 sigma interval
+    (defined in Double_t nSigma = 2.5;) and saves output figures in 
+    the directory "Figures/"
+
+    --> the many plots can be processed by
+    cd ../latex
+    pdflatex dimuMass_Jpsi_data.tex
+
