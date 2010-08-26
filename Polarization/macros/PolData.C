@@ -1,13 +1,10 @@
 #define PolData_cxx
 #include "PolData.h"
-#include "commonVar.h"
+#include "../interface/commonVar.h"
 
 #include "TLorentzVector.h"
 #include "TClonesArray.h"
 #include <TH2.h>
-#include <TH3.h>
-#include <TProfile.h>
-#include <TStyle.h>
 #include <TCanvas.h>
 //
 Double_t costh_CS, phi_CS, phi_CS_rad, cos2Phi_CS;
