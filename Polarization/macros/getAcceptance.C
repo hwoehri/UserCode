@@ -1,0 +1,1141 @@
+#include "../interface/rootIncludes.inc"
+#include "../interface/commonVar.h"
+
+#include "TStyle.h"
+
+// #include "PhysicsTools/RooStatsCms/interface/ClopperPearsonBinomialInterval.h"
+// #include "PhysicsTools/RooStatsCms/interface/FeldmanCousinsBinomialInterval.h"
+
+Double_t markerSize = 0.7;
+
+//generated histos
+TH1D *hGen_pt, *hGen_rap, *hGen_phi;
+TH1D *hGen_pol_pT[kNbFrames][kNbPTBins+1][kNbPolVar];//[all,pT1,pT2,pT...]
+TH1D *hGen_pol_rap[kNbFrames][2*kNbRapBins+1][kNbPolVar];
+TH1D *hGen_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1][kNbPolVar];
+TH2D *hGen2D_pol_pT[kNbFrames][kNbPTBins+1];
+TH2D *hGen2D_pol_rap[kNbFrames][2*kNbRapBins+1];
+TH2D *hGen2D_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1];
+
+//reconstructed histos
+TH1D *Reco_pt, *Reco_rap, *Reco_phi;
+TH1D *Reco_pol_pT[kNbFrames][kNbPTBins+1][kNbPolVar];
+TH1D *Reco_pol_rap[kNbFrames][2*kNbRapBins+1][kNbPolVar];
+TH1D *Reco_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1][kNbPolVar];
+TH2D *Reco2D_pol_pT[kNbFrames][kNbPTBins+1];
+TH2D *Reco2D_pol_rap[kNbFrames][2*kNbRapBins+1];
+TH2D *Reco2D_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1];
+
+//acceptance histos
+TGraphAsymmErrors *gAcc_pt, *gAcc_rap, *gAcc_phi;
+TGraphAsymmErrors *gAcc_pol_pT[kNbFrames][kNbPTBins+1][kNbPolVar];
+TGraphAsymmErrors *gAcc_pol_rap[kNbFrames][2*kNbRapBins+1][kNbPolVar];
+TGraphAsymmErrors *gAcc_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1][kNbPolVar];
+TH2D *hAcc2D_pol_pT[kNbFrames][kNbPTBins+1];
+TH2D *hAcc2D_pol_rap[kNbFrames][2*kNbRapBins+1];
+TH2D *hAcc2D_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1];
+TGraphAsymmErrors *gAcc2D_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1];
+
+void ReadInHistos(Char_t *fileNameIn, Int_t rebinCosTh, Int_t rebinPhi);
+void PlotGenRec(Int_t iFrame, Bool_t skipAll);
+void PlotAllGenRec(Int_t iFrame);
+void PlotAllRec(Bool_t skipAll);
+void CalcAcceptance();
+void PlotAcceptance(Int_t iFrame);
+void Plot2DAcceptance(Int_t iFrame, Char_t *hltTag);
+void Plot2DAccOneByOne(Int_t iFrame, Char_t *hltTag, Int_t iRap, Int_t iPT);
+void PlotKinVarAcceptance();
+void WriteAccHistos(Char_t *fileNameOut);
+void PlotAllAcceptances();
+void Calc2DAcc(TH2D *hReco, TH2D *hGen, TGraphAsymmErrors *graph);
+
+//================================================================
+//usage: root getAcceptance.C+ or
+//       'root getAcceptance.C+("HLT_Mu0Track0Jpsi", 2, 2)' (e.g.)
+//================================================================
+void getAcceptance( Char_t *hltTag = "HLT_Mu0Track0Jpsi", 
+		    Int_t rebinCosTh = 1, 
+		    Int_t rebinPhi = 1){
+
+  Char_t name[100];
+  Char_t fileNameIn[100], fileNameOut[100];
+
+  sprintf(fileNameIn,  "pol_MC_%s.root", hltTag);
+  sprintf(fileNameOut, "accHistos_%s.root", hltTag );
+
+  ReadInHistos(fileNameIn, rebinCosTh, rebinPhi);
+
+  // Bool_t skipAll = kTRUE; //if kTRUE --> do not show the "all pT" curve
+//   PlotGenRec(CS, skipAll);
+//   PlotGenRec(HX, skipAll);
+//   PlotAllGenRec(CS);
+//   PlotAllGenRec(HX);
+//   PlotAllRec(skipAll);
+  CalcAcceptance();
+
+  PlotKinVarAcceptance();
+  PlotAcceptance(CS);
+//   PlotAcceptance(HX);
+//   PlotAllAcceptances();
+  Plot2DAcceptance(CS, hltTag );
+  Plot2DAcceptance(HX, hltTag );
+
+  for(int iRap = 1; iRap <= kNbRapForPTBins; iRap++){
+    for(int iPT = 1; iPT <= kNbPTBins; iPT++){
+      Plot2DAccOneByOne(CS, hltTag, iRap, iPT);
+      Plot2DAccOneByOne(HX, hltTag, iRap, iPT);
+    }
+  }
+
+  WriteAccHistos(fileNameOut);
+}
+//===============================
+void PlotGenRec(Int_t iFrame, Bool_t skipAll){
+
+  Int_t pTMin = 0, pTMax = kNbPTBins; //kNbPTBins: last one will be suppressed
+  Int_t indexMax = 0;
+  if(skipAll){
+    pTMin = 1;
+    indexMax = 2;
+  }
+  
+  Char_t name[100];
+  //=======================================
+  //1.) generated cosTheta for different pT bins
+  //=======================================
+  sprintf(name, "c1CosThGen_%s", frameLabel[iFrame]);
+  TCanvas *c1CosThGen = new TCanvas(name, "generated cosTheta for PT Bins", 700, 500);
+  TH1F *hFrame1a = gPad->DrawFrame(-1, 0., 1., 1.7*hGen_pol_pT[iFrame][indexMax][cosThPol]->GetMaximum());
+  sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);
+  hFrame1a->SetXTitle(name);
+  hFrame1a->SetYTitle("dN/d(cos#theta)_{generated}");
+  for(int iPTBin = pTMin; iPTBin < pTMax; iPTBin++){
+    hGen_pol_pT[iFrame][iPTBin][cosThPol]->Draw("histsame");    
+  }
+  TLegend *leg1a = new TLegend(0.65,0.735119,0.9866071,0.985119);
+  for(int iPTBin = pTMin; iPTBin < pTMax; iPTBin++){
+    if(iPTBin == 0) sprintf(name, "all p_{T}");
+    else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+    else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+    leg1a->AddEntry(hGen_pol_pT[iFrame][iPTBin][cosThPol], name, "pl");
+  }
+  leg1a->SetTextSize(0.035); leg1a->SetFillColor(0);
+  leg1a->Draw();
+
+  sprintf(name, "Figures/generated_cosTheta_%s_pTBins.eps", frameLabel[iFrame]);  c1CosThGen->Print(name);
+  sprintf(name, "Figures/generated_cosTheta_%s_pTBins.pdf", frameLabel[iFrame]);  c1CosThGen->Print(name);
+  sprintf(name, "Figures/generated_cosTheta_%s_pTBins.gif", frameLabel[iFrame]);  c1CosThGen->Print(name);
+
+  //=======================================
+  //2.) generated phi for different pT bins
+  //=======================================
+  sprintf(name, "c1PhiGen_%s", frameLabel[iFrame]);
+  TCanvas *c1PhiGen = new TCanvas(name, "generated phi for PT Bins", 700, 500);
+  TH1F *hFrame1b = gPad->DrawFrame(0., 0., 360., 1.2*hGen_pol_pT[iFrame][indexMax][phiPol]->GetMaximum());
+  sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);
+  hFrame1b->SetXTitle(name);
+  hFrame1b->SetYTitle("dN/d#phi_{generated}");
+  for(int iPTBin = pTMin; iPTBin < pTMax; iPTBin++){
+    hGen_pol_pT[iFrame][iPTBin][phiPol]->Draw("histsame");    
+  }
+//   TLegend *leg1b = new TLegend(0.65,0.735119,0.9866071,0.985119);
+//   for(int iPTBin = pTMin; iPTBin < pTMax; iPTBin++){
+//     if(iPTBin == 0) sprintf(name, "all p_{T}");
+//     else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+//     else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+//     leg1b->AddEntry(hGen_pol_pT[iFrame][iPTBin][phiPol], name, "pl");
+//   }
+//   leg1a->SetTextSize(0.035); leg1a->SetFillColor(0);
+//   leg1a->Draw();
+
+  sprintf(name, "Figures/generated_phi_%s_pTBins.eps", frameLabel[iFrame]);  c1PhiGen->Print(name);
+  sprintf(name, "Figures/generated_phi_%s_pTBins.pdf", frameLabel[iFrame]);  c1PhiGen->Print(name);
+  sprintf(name, "Figures/generated_phi_%s_pTBins.gif", frameLabel[iFrame]);  c1PhiGen->Print(name);
+
+  //=======================================
+  //3.) reconstructed cosTheta for different pT bins
+  //=======================================
+  sprintf(name, "c1CosThRec_%s", frameLabel[iFrame]);
+  TCanvas *c1CosThRec = new TCanvas(name, "reconstructed cosTheta for PT Bins", 900, 700);
+  TH1F *hFrame3a = gPad->DrawFrame(-1, 0., 1, 1.2*Reco_pol_pT[iFrame][indexMax][cosThPol]->GetMaximum());
+  sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);
+  hFrame3a->SetXTitle(name);
+  hFrame3a->SetYTitle("dN/d(cos#theta)_{reconstructed}");
+  for(int iPTBin = pTMin; iPTBin < pTMax; iPTBin++){
+    Reco_pol_pT[iFrame][iPTBin][cosThPol]->Draw("psame");    
+  }
+  TLegend *leg3a = new TLegend(0.65,0.735119,0.9866071,0.985119);
+  for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+    if(iPTBin == 0) sprintf(name, "all p_{T}");
+    else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+    else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+    leg3a->AddEntry(Reco_pol_pT[iFrame][iPTBin][cosThPol], name, "pl");
+  }
+  leg3a->SetTextSize(0.035); leg3a->SetFillColor(0);
+  leg3a->Draw();
+
+  sprintf(name, "Figures/reconstructed_cosTheta_%s_pTBins.eps", frameLabel[iFrame]);  c1CosThRec->Print(name);
+  sprintf(name, "Figures/reconstructed_cosTheta_%s_pTBins.pdf", frameLabel[iFrame]);  c1CosThRec->Print(name);
+  sprintf(name, "Figures/reconstructed_cosTheta_%s_pTBins.gif", frameLabel[iFrame]);  c1CosThRec->Print(name);
+
+  //=======================================
+  //4.) reconstructed phi for different pT bins
+  //=======================================
+  sprintf(name, "c1PhiRec_%s", frameLabel[iFrame]);
+  TCanvas *c1PhiRec = new TCanvas(name, "reconstructed phi for PT Bins", 900, 700);
+  TH1F *hFrame3b = gPad->DrawFrame(0., 0., 360., 1.2*Reco_pol_pT[iFrame][indexMax][phiPol]->GetMaximum());
+  sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);
+  hFrame3b->SetXTitle(name);
+  hFrame3b->SetYTitle("dN/d#phi_{reconstructed}");
+  for(int iPTBin = pTMin; iPTBin < pTMax; iPTBin++){
+    Reco_pol_pT[iFrame][iPTBin][phiPol]->Draw("psame");    
+  }
+//   TLegend *leg3b = new TLegend(0.65,0.735119,0.9866071,0.985119);
+//   for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+//     if(iPTBin == 0) sprintf(name, "all p_{T}");
+//     else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+//     else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+//     leg3b->AddEntry(Reco_pol_pT[iFrame][iPTBin][phiPol], name, "pl");
+//   }
+//   leg1a->SetTextSize(0.035); leg1a->SetFillColor(0);
+//   leg1a->Draw();
+
+  sprintf(name, "Figures/reconstructed_phi_%s_pTBins.eps", frameLabel[iFrame]);  c1PhiRec->Print(name);
+  sprintf(name, "Figures/reconstructed_phi_%s_pTBins.pdf", frameLabel[iFrame]);  c1PhiRec->Print(name);
+  sprintf(name, "Figures/reconstructed_phi_%s_pTBins.gif", frameLabel[iFrame]);  c1PhiRec->Print(name);
+
+}
+
+//===============================
+void PlotAllRec(Bool_t skipAll){
+
+  Int_t pTMin = 0, pTMax = kNbPTBins; //kNbPTBins: last one will be suppressed
+  Int_t indexMax = 0;
+  if(skipAll){
+    pTMin = 1;
+    indexMax = 2;
+  }
+
+  Char_t name[100];
+  sprintf(name, "c1Recs");
+  TCanvas *c1CosThRec = new TCanvas(name, "reconstructed CS and HX for PT Bins", 1000, 700);
+  c1CosThRec->Divide(2,2);
+  TH1F *hFrame3a[4];
+  //HX: cosTheta
+  c1CosThRec->cd(1);
+  hFrame3a[0] = gPad->DrawFrame(-1, 0., 1, 1.2*Reco_pol_pT[HX][indexMax][cosThPol]->GetMaximum());
+  sprintf(name, "cos#theta_{%s}", frameLabel[HX]);
+  hFrame3a[0]->SetXTitle(name);
+  hFrame3a[0]->SetYTitle("dN/d(cos#theta)_{reconstructed}");
+  for(int iPTBin = pTMin; iPTBin < pTMax; iPTBin++){
+    Reco_pol_pT[HX][iPTBin][cosThPol]->Draw("psame");    
+  }
+  TLegend *leg3a = new TLegend(0.65,0.735119,0.9866071,0.985119);
+  for(int iPTBin = pTMin; iPTBin < pTMax; iPTBin++){
+    if(iPTBin == 0) sprintf(name, "all p_{T}");
+    else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+    else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+    leg3a->AddEntry(Reco_pol_pT[HX][iPTBin][cosThPol], name, "pl");
+  }
+  leg3a->SetTextSize(0.035); leg3a->SetFillColor(0);
+  leg3a->Draw();
+
+  //HX: phi
+  c1CosThRec->cd(2);
+  hFrame3a[1] = gPad->DrawFrame(0., 0., 360., 1.2*Reco_pol_pT[HX][indexMax][phiPol]->GetMaximum());
+  sprintf(name, "#phi_{%s} [deg]", frameLabel[HX]);
+  hFrame3a[1]->SetXTitle(name);
+  hFrame3a[1]->SetYTitle("dN/d#phi_{reconstructed}");
+  for(int iPTBin = pTMin; iPTBin < pTMax; iPTBin++){
+    Reco_pol_pT[HX][iPTBin][phiPol]->Draw("psame");    
+  }
+  //CS: cosTheta
+  c1CosThRec->cd(3);
+  hFrame3a[2] = gPad->DrawFrame(-1, 0., 1, 1.2*Reco_pol_pT[CS][indexMax][cosThPol]->GetMaximum());
+  sprintf(name, "cos#theta_{%s}", frameLabel[CS]);
+  hFrame3a[2]->SetXTitle(name);
+  hFrame3a[2]->SetYTitle("dN/d(cos#theta)_{reconstructed}");
+  for(int iPTBin = pTMin; iPTBin < pTMax; iPTBin++){
+    Reco_pol_pT[CS][iPTBin][cosThPol]->Draw("psame");    
+  }
+  //CS: phi
+  c1CosThRec->cd(4);
+  hFrame3a[3] = gPad->DrawFrame(0., 0., 360., 1.2*Reco_pol_pT[CS][indexMax][phiPol]->GetMaximum());
+  sprintf(name, "#phi_{%s} [deg]", frameLabel[CS]);
+  hFrame3a[3]->SetXTitle(name);
+  hFrame3a[3]->SetYTitle("dN/d#phi_{reconstructed}");
+  for(int iPTBin = pTMin; iPTBin < pTMax; iPTBin++){
+    Reco_pol_pT[CS][iPTBin][phiPol]->Draw("psame");    
+  }
+
+  sprintf(name, "Figures/rec_pTBins.gif"); c1CosThRec->Print(name);
+  sprintf(name, "Figures/rec_pTBins.eps"); c1CosThRec->Print(name);
+  sprintf(name, "Figures/rec_pTBins.pdf"); c1CosThRec->Print(name);
+
+}
+
+
+//===============================
+void PlotAcceptance(Int_t iFrame){
+
+  Char_t name[100];
+  //=============================================
+  //1.) cosTheta acceptance for different pT bins
+  //=============================================
+  sprintf(name, "c1CosTh_%s", frameLabel[iFrame]);
+  TCanvas *c1CosTh = new TCanvas(name, "acc vs cosTheta for PT Bins", 900, 700);
+//   TH1F *hFrame1a = gPad->DrawFrame(-1, 0., 1, 1.2*gAcc_pol_pT[iFrame][kNbPTBins][cosThPol]->GetMaximum());
+  TH1F *hFrame1a = gPad->DrawFrame(-1, 0., 1, 1.0);
+  sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);
+  hFrame1a->SetXTitle(name);
+  hFrame1a->SetYTitle("Acceptance");
+  for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+     gAcc_pol_pT[iFrame][iPTBin][cosThPol]->Draw("psame");    
+  }
+  TLegend *leg1a = new TLegend(0.65,0.735119,0.9866071,0.985119);
+  for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+    if(iPTBin == 0) sprintf(name, "all p_{T}");
+    else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+    else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+    leg1a->AddEntry(gAcc_pol_pT[iFrame][iPTBin][cosThPol], name, "pl");
+  }
+  leg1a->SetTextSize(0.035); leg1a->SetFillColor(0);
+  leg1a->Draw();
+
+  sprintf(name, "Figures/acceptance_cosTheta_%s_pTBins.eps", frameLabel[iFrame]);  c1CosTh->Print(name);
+  sprintf(name, "Figures/acceptance_cosTheta_%s_pTBins.pdf", frameLabel[iFrame]);  c1CosTh->Print(name);
+  sprintf(name, "Figures/acceptance_cosTheta_%s_pTBins.gif", frameLabel[iFrame]);  c1CosTh->Print(name);
+
+  //=======================================
+  //2.) phi acceptance for different pT bins
+  //=======================================
+  sprintf(name, "c1Phi_%s", frameLabel[iFrame]);
+  TCanvas *c1Phi = new TCanvas(name, "acc vs phi for PT Bins", 900, 700);
+//   TH1F *hFrame1b = gPad->DrawFrame(0., 0., 360., 1.2*gAcc_pol_pT[iFrame][0][phiPol]->GetMaximum());
+  TH1F *hFrame1b = gPad->DrawFrame(0., 0., 360., 1.0);
+  sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);
+  hFrame1b->SetXTitle(name);
+  hFrame1b->SetYTitle("Acceptance");
+  for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+    gAcc_pol_pT[iFrame][iPTBin][phiPol]->Draw("psame");    
+  }
+  TLegend *leg1b = new TLegend(0.65,0.735119,0.9866071,0.985119);
+  for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+    if(iPTBin == 0) sprintf(name, "all p_{T}");
+    else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+    else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+    leg1b->AddEntry(gAcc_pol_pT[iFrame][iPTBin][phiPol], name, "pl");
+  }
+  leg1a->SetTextSize(0.035); leg1a->SetFillColor(0);
+  leg1a->Draw();
+
+  sprintf(name, "Figures/acceptance_phi_%s_pTBins.eps", frameLabel[iFrame]);  c1Phi->Print(name);
+  sprintf(name, "Figures/acceptance_phi_%s_pTBins.pdf", frameLabel[iFrame]);  c1Phi->Print(name);
+  sprintf(name, "Figures/acceptance_phi_%s_pTBins.gif", frameLabel[iFrame]);  c1Phi->Print(name);
+
+  //=======================================
+  //3.) cosTheta acceptance for different rap bins
+  //=======================================
+  sprintf(name, "c2CosTh_%s", frameLabel[iFrame]);
+  TCanvas *c2CosTh = new TCanvas(name, "acc vs cosTheta for rap Bins", 900, 700);
+//   TH1F *hFrame2a = gPad->DrawFrame(-1, 0., 1, 1.2*gAcc_pol_rap[iFrame][0][cosThPol]->GetMaximum());
+  TH1F *hFrame2a = gPad->DrawFrame(-1, 0., 1, 1.0);
+  sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);
+  hFrame2a->SetXTitle(name);
+  hFrame2a->SetYTitle("Acceptance");
+  for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
+    gAcc_pol_rap[iFrame][iRapBin][cosThPol]->Draw("psame");    
+  }
+  TLegend *leg2a = new TLegend(0.75,0.65,0.9866071,0.985119);
+  for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
+    if(iRapBin == 0) sprintf(name, "all y");
+    else sprintf(name, "%1.1f < y < %1.1f", rapRange[iRapBin-1], rapRange[iRapBin]);
+    leg2a->AddEntry(gAcc_pol_rap[iFrame][iRapBin][cosThPol], name, "pl");
+  }
+  leg2a->SetTextSize(0.035); leg2a->SetFillColor(0);
+  leg2a->Draw();
+
+  sprintf(name, "Figures/acceptance_cosTheta_%s_rapBins.eps", frameLabel[iFrame]);  c2CosTh->Print(name);
+  sprintf(name, "Figures/acceptance_cosTheta_%s_rapBins.pdf", frameLabel[iFrame]);  c2CosTh->Print(name);
+  sprintf(name, "Figures/acceptance_cosTheta_%s_rapBins.gif", frameLabel[iFrame]);  c2CosTh->Print(name);
+
+  //=======================================
+  //4.) phi acceptance for different rap bins
+  //=======================================
+  sprintf(name, "c2Phi_%s", frameLabel[iFrame]);
+  TCanvas *c2Phi = new TCanvas(name, "acc vs phi for rap Bins", 900, 700);
+//   TH1F *hFrame2b = gPad->DrawFrame(0., 0., 360., 1.2*gAcc_pol_rap[iFrame][0][phiPol]->GetMaximum());
+  TH1F *hFrame2b = gPad->DrawFrame(0., 0., 360., 1.0);
+  sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);
+  hFrame2b->SetXTitle(name);
+  hFrame2b->SetYTitle("Acceptance");
+  for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
+    gAcc_pol_rap[iFrame][iRapBin][phiPol]->Draw("psame");    
+  }
+  TLegend *leg2b = new TLegend(0.75,0.735119,0.9866071,0.985119);
+  for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
+    if(iRapBin == 0) sprintf(name, "all y");
+    else sprintf(name, "%1.1f < y < %1.1f", rapRange[iRapBin-1], rapRange[iRapBin]);
+    leg2b->AddEntry(gAcc_pol_rap[iFrame][iRapBin][phiPol], name, "pl");
+  }
+  leg2a->SetTextSize(0.035); leg2a->SetFillColor(0);
+  leg2a->Draw();
+
+  sprintf(name, "Figures/acceptance_phi_%s_rapBins.eps", frameLabel[iFrame]);  c2Phi->Print(name);
+  sprintf(name, "Figures/acceptance_phi_%s_rapBins.pdf", frameLabel[iFrame]);  c2Phi->Print(name);
+  sprintf(name, "Figures/acceptance_phi_%s_rapBins.gif", frameLabel[iFrame]);  c2Phi->Print(name);
+
+  //=====================================================
+  //5.) cosTheta acceptance for different rap and pT bins
+  //=====================================================
+  sprintf(name, "c3CosTh_%s", frameLabel[iFrame]);
+  TCanvas *c3CosTh = new TCanvas(name, "acc vs cosTheta for pT and rap Bins", 900, 700);
+//   TH1F *hFrame3a = gPad->DrawFrame(-1, 0., 1, 1.2*gAcc_pol_rap[iFrame][0][cosThPol]->GetMaximum());
+  c3CosTh->Divide(1,kNbRapForPTBins);
+  TH1F *hFrame3a[kNbRapForPTBins];
+  for(int iRap = 1; iRap < kNbRapForPTBins+1; iRap++){
+
+    c3CosTh->cd(iRap);
+    hFrame3a[iRap] = gPad->DrawFrame(-1, 0., 1, 1.0);
+//     hFrame3a[iRap] = gPad->DrawFrame(-1, 0., 1, 1.2*gAcc_pol_pT_rap[iFrame][1][iRap][cosThPol]->GetMaximum());
+    sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);
+    hFrame3a[iRap]->SetXTitle(name);
+    hFrame3a[iRap]->SetYTitle("Acceptance");
+    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+       gAcc_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol]->Draw("psame");
+    }
+    sprintf(name, "%1.2f < y < %1.2f", rapForPTRange[iRap-1], rapForPTRange[iRap]);
+    TLegend *leg3a = new TLegend(0.88,0.55,0.9866071,0.985119, name);
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      if(iPTBin == 0) sprintf(name, "all p_{T}");
+      else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+      else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+      leg3a->AddEntry(gAcc_pol_pT_rap[iFrame][iPTBin][iRap][phiPol], name, "pl");
+    }
+    leg3a->SetTextSize(0.035); leg3a->SetFillColor(0);  leg3a->Draw();
+  }
+  sprintf(name, "Figures/acceptance_cosTheta_%s_pTBins_rap.eps", frameLabel[iFrame]);  c3CosTh->Print(name);
+  sprintf(name, "Figures/acceptance_cosTheta_%s_pTBins_rap.pdf", frameLabel[iFrame]);  c3CosTh->Print(name);
+  sprintf(name, "Figures/acceptance_cosTheta_%s_pTBins_rap.gif", frameLabel[iFrame]);  c3CosTh->Print(name);
+
+  //=====================================================
+  //6.) phi acceptance for different rap and pT bins
+  //=====================================================
+  sprintf(name, "c3Phi_%s", frameLabel[iFrame]);
+  TCanvas *c3Phi = new TCanvas(name, "acc vs phi for pT and rap Bins", 900, 700);
+  c3Phi->Divide(1,kNbRapForPTBins);
+  TH1F *hFrame3b[kNbRapForPTBins];
+  for(int iRap = 1; iRap < kNbRapForPTBins+1; iRap++){
+
+    c3Phi->cd(iRap);
+    hFrame3b[iRap] = gPad->DrawFrame(0., 0., 360., 1.0);
+//      hFrame3b[iRap] = gPad->DrawFrame(0., 0., 360., 1.2*gAcc_pol_pT_rap[iFrame][1][iRap][phiPol]->GetMaximum() );
+    sprintf(name, "#phi_{%s}", frameLabel[iFrame]);
+    hFrame3b[iRap]->SetXTitle(name);
+    hFrame3b[iRap]->SetYTitle("Acceptance");
+    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+      gAcc_pol_pT_rap[iFrame][iPTBin][iRap][phiPol]->Draw("psame");    
+    }
+    sprintf(name, "%1.2f < y < %1.2f", rapForPTRange[iRap-1], rapForPTRange[iRap]);
+    TLegend *leg3b = new TLegend(0.88,0.65,0.9866071,0.985119, name);
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      if(iPTBin == 0) sprintf(name, "all p_{T}");
+      else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+      else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+      leg3b->AddEntry(gAcc_pol_pT_rap[iFrame][iPTBin][iRap][phiPol], name, "pl");
+    }
+    leg3b->SetTextSize(0.035); leg3b->SetFillColor(0);  leg3b->Draw();
+  }
+  sprintf(name, "Figures/acceptance_phi_%s_pTBins_rap.eps", frameLabel[iFrame]);  c3Phi->Print(name);
+  sprintf(name, "Figures/acceptance_phi_%s_pTBins_rap.pdf", frameLabel[iFrame]);  c3Phi->Print(name);
+  sprintf(name, "Figures/acceptance_phi_%s_pTBins_rap.gif", frameLabel[iFrame]);  c3Phi->Print(name);
+
+}
+
+//===============================
+void PlotAllAcceptances(){
+
+  Char_t name[100];
+  //===========================================================
+  //cosTheta and phi acceptance for CS and HX for pT dependence
+  //===========================================================
+  sprintf(name, "c1All_PT");
+  TCanvas *c1CosTh = new TCanvas(name, "acc vs cosTheta for PT Bins", 1000, 700);
+  c1CosTh->Divide(2,2);
+  TH1F *hFrame1a[4];
+  for(int i = 0; i < 4; i++){
+    c1CosTh->cd(i+1);
+    if(i == 0 || i == 2) hFrame1a[i] = gPad->DrawFrame(-1, 0., 1, 1.0);
+    else if(i == 1 || i == 3) hFrame1a[i] = gPad->DrawFrame(0., 0., 360., 1.0);
+    if(i == 0) sprintf(name, "cos#theta_{%s}", frameLabel[CS]);
+    else if(i == 1) sprintf(name, "#phi_{%s}", frameLabel[CS]);
+    else if(i == 2) sprintf(name, "cos#theta_{%s}", frameLabel[HX]);
+    else if(i == 3) sprintf(name, "#phi_{%s}", frameLabel[HX]);
+    hFrame1a[i]->SetXTitle(name);
+    hFrame1a[i]->SetYTitle("Acceptance");
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      if(i == 0) gAcc_pol_pT[CS][iPTBin][cosThPol]->Draw("psame");    
+      else if(i == 1) gAcc_pol_pT[CS][iPTBin][phiPol]->Draw("psame");    
+      else if(i == 2) gAcc_pol_pT[HX][iPTBin][cosThPol]->Draw("psame");    
+      else if(i == 3) gAcc_pol_pT[HX][iPTBin][phiPol]->Draw("psame");    
+    }
+    if(i == 3){
+      TLegend *leg1a = new TLegend(0.65,0.735119,0.9866071,0.985119);
+      for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+	if(iPTBin == 0) sprintf(name, "all p_{T}");
+	else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+	else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+	leg1a->AddEntry(gAcc_pol_pT[HX][iPTBin][phiPol], name, "pl");
+      }
+      leg1a->SetTextSize(0.035); leg1a->SetFillColor(0);
+      leg1a->Draw();
+    }
+  }
+  sprintf(name, "Figures/acceptances_pTBins.eps");  c1CosTh->Print(name);
+  sprintf(name, "Figures/acceptances_pTBins.pdf");  c1CosTh->Print(name);
+  sprintf(name, "Figures/acceptances_pTBins.gif");  c1CosTh->Print(name);
+
+  //===========================================================
+  //cosTheta and phi acceptance for CS and HX for rap dependence
+  //===========================================================
+  sprintf(name, "c2All_Rap");
+  TCanvas *c2CosTh = new TCanvas(name, "acc vs cosTheta for Rap Bins", 1000, 700);
+  c2CosTh->Divide(2,2);
+  TH1F *hFrame2a[4];
+  for(int i = 0; i < 4; i++){
+    c2CosTh->cd(i+1);
+    if(i == 0 || i == 2) hFrame2a[i] = gPad->DrawFrame(-1, 0., 1, 1.0);
+    else if(i == 1 || i == 3) hFrame2a[i] = gPad->DrawFrame(0., 0., 360., 1.0);
+    if(i == 0) sprintf(name, "cos#theta_{%s}", frameLabel[CS]);
+    else if(i == 1) sprintf(name, "#phi_{%s}", frameLabel[CS]);
+    else if(i == 2) sprintf(name, "cos#theta_{%s}", frameLabel[HX]);
+    else if(i == 3) sprintf(name, "#phi_{%s}", frameLabel[HX]);
+    hFrame2a[i]->SetXTitle(name);
+    hFrame2a[i]->SetYTitle("Acceptance");
+    for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
+      if(i == 0) gAcc_pol_rap[CS][iRapBin][cosThPol]->Draw("psame");    
+      else if(i == 1) gAcc_pol_rap[CS][iRapBin][phiPol]->Draw("psame");    
+      else if(i == 2) gAcc_pol_rap[HX][iRapBin][cosThPol]->Draw("psame");    
+      else if(i == 3) gAcc_pol_rap[HX][iRapBin][phiPol]->Draw("psame");    
+    }
+    if(i == 3){
+      TLegend *leg2a = new TLegend(0.75,0.65,0.9866071,0.985119);
+      for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
+	if(iRapBin == 0) sprintf(name, "all y");
+	else sprintf(name, "%1.1f < y < %1.1f", rapRange[iRapBin-1], rapRange[iRapBin]);
+	leg2a->AddEntry(gAcc_pol_rap[HX][iRapBin][phiPol], name, "pl");
+      }
+      leg2a->SetTextSize(0.035); leg2a->SetFillColor(0);
+      leg2a->Draw();
+    }
+  }
+  sprintf(name, "Figures/acceptances_rapBins.eps");  c2CosTh->Print(name);
+  sprintf(name, "Figures/acceptances_rapBins.pdf");  c2CosTh->Print(name);
+  sprintf(name, "Figures/acceptances_rapBins.gif");  c2CosTh->Print(name);
+}
+
+//===============================
+void Plot2DAcceptance(Int_t iFrame, Char_t *hltTag){
+
+  gStyle->SetTitleW(1);
+
+  Char_t name[100];
+  Char_t title[100];
+  //=============================================
+  //1.) 2D acceptance for different pT bins
+  //=============================================
+  sprintf(name, "c1_2D_%s", frameLabel[iFrame]);
+  TCanvas *c1_2D = new TCanvas(name, "acc vs cosTheta and phi for PT Bins", 1000, 700);
+  c1_2D->Divide(3,2);
+  TH2F *hFrame1a[kNbPTBins+1];
+  TLatex *tex1[kNbPTBins+1];
+  for(int iPT = 1; iPT <= kNbPTBins; iPT++){
+
+    c1_2D->cd(iPT);
+
+    if(iPT == 0) sprintf(name, "J/#psi: all p_{T}");
+    else if(iPT == kNbPTBins) sprintf(name, "J/#psi: p_{T} > %1.1f GeV/c\n", pTRange[iPT-1]);
+    else sprintf(name, "J/#psi: %1.1f < p_{T} < %1.1f GeV/c", pTRange[iPT-1], pTRange[iPT]);
+    hAcc2D_pol_pT[iFrame][iPT]->SetTitle(name);
+    hAcc2D_pol_pT[iFrame][iPT]->Draw("colz");//"colz" or "cont"
+//     hAcc2D_pol_pT[iFrame][iPT]->Draw("lego2");//"colz" or "cont"
+  }
+  
+  sprintf(name, "Figures/acceptance2D_%s_%s_pTBins.eps", frameLabel[iFrame], hltTag);  c1_2D->Print(name);
+  sprintf(name, "Figures/acceptance2D_%s_%s_pTBins.pdf", frameLabel[iFrame], hltTag);  c1_2D->Print(name);
+  sprintf(name, "Figures/acceptance2D_%s_%s_pTBins.gif", frameLabel[iFrame], hltTag);  c1_2D->Print(name);
+
+  //========================================
+  //2.) 2D acceptance for different rap bins
+  //========================================
+  sprintf(name, "c2_2D_%s", frameLabel[iFrame]);
+  TCanvas *c2_2D = new TCanvas(name, "acc vs cosTheta and phi for rap Bins", 1000, 700);
+  c2_2D->Divide(3,2);
+  TH2F *hFrame2a[kNbRapBins+1]; 
+  for(int iRapBin = 1; iRapBin <= kNbRapBins; iRapBin++){
+
+    c2_2D->cd(iRapBin);
+    if(iRapBin == 0) sprintf(name, "all y");
+    else sprintf(name, "J/#psi: %1.1f < y < %1.1f GeV/c", rapRange[iRapBin-1], rapRange[iRapBin]);
+    hAcc2D_pol_rap[iFrame][iRapBin]->SetTitle(name);
+    hAcc2D_pol_rap[iFrame][iRapBin]->Draw("colz"); //"colz" or "cont"
+//     hAcc2D_pol_rap[iFrame][iRapBin]->Draw("lego2"); //"colz" or "cont"
+  }
+
+  sprintf(name, "Figures/acceptance2D_%s_%s_rapBins.eps", frameLabel[iFrame], hltTag);  c2_2D->Print(name);
+  sprintf(name, "Figures/acceptance2D_%s_%s_rapBins.pdf", frameLabel[iFrame], hltTag);  c2_2D->Print(name);
+  sprintf(name, "Figures/acceptance2D_%s_%s_rapBins.gif", frameLabel[iFrame], hltTag);  c2_2D->Print(name);
+
+  //=====================================================
+  //3.) cosTheta acceptance for different rap and pT bins
+  //=====================================================
+  TCanvas *c3_2D[kNbRapForPTBins];
+  for(int iRap = 1; iRap <= kNbRapForPTBins; iRap++){
+
+    sprintf(name, "c3_2D_%s_rap%d", frameLabel[iFrame], iRap);
+    sprintf(title, "acc vs cosTheta and phi for pT; rap Bin %d", iRap);
+    c3_2D[iRap] = new TCanvas(name, title, 1000, 700);
+    c3_2D[iRap]->Divide(3,2);
+
+    for(int iPT = 1; iPT <= kNbPTBins; iPT++){
+
+      c3_2D[iRap]->cd(iPT);
+      if(iPT == 0) 
+	sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, all p_{T} (%s)", rapForPTRange[iRap-1], rapForPTRange[iRap], hltTag);
+      else if(iPT == kNbPTBins) 
+	sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, p_{T} > %1.1f GeV/c (%s)\n", rapForPTRange[iRap-1], rapForPTRange[iRap], pTRange[iPT-1], hltTag);
+      else 
+	sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, %1.1f < p_{T} < %1.1f GeV/c (%s)", rapForPTRange[iRap-1], rapForPTRange[iRap], pTRange[iPT-1], pTRange[iPT], hltTag);
+      hAcc2D_pol_pT_rap[iFrame][iPT][iRap]->SetTitle(name);
+      hAcc2D_pol_pT_rap[iFrame][iPT][iRap]->Draw("colz");//"colz" or "cont"
+//       hAcc2D_pol_pT_rap[iFrame][iPT][iRap]->Draw("lego2");//"colz" or "cont"
+    }
+
+    sprintf(name, "Figures/acceptance2D_%s_%s_pTBins_rap%d.eps", frameLabel[iFrame], hltTag, iRap); c3_2D[iRap]->Print(name);
+    sprintf(name, "Figures/acceptance2D_%s_%s_pTBins_rap%d.pdf", frameLabel[iFrame], hltTag, iRap); c3_2D[iRap]->Print(name);
+    sprintf(name, "Figures/acceptance2D_%s_%s_pTBins_rap%d.gif", frameLabel[iFrame], hltTag, iRap); c3_2D[iRap]->Print(name);
+  }
+}
+
+//===============================
+void Plot2DAccOneByOne(Int_t iFrame, Char_t *hltTag, Int_t iRap, Int_t iPT){
+
+  gStyle->SetTitleW(1);
+
+  Char_t name[100];
+  Char_t title[100];
+
+  //=====================================================
+  //cosTheta acceptance for different rap and pT bins
+  //=====================================================
+  TCanvas *c30_2D;
+  sprintf(name, "c30_2D_%s_rap%d_pT%d", frameLabel[iFrame], iRap, iPT);
+  sprintf(title, "acc vs cosTheta and phi for pT %d rap Bin %d", iPT, iRap);
+  c30_2D = new TCanvas(name, title, 500, 500);
+  if(iPT == 0) 
+    sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, all p_{T} (%s)", rapForPTRange[iRap-1], rapForPTRange[iRap], hltTag);
+  else if(iPT == kNbPTBins) 
+    sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, p_{T} > %1.1f GeV/c (%s)\n", rapForPTRange[iRap-1], rapForPTRange[iRap], pTRange[iPT-1], hltTag);
+  else 
+    sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, %1.1f < p_{T} < %1.1f GeV/c (%s)", rapForPTRange[iRap-1], rapForPTRange[iRap], pTRange[iPT-1], pTRange[iPT], hltTag);
+  hAcc2D_pol_pT_rap[iFrame][iPT][iRap]->SetTitle(name);
+  hAcc2D_pol_pT_rap[iFrame][iPT][iRap]->Draw("colz");//"colz" or "cont"
+  //       hAcc2D_pol_pT_rap[iFrame][iPT][iRap]->Draw("lego2");//"colz" or "cont"
+
+  sprintf(name, "Figures/acceptance2D_%s_%s_rap%d_pT%d.eps", frameLabel[iFrame], hltTag, iRap, iPT); 
+  c30_2D->Print(name);
+  sprintf(name, "Figures/acceptance2D_%s_%s_rap%d_pT%d.pdf", frameLabel[iFrame], hltTag, iRap, iPT); 
+  c30_2D->Print(name);
+  sprintf(name, "Figures/acceptance2D_%s_%s_rap%d_pT%d.gif", frameLabel[iFrame], hltTag, iRap, iPT); 
+  c30_2D->Print(name);
+
+}
+
+//===============================
+void PlotAllGenRec(Int_t iFrame){
+
+  Char_t name[100];
+  //===============================================================
+  //cosTheta and phi, generated and reconstructed for pT dependence
+  //===============================================================
+  sprintf(name, "c1AllGenRec_PT_%s", frameLabel[iFrame]);
+  TCanvas *c1CosTh = new TCanvas(name, "generated and reco histos for PT Bins", 1000, 700);
+  c1CosTh->Divide(2,2);
+  TH1F *hFrame1a[4];
+  for(int i = 0; i < 4; i++){
+    c1CosTh->cd(i+1);
+    if(i == 0){
+      sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);
+      hFrame1a[i] = gPad->DrawFrame(-1, 0., 1, 1.2*hGen_pol_pT[iFrame][0][cosThPol]->GetMaximum());
+      hFrame1a[i]->SetYTitle("Generated");
+    }
+    else if(i == 1){
+      sprintf(name, "#phi_{%s}", frameLabel[iFrame]);
+      hFrame1a[i] = gPad->DrawFrame(0., 0., 360., 1.2*hGen_pol_pT[iFrame][0][phiPol]->GetMaximum());
+      hFrame1a[i]->SetYTitle("Generated");
+    }
+    else if(i == 2){
+      gPad->SetLogy();
+      sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);
+      hFrame1a[i] = gPad->DrawFrame(-1, 100., 1, 3.*Reco_pol_pT[iFrame][0][cosThPol]->GetMaximum());
+      hFrame1a[i]->SetYTitle("Reconstructed");
+    }
+    else if(i == 3){
+      gPad->SetLogy();
+      sprintf(name, "#phi_{%s}", frameLabel[iFrame]);
+      hFrame1a[i] = gPad->DrawFrame(0., 100., 360., 3.*Reco_pol_pT[iFrame][0][phiPol]->GetMaximum());
+      hFrame1a[i]->SetYTitle("Reconstructed");
+    }
+    hFrame1a[i]->SetXTitle(name);
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      if(i == 0) hGen_pol_pT[iFrame][iPTBin][cosThPol]->Draw("psame");    
+      else if(i == 1) hGen_pol_pT[iFrame][iPTBin][phiPol]->Draw("psame");    
+      else if(i == 2) Reco_pol_pT[iFrame][iPTBin][cosThPol]->Draw("psame");    
+      else if(i == 3) Reco_pol_pT[iFrame][iPTBin][phiPol]->Draw("psame");    
+    }
+    if(i == 1){
+      TLegend *leg1a = new TLegend(0.6129518,0.4317956,0.9497155,0.7449157);
+      for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+	if(iPTBin == 0) sprintf(name, "all p_{T}");
+	else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+	else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+	leg1a->AddEntry(Reco_pol_pT[iFrame][iPTBin][phiPol], name, "pl");
+      }
+      leg1a->SetTextSize(0.035); leg1a->SetFillColor(0);
+      leg1a->Draw();
+    }
+  }
+  sprintf(name, "Figures/genReco_pTBins_%s.eps", frameLabel[iFrame]); c1CosTh->Print(name);
+  sprintf(name, "Figures/genReco_pTBins_%s.pdf", frameLabel[iFrame]); c1CosTh->Print(name);
+  sprintf(name, "Figures/genReco_pTBins_%s.gif", frameLabel[iFrame]); c1CosTh->Print(name);
+
+}
+//===============================
+void PlotKinVarAcceptance(){
+
+  TCanvas *cpT = new TCanvas("cpT", "pT acceptance");
+  TH1F *hFramePT = gPad->DrawFrame(0., 0., 30., 1.);
+  hFramePT->SetXTitle("p_{T}(J/#psi) [GeV/c]");
+  hFramePT->SetYTitle("Acceptance");
+  gAcc_pt->Draw("psame");
+  cpT->Print("Figures/acceptance_pT.eps");
+  cpT->Print("Figures/acceptance_pT.pdf");
+  cpT->Print("Figures/acceptance_pT.gif");
+
+  TCanvas *cRap = new TCanvas("cRap", "Rap acceptance");
+  TH1F *hFrameRap = gPad->DrawFrame(-2.5, 0., 2.5, 1.);
+  hFrameRap->SetXTitle("y(J/#psi)");
+  hFrameRap->SetYTitle("Acceptance");
+  gAcc_rap->Draw("psame");
+  cRap->Print("Figures/acceptance_y.eps");
+  cRap->Print("Figures/acceptance_y.pdf");
+  cRap->Print("Figures/acceptance_y.gif");
+
+  TCanvas *cPhi = new TCanvas("cPhi", "Phi acceptance");
+  TH1F *hFramePhi = gPad->DrawFrame(-3.14, 0., 3.14, 1.);
+  hFramePhi->SetXTitle("#phi(J/#psi)");
+  hFramePhi->SetYTitle("Acceptance");
+  gAcc_phi->Draw("psame");
+  cPhi->Print("Figures/acceptance_phi.eps");
+  cPhi->Print("Figures/acceptance_phi.pdf");
+  cPhi->Print("Figures/acceptance_phi.gif");
+
+}
+
+//===============================
+void CalcAcceptance(){
+
+  Bool_t dividing = kTRUE;
+  Char_t name[100];
+  
+  gAcc_pt = new TGraphAsymmErrors();
+  gAcc_rap = new TGraphAsymmErrors();
+  gAcc_phi = new TGraphAsymmErrors();
+  printf("preparing pT differential acceptance\n");
+  gAcc_pt->BayesDivide(Reco_pt, hGen_pt);  gAcc_pt->SetName("gAcc_pt");
+  printf("preparing rap differential acceptance\n");
+  gAcc_rap->BayesDivide(Reco_rap, hGen_rap); gAcc_rap->SetName("gAcc_rap");
+  Reco_phi->Rebin(4); hGen_phi->Rebin(4);
+  printf("preparing phi differential acceptance\n");
+  gAcc_phi->BayesDivide(Reco_phi, hGen_phi); gAcc_phi->SetName("gAcc_phi");
+
+  for(int iFrame = 0; iFrame < kNbFrames; iFrame++){
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+
+      printf("preparing cosTheta 1D differential acceptance (pT bin %d)\n", iPTBin);
+      gAcc_pol_pT[iFrame][iPTBin][cosThPol] = new TGraphAsymmErrors();
+      gAcc_pol_pT[iFrame][iPTBin][cosThPol]->BayesDivide(Reco_pol_pT[iFrame][iPTBin][cosThPol],
+							 hGen_pol_pT[iFrame][iPTBin][cosThPol]);
+      sprintf(name, "gAcc_Onia_cosTh_%s_pT%d", frameLabel[iFrame], iPTBin);
+      gAcc_pol_pT[iFrame][iPTBin][cosThPol]->SetName(name);
+      gAcc_pol_pT[iFrame][iPTBin][cosThPol]->SetLineColor(colour_pT[iPTBin]);
+      gAcc_pol_pT[iFrame][iPTBin][cosThPol]->SetMarkerColor(colour_pT[iPTBin]);
+      gAcc_pol_pT[iFrame][iPTBin][cosThPol]->SetMarkerStyle(marker_pT[iPTBin]);
+      gAcc_pol_pT[iFrame][iPTBin][cosThPol]->SetMarkerSize(markerSize);
+      //
+
+      printf("preparing phi 1D differential acceptance (pT bin %d)\n", iPTBin);
+      gAcc_pol_pT[iFrame][iPTBin][phiPol] = new TGraphAsymmErrors();
+      gAcc_pol_pT[iFrame][iPTBin][phiPol]->BayesDivide(Reco_pol_pT[iFrame][iPTBin][phiPol],
+						       hGen_pol_pT[iFrame][iPTBin][phiPol]);
+      sprintf(name, "gAcc_Onia_phi_%s_pT%d", frameLabel[iFrame], iPTBin);
+      gAcc_pol_pT[iFrame][iPTBin][phiPol]->SetName(name);
+      gAcc_pol_pT[iFrame][iPTBin][phiPol]->SetLineColor(colour_pT[iPTBin]);
+      gAcc_pol_pT[iFrame][iPTBin][phiPol]->SetMarkerColor(colour_pT[iPTBin]);
+      gAcc_pol_pT[iFrame][iPTBin][phiPol]->SetMarkerStyle(marker_pT[iPTBin]);
+      gAcc_pol_pT[iFrame][iPTBin][phiPol]->SetMarkerSize(markerSize);
+      //
+      sprintf(name, "hAcc2D_Onia_%s_pT%d", frameLabel[iFrame], iPTBin);
+      hAcc2D_pol_pT[iFrame][iPTBin] = (TH2D *) Reco2D_pol_pT[iFrame][iPTBin]->Clone(name);
+      if(dividing)
+	hAcc2D_pol_pT[iFrame][iPTBin]->Divide(hGen2D_pol_pT[iFrame][iPTBin]);
+      hAcc2D_pol_pT[iFrame][iPTBin]->SetLineColor(colour_pT[iPTBin]);
+      hAcc2D_pol_pT[iFrame][iPTBin]->SetMarkerColor(colour_pT[iPTBin]);
+      hAcc2D_pol_pT[iFrame][iPTBin]->SetMarkerStyle(marker_pT[iPTBin]);
+      hAcc2D_pol_pT[iFrame][iPTBin]->SetMarkerSize(markerSize);
+    }
+    for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
+
+      printf("preparing cosTheta 1D differential acceptance (rap bin %d)\n", iRapBin);
+      gAcc_pol_rap[iFrame][iRapBin][cosThPol] = new TGraphAsymmErrors();
+      gAcc_pol_rap[iFrame][iRapBin][cosThPol]->BayesDivide(Reco_pol_rap[iFrame][iRapBin][cosThPol],
+							   hGen_pol_rap[iFrame][iRapBin][cosThPol]);
+      sprintf(name, "gAcc_Onia_cosTh_%s_rap%d", frameLabel[iFrame], iRapBin);
+      gAcc_pol_rap[iFrame][iRapBin][cosThPol]->SetName(name);
+      gAcc_pol_rap[iFrame][iRapBin][cosThPol]->SetLineColor(colour_rap[iRapBin]);
+      gAcc_pol_rap[iFrame][iRapBin][cosThPol]->SetMarkerColor(colour_rap[iRapBin]);
+      gAcc_pol_rap[iFrame][iRapBin][cosThPol]->SetMarkerStyle(marker_rap[iRapBin]);
+      gAcc_pol_rap[iFrame][iRapBin][cosThPol]->SetMarkerSize(markerSize);           
+      //
+      printf("preparing phi 1D differential acceptance (rap bin %d)\n", iRapBin);
+      gAcc_pol_rap[iFrame][iRapBin][phiPol] = new TGraphAsymmErrors();
+      gAcc_pol_rap[iFrame][iRapBin][phiPol]->BayesDivide(Reco_pol_rap[iFrame][iRapBin][phiPol],
+							 hGen_pol_rap[iFrame][iRapBin][phiPol]);
+      sprintf(name, "gAcc_Onia_phi_%s_rap%d", frameLabel[iFrame], iRapBin);
+      gAcc_pol_rap[iFrame][iRapBin][phiPol]->SetName(name);
+      gAcc_pol_rap[iFrame][iRapBin][phiPol]->SetLineColor(colour_rap[iRapBin]);
+      gAcc_pol_rap[iFrame][iRapBin][phiPol]->SetMarkerColor(colour_rap[iRapBin]);
+      gAcc_pol_rap[iFrame][iRapBin][phiPol]->SetMarkerStyle(marker_rap[iRapBin]);
+      gAcc_pol_rap[iFrame][iRapBin][phiPol]->SetMarkerSize(markerSize);
+      //H: implement by hand!!!
+      sprintf(name, "hAcc2D_Onia_%s_rap%d", frameLabel[iFrame], iRapBin);
+      hAcc2D_pol_rap[iFrame][iRapBin] = (TH2D *) Reco2D_pol_rap[iFrame][iRapBin]->Clone(name);
+      if(dividing)
+	hAcc2D_pol_rap[iFrame][iRapBin]->Divide(hGen2D_pol_rap[iFrame][iRapBin]);
+      hAcc2D_pol_rap[iFrame][iRapBin]->SetLineColor(colour_rap[iRapBin]);
+      hAcc2D_pol_rap[iFrame][iRapBin]->SetMarkerColor(colour_rap[iRapBin]);
+      hAcc2D_pol_rap[iFrame][iRapBin]->SetMarkerStyle(marker_rap[iRapBin]);
+      hAcc2D_pol_rap[iFrame][iRapBin]->SetMarkerSize(markerSize);
+    }
+    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+      for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
+
+	printf("preparing cosTheta 1D differential acceptance (pT bin %d, rap bin %d)\n", iPTBin, iRapBin);
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol] = new TGraphAsymmErrors();
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->BayesDivide(Reco_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol],
+									hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]);
+	sprintf(name, "gAcc_Onia_cosTh_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetName(name);
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetLineColor(colour_pT[iPTBin]);
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetMarkerColor(colour_pT[iPTBin]);
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetMarkerStyle(marker_pT[iPTBin]);
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetMarkerSize(markerSize);         
+	//
+
+	printf("preparing phi 1D differential acceptance (pT bin %d, rap bin %d)\n", iPTBin, iRapBin);
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol] = new TGraphAsymmErrors();
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->BayesDivide(Reco_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol],
+								      hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]);
+	sprintf(name, "gAcc_Onia_phi_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetName(name);
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetLineColor(colour_pT[iPTBin]);
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetMarkerColor(colour_pT[iPTBin]);
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetMarkerStyle(marker_pT[iPTBin]);
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetMarkerSize(markerSize);
+	//H: implement by hand!!!
+	printf("preparing 2D differential acceptance (pT bin %d, rap bin %d)\n", iPTBin, iRapBin);
+	gAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TGraphAsymmErrors();
+	sprintf(name, "gAcc2D_Onia_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
+	gAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetName(name);
+	Calc2DAcc(Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin], 
+		  hGen2D_pol_pT_rap[iFrame][iPTBin][iRapBin],
+		  gAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]);
+	//
+	sprintf(name, "hAcc2D_Onia_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
+	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = (TH2D *) Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Clone(name);
+	if(dividing)
+	  hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Divide(hGen2D_pol_pT_rap[iFrame][iPTBin][iRapBin]);
+	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetLineColor(colour_pT[iPTBin]);
+	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerColor(colour_pT[iPTBin]);
+	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerStyle(marker_pT[iPTBin]);
+	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerSize(markerSize);
+	printf("%s: pT %d, rap %d: max. acceptance: %1.3e\n", frameLabel[iFrame], iPTBin, iRapBin,
+	       hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetMaximum());
+
+	// //in case a bin content is higher than 1: set it back to 1
+	// Double_t content;
+	// for(int iX = 1; iX <= hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsX(); iX++){
+	//   for(int iY = 1; iY <= hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsY(); iY++){
+	//     content = hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetBinContent(iX, iY);
+	//     if(content > 1.)
+	//       hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinContent(iX, iY, 1.);
+	//   }
+	// }
+      }
+    }
+  }
+}
+
+//===============================
+void ReadInHistos(Char_t *fileNameIn, Int_t rebinCosTh, Int_t rebinPhi){
+
+  TFile *fIn = new TFile(fileNameIn);
+  Char_t name[100];
+
+  hGen_pt = (TH1D *)  gDirectory->Get("hGen_Onia_pt");
+  hGen_rap = (TH1D *) gDirectory->Get("hGen_Onia_rap");
+  hGen_phi = (TH1D *) gDirectory->Get("hGen_Onia_phi");
+  Reco_pt = (TH1D *)  gDirectory->Get("Reco_Onia_pt");
+  Reco_rap = (TH1D *) gDirectory->Get("Reco_Onia_rap");
+  Reco_phi = (TH1D *) gDirectory->Get("Reco_Onia_phi");
+
+  Int_t totEntries[kNbFrames];
+  for(int iFrame = 0; iFrame < kNbFrames; iFrame++){
+    totEntries[iFrame] = 0;
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      //generated
+      sprintf(name, "hGen_Onia_cosTh_%s_pT%d", frameLabel[iFrame], iPTBin);
+      hGen_pol_pT[iFrame][iPTBin][cosThPol] = (TH1D *) gDirectory->Get(name);
+      hGen_pol_pT[iFrame][iPTBin][cosThPol]->SetLineColor(colour_pT[iPTBin]);
+      hGen_pol_pT[iFrame][iPTBin][cosThPol]->SetMarkerColor(colour_pT[iPTBin]);
+      hGen_pol_pT[iFrame][iPTBin][cosThPol]->SetMarkerStyle(marker_pT[iPTBin]);
+      hGen_pol_pT[iFrame][iPTBin][cosThPol]->SetMarkerSize(markerSize);        
+      sprintf(name, "hGen_Onia_phi_%s_pT%d", frameLabel[iFrame], iPTBin);
+      hGen_pol_pT[iFrame][iPTBin][phiPol] = (TH1D *) gDirectory->Get(name);
+      hGen_pol_pT[iFrame][iPTBin][phiPol]->SetLineColor(colour_pT[iPTBin]);  
+      hGen_pol_pT[iFrame][iPTBin][phiPol]->SetMarkerColor(colour_pT[iPTBin]);
+      hGen_pol_pT[iFrame][iPTBin][phiPol]->SetMarkerStyle(marker_pT[iPTBin]);
+      hGen_pol_pT[iFrame][iPTBin][phiPol]->SetMarkerSize(markerSize);        
+      sprintf(name, "hGen2D_Onia_%s_pT%d", frameLabel[iFrame], iPTBin);
+      hGen2D_pol_pT[iFrame][iPTBin] = (TH2D *) gDirectory->Get(name);
+      hGen2D_pol_pT[iFrame][iPTBin]->SetLineColor(colour_pT[iPTBin]);  
+      hGen2D_pol_pT[iFrame][iPTBin]->SetMarkerColor(colour_pT[iPTBin]);
+      hGen2D_pol_pT[iFrame][iPTBin]->SetMarkerStyle(marker_pT[iPTBin]);
+      hGen2D_pol_pT[iFrame][iPTBin]->SetMarkerSize(markerSize);        
+      if(rebinCosTh > 1 || rebinPhi > 1)
+	hGen2D_pol_pT[iFrame][iPTBin]->Rebin2D(rebinCosTh, rebinPhi);
+
+      //reco
+      sprintf(name, "Reco_Onia_cosTh_%s_pT%d", frameLabel[iFrame], iPTBin);
+      Reco_pol_pT[iFrame][iPTBin][cosThPol] = (TH1D *) gDirectory->Get(name);
+      Reco_pol_pT[iFrame][iPTBin][cosThPol]->SetLineColor(colour_pT[iPTBin]);  
+      Reco_pol_pT[iFrame][iPTBin][cosThPol]->SetMarkerColor(colour_pT[iPTBin]);
+      Reco_pol_pT[iFrame][iPTBin][cosThPol]->SetMarkerStyle(marker_pT[iPTBin]);
+      Reco_pol_pT[iFrame][iPTBin][cosThPol]->SetMarkerSize(markerSize);        
+      sprintf(name, "Reco_Onia_phi_%s_pT%d", frameLabel[iFrame], iPTBin);
+      Reco_pol_pT[iFrame][iPTBin][phiPol] = (TH1D *) gDirectory->Get(name);
+      Reco_pol_pT[iFrame][iPTBin][phiPol]->SetLineColor(colour_pT[iPTBin]);  
+      Reco_pol_pT[iFrame][iPTBin][phiPol]->SetMarkerColor(colour_pT[iPTBin]);
+      Reco_pol_pT[iFrame][iPTBin][phiPol]->SetMarkerStyle(marker_pT[iPTBin]);
+      Reco_pol_pT[iFrame][iPTBin][phiPol]->SetMarkerSize(markerSize);
+      sprintf(name, "Reco2D_Onia_%s_pT%d", frameLabel[iFrame], iPTBin);
+      Reco2D_pol_pT[iFrame][iPTBin] = (TH2D *) gDirectory->Get(name);
+      Reco2D_pol_pT[iFrame][iPTBin]->SetLineColor(colour_pT[iPTBin]);  
+      Reco2D_pol_pT[iFrame][iPTBin]->SetMarkerColor(colour_pT[iPTBin]);
+      Reco2D_pol_pT[iFrame][iPTBin]->SetMarkerStyle(marker_pT[iPTBin]);
+      Reco2D_pol_pT[iFrame][iPTBin]->SetMarkerSize(markerSize);
+      if(rebinCosTh > 1 || rebinPhi > 1)
+	Reco2D_pol_pT[iFrame][iPTBin]->Rebin2D(rebinCosTh, rebinPhi);
+    }
+    for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
+      //generated
+      sprintf(name, "hGen_Onia_cosTh_%s_rap%d", frameLabel[iFrame], iRapBin);
+      hGen_pol_rap[iFrame][iRapBin][cosThPol] = (TH1D *) gDirectory->Get(name);
+      hGen_pol_rap[iFrame][iRapBin][cosThPol]->SetLineColor(colour_rap[iRapBin]);   
+      hGen_pol_rap[iFrame][iRapBin][cosThPol]->SetMarkerColor(colour_rap[iRapBin]); 
+      hGen_pol_rap[iFrame][iRapBin][cosThPol]->SetMarkerStyle(marker_rap[iRapBin]); 
+      hGen_pol_rap[iFrame][iRapBin][cosThPol]->SetMarkerSize(markerSize);           
+      sprintf(name, "hGen_Onia_phi_%s_rap%d", frameLabel[iFrame], iRapBin);
+      hGen_pol_rap[iFrame][iRapBin][phiPol] = (TH1D *) gDirectory->Get(name);
+      hGen_pol_rap[iFrame][iRapBin][phiPol]->SetLineColor(colour_rap[iRapBin]);   
+      hGen_pol_rap[iFrame][iRapBin][phiPol]->SetMarkerColor(colour_rap[iRapBin]); 
+      hGen_pol_rap[iFrame][iRapBin][phiPol]->SetMarkerStyle(marker_rap[iRapBin]); 
+      hGen_pol_rap[iFrame][iRapBin][phiPol]->SetMarkerSize(markerSize);           
+      sprintf(name, "hGen2D_Onia_%s_rap%d", frameLabel[iFrame], iRapBin);
+      hGen2D_pol_rap[iFrame][iRapBin] = (TH2D *) gDirectory->Get(name);
+      hGen2D_pol_rap[iFrame][iRapBin]->SetLineColor(colour_rap[iRapBin]);   
+      hGen2D_pol_rap[iFrame][iRapBin]->SetMarkerColor(colour_rap[iRapBin]); 
+      hGen2D_pol_rap[iFrame][iRapBin]->SetMarkerStyle(marker_rap[iRapBin]); 
+      hGen2D_pol_rap[iFrame][iRapBin]->SetMarkerSize(markerSize);           
+      if(rebinCosTh > 1 || rebinPhi > 1)
+	hGen2D_pol_rap[iFrame][iRapBin]->Rebin2D(rebinCosTh, rebinPhi);
+      //reconstructed
+      sprintf(name, "Reco_Onia_cosTh_%s_rap%d", frameLabel[iFrame], iRapBin);
+      Reco_pol_rap[iFrame][iRapBin][cosThPol] = (TH1D *) gDirectory->Get(name);
+      Reco_pol_rap[iFrame][iRapBin][cosThPol]->SetLineColor(colour_rap[iRapBin]);   
+      Reco_pol_rap[iFrame][iRapBin][cosThPol]->SetMarkerColor(colour_rap[iRapBin]); 
+      Reco_pol_rap[iFrame][iRapBin][cosThPol]->SetMarkerStyle(marker_rap[iRapBin]); 
+      Reco_pol_rap[iFrame][iRapBin][cosThPol]->SetMarkerSize(markerSize);           
+      sprintf(name, "Reco_Onia_phi_%s_rap%d", frameLabel[iFrame], iRapBin);
+      Reco_pol_rap[iFrame][iRapBin][phiPol] = (TH1D *) gDirectory->Get(name);
+      Reco_pol_rap[iFrame][iRapBin][phiPol]->SetLineColor(colour_rap[iRapBin]);   
+      Reco_pol_rap[iFrame][iRapBin][phiPol]->SetMarkerColor(colour_rap[iRapBin]); 
+      Reco_pol_rap[iFrame][iRapBin][phiPol]->SetMarkerStyle(marker_rap[iRapBin]); 
+      Reco_pol_rap[iFrame][iRapBin][phiPol]->SetMarkerSize(markerSize);           
+      sprintf(name, "Reco2D_Onia_%s_rap%d", frameLabel[iFrame], iRapBin);
+      Reco2D_pol_rap[iFrame][iRapBin] = (TH2D *) gDirectory->Get(name);
+      Reco2D_pol_rap[iFrame][iRapBin]->SetLineColor(colour_rap[iRapBin]);   
+      Reco2D_pol_rap[iFrame][iRapBin]->SetMarkerColor(colour_rap[iRapBin]); 
+      Reco2D_pol_rap[iFrame][iRapBin]->SetMarkerStyle(marker_rap[iRapBin]); 
+      Reco2D_pol_rap[iFrame][iRapBin]->SetMarkerSize(markerSize);           
+      if(rebinCosTh > 1 || rebinPhi > 1)
+	Reco2D_pol_rap[iFrame][iRapBin]->Rebin2D(rebinCosTh, rebinPhi);
+    }
+    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+      for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
+	//generated
+	sprintf(name, "hGen_Onia_cosTh_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
+	hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol] = (TH1D *) gDirectory->Get(name);
+	hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetLineColor(colour_pT[iPTBin]);   
+	hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetMarkerColor(colour_pT[iPTBin]);  
+	hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetMarkerStyle(marker_pT[iPTBin]);  
+	hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetMarkerSize(markerSize);          
+	sprintf(name, "hGen_Onia_phi_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
+	hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol] = (TH1D *) gDirectory->Get(name);
+	hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetLineColor(colour_pT[iPTBin]);   
+	hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetMarkerColor(colour_pT[iPTBin]); 
+	hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetMarkerStyle(marker_pT[iPTBin]); 
+	hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetMarkerSize(markerSize);         
+	sprintf(name, "hGen2D_Onia_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
+	hGen2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = (TH2D *) gDirectory->Get(name);
+	hGen2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetLineColor(colour_pT[iPTBin]);   
+	hGen2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerColor(colour_pT[iPTBin]); 
+	hGen2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerStyle(marker_pT[iPTBin]); 
+	hGen2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerSize(markerSize);         
+	if(rebinCosTh > 1 || rebinPhi > 1)
+	  hGen2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Rebin2D(rebinCosTh, rebinPhi);
+
+	//reconstructed
+	sprintf(name, "Reco_Onia_cosTh_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
+	Reco_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol] = (TH1D *) gDirectory->Get(name);
+	Reco_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetLineColor(colour_pT[iPTBin]);   
+	Reco_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetMarkerColor(colour_pT[iPTBin]); 
+	Reco_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetMarkerStyle(marker_pT[iPTBin]); 
+	Reco_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->SetMarkerSize(markerSize);         
+	sprintf(name, "Reco_Onia_phi_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
+	Reco_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol] = (TH1D *) gDirectory->Get(name);
+	Reco_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetLineColor(colour_pT[iPTBin]);   
+	Reco_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetMarkerColor(colour_pT[iPTBin]); 
+	Reco_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetMarkerStyle(marker_pT[iPTBin]); 
+	Reco_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->SetMarkerSize(markerSize);         
+	sprintf(name, "Reco2D_Onia_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
+	Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = (TH2D *) gDirectory->Get(name);
+	Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetLineColor(colour_pT[iPTBin]);   
+	Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerColor(colour_pT[iPTBin]); 
+	Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerStyle(marker_pT[iPTBin]); 
+	Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerSize(markerSize);         
+	printf("%s: pTbin %d, rapBin %d --> statistics in data: %1.1f\n",
+	       frameLabel[iFrame], iPTBin, iRapBin, 
+	       Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetEntries());
+
+	totEntries[iFrame] += Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetEntries();
+	if(rebinCosTh > 1 || rebinPhi > 1)
+	  Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Rebin2D(rebinCosTh, rebinPhi);
+      }
+    }
+    printf("%s: integrated statistics is %d\n", 
+	   frameLabel[iFrame], totEntries[iFrame]);
+  }
+}
+
+//===============================
+void WriteAccHistos(Char_t *fileNameOut){
+
+  TFile *fOut = new TFile(fileNameOut, "RECREATE");
+
+  gAcc_pt->Write();
+  gAcc_rap->Write();
+  gAcc_phi->Write();
+
+  for(int iFrame = 0; iFrame < kNbFrames; iFrame++){
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      gAcc_pol_pT[iFrame][iPTBin][cosThPol]->Write();
+      gAcc_pol_pT[iFrame][iPTBin][phiPol]->Write();
+      hAcc2D_pol_pT[iFrame][iPTBin]->Write();
+    }
+    for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
+      gAcc_pol_rap[iFrame][iRapBin][cosThPol]->Write();
+      gAcc_pol_rap[iFrame][iRapBin][phiPol]->Write();
+      hAcc2D_pol_rap[iFrame][iRapBin]->Write();
+    }
+    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+      for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->Write();
+	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->Write();
+	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Write();
+	gAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Write();
+      }
+    }
+  }
+  fOut->Close();
+}
+
+//=======================================================
+void Calc2DAcc(TH2D *hReco, TH2D *hGen, TGraphAsymmErrors *graph){
+
+  Int_t nBinsX1 = hReco->GetNbinsX();
+  Int_t nBinsX2 = hGen->GetNbinsX();
+  Int_t nBinsY1 = hReco->GetNbinsY();
+  Int_t nBinsY2 = hGen->GetNbinsY();
+  if(nBinsX1 != nBinsX2 && nBinsY1 != nBinsY2) return;
+
+  //build 1D histos containing the slices of the 2D histo appended
+  Char_t name[100];
+  sprintf(name, "%s_1D", hGen->GetName());
+  TH1D *hGen1D = new TH1D(name, "", nBinsX1*nBinsY1, 0., nBinsX1*nBinsY1);
+  sprintf(name, "%s_1D", hReco->GetName());
+  TH1D *hReco1D = new TH1D(name, "", nBinsX1*nBinsY1, 0., nBinsX1*nBinsY1);
+  Double_t gen, rec;
+  for(int iY = 1; iY <= nBinsY1; iY++){
+    for(int iX = 1; iX <= nBinsX1; iX++){
+      gen = hGen->GetBinContent(iX, iY);
+      rec = hReco->GetBinContent(iX, iY);
+
+      hGen1D->SetBinContent((iY-1)*nBinsX1 + iX, gen);
+      hReco1D->SetBinContent((iY-1)*nBinsX1 + iX, rec);
+    }
+  }
+
+  //use Bayes divide to get the errors
+  graph->BayesDivide(hReco1D, hGen1D);
+  
+  // //***use FeldmanCousinsBinomialInterval/ClopperPearsonBinomialInterval to get the errors
+  // //BinomialInterval::FeldmanCousinsBinomialInterval fc;
+  // FeldmanCousinsBinomialInterval fc;
+  // //ClopperPearsonBinomialInterval cp;
+
+  // //alpha = 1 - CL
+  // const double alpha = (1-0.682);
+  // fc.init(alpha);
+  // //cp.init(alpha);
+
+  // Int_t binX = hGen1D->GetNbinsX();
+
+  // for(int iX = 1; iX <= binX; iX++){
+  //     gen = hGen1D->GetBinContent(iX);
+  //     rec = hReco1D->GetBinContent(iX);
+
+  //     double acc = rec / gen;
+  //     fc.calculate(rec, gen);
+  //     //cp.calculate(rec, gen);
+  //     double errorLow = acc - fc.lower();
+  //     double errorHigh = fc.upper() - acc;
+
+  //     Double_t xVal =  hGen1D->GetBinCenter(iX);
+
+  //     graph->SetPoint(iX,xVal,acc);
+  //     graph->SetPointEYhigh(iX, errorHigh);
+  //     graph->SetPointEYlow(iX, errorLow);
+  // }
+
+}
