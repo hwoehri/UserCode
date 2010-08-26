@@ -1,10 +1,39 @@
-(*) runData.C
+(1) runMC.C
+    steering macro that projects from the RooDataSet containing the generated 
+    variables into histograms containing the 1D and 2D distributions of the 
+    polarization related variables (cosTheta and phi), which will be the input
+    to the macro calculating the Acc*Eff maps from MC. The actual booking and 
+    filling of the histograms is done in PolMC.h/C.
+    --> cuts implemented in PolMC.C should always be in sync with the
+    one in PolData.C
+    
+(2) runData.C
     steering macro that projects from the RooDataSet into histograms
     containing the 1D and 2D distributions of the polarization related 
-    variables (cosTheta and phi). The actual booking and filling of the 
-    histograms is done in PolData.h/C.
+    variables (cosTheta and phi). This macro can be run on real data
+    as well as on MC. To add the reconstructed histograms for the acceptance
+    evaluation to the output file from the previous step ("runMC.C") run
+    "runData.C" with the option 
+    Bool_t newOutputFile = kFALSE
+    Otherwise to store them in a new output file use
+    Bool_t newOutputFile = kTRUE
+    The actual booking and filling of the histograms is done in PolData.h/C.
     --> cuts implemented in PolData.C should always be in sync with the
     one in PolMC.C
+
+(3) getAcceptance.C
+    calculates the product of geometrical acceptance with all efficiencies
+    from MC, simply as Acc = RECO / GEN. This is done for the 1D and 2D
+    histograms stored in the output file from the previous two steps
+    The acceptance maps used for the RooFits of the polarization analyses
+    are 2D histos (phi vs cosTheta) for each rapidity and pT bin and are 
+    called "hAcc2D_Onia_CS_pT1_rap1" and ""hAcc2D_Onia_HX_pT1_rap1" etc.
+    These are stored in a file called "accHistos_HLT_Mu0Track0Jpsi.root"
+    (or similar)
+
+    --> the many output plots can be processed by
+    cd ../latex
+    pdflatex acceptance.tex
 
 (*) plotMass.C
     macro that reads the output of "runData.C", plots the mass distribution
