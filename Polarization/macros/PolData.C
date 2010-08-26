@@ -88,10 +88,6 @@ void PolData::Loop(Int_t selDimuType)
     Double_t pTMuPos = muPos->Pt();
     Double_t pTMuNeg = muNeg->Pt();
 
-    //dummy protection for events that do not contain useful information
-    if(JpsiPx < 0.) 
-      continue;
-
     //test of fiducial area:
     if(TMath::Abs(etaMuPos) > etaPS || TMath::Abs(etaMuNeg) > etaPS){
       printf("eta(pos. muon) = %f, eta(neg. muon) = %f\n", etaMuPos, etaMuNeg);
