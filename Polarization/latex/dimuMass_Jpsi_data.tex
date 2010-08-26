@@ -1,0 +1,103 @@
+\NeedsTeXFormat{LaTeX2e}[1994/02/01]
+\documentclass[12pt]{article}
+\usepackage{graphicx,rotating,epsfig}
+\addtolength{\textheight}{2.8cm}\addtolength{\textwidth}{1.5cm}
+\addtolength{\hoffset}{-1.cm}\addtolength{\voffset}{-1.6cm} 
+\newlength{\digitwidth} \settowidth{\digitwidth}{\rm 0}
+\newcommand{\cinst}[2]{$^{\mathrm{#1)}}$~#2\par}
+\newcommand{\crefi}[1]{$^{\mathrm{#1)}}$}
+\newcommand{\HRule}{\rule{0.4\linewidth}{0.3mm}}
+\newcommand{\mlab}[1]%
+    {\mbox{}\marginpar{\raggedright\hspace{0pt}\footnotesize #1}}
+\newcommand{\pt}{$p_{\mathrm{T}}$}
+\newcommand{\mt}{$m_{\mathrm{T}}$}
+\newcommand{\DDbar}{$D\bar{D}$}
+\newcommand{\ccbar}{$c\bar{c}$}
+\newcommand{\qqbar}{$q\bar{q}$}
+\newcommand{\et}{$E_{\rm T}$}
+\newcommand{\jpsi}{J/$\psi$}
+\newcommand{\psip}{$\psi^\prime$}
+\newcommand{\cost}{$|\cos \theta|$}
+\begin{document}
+
+\begin{figure}[!h]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT0_rap0.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT0_rap1.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT0_rap2.pdf}}
+\resizebox{0.5\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT0_rap3.pdf}}
+
+\caption{Dimuon mass distribution, integrated in \pt\, for all
+  rapidities (top) and three different rapidity bins (Real data).}
+\label{fig:trackerMuonsVsEta}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT1_rap0.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT2_rap0.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT3_rap0.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT4_rap0.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT5_rap0.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT6_rap0.pdf}}
+\caption{Dimuon mass distribution, integrated in rapidity, for
+  different bins in dimuon \pt\ (Real data).}
+\label{fig:trackerMuonsVsEta}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT1_rap1.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT2_rap1.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT3_rap1.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT4_rap1.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT5_rap1.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT6_rap1.pdf}}
+\caption{Dimuon mass distribution at mid-rapidity, $|y| < 0.9$, for
+  different bins in dimuon \pt\ (Real data).}
+\label{fig:trackerMuonsVsEta}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT1_rap2.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT2_rap2.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT3_rap2.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT4_rap2.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT5_rap2.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT6_rap2.pdf}}
+\caption{Dimuon mass distribution for $0.9 < |y| < 1.5$, for
+  different bins in dimuon \pt\ (Real data).}
+\label{fig:trackerMuonsVsEta}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT1_rap3.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT2_rap3.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT3_rap3.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT4_rap3.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT5_rap3.pdf}
+\includegraphics*{../macros/Figures/fitData_Jpsi_pT6_rap3.pdf}}
+\caption{Dimuon mass distribution at mid-rapidity, $1.5 < |y| < 2.3$, for
+  different bins in dimuon \pt\ (Real data).}
+\label{fig:trackerMuonsVsEta}
+\end{figure}
+
+
+\end{document}
