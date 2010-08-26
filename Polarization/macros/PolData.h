@@ -28,47 +28,33 @@ public :
    Double_t        JpsictErr;
    Int_t           JpsiType_idx;
    Char_t          JpsiType_lbl[3];
-   /* Int_t           JpsiPtType_idx; */
-   /* Char_t          JpsiPtType_lbl[4]; */
-   /* Int_t           JpsiRapType_idx; */
-   /* Char_t          JpsiRapType_lbl[5]; */
    Double_t        muPosPx;
    Double_t        muPosPy;
    Double_t        muPosPz;
    Double_t        muNegPx;
    Double_t        muNegPy;
    Double_t        muNegPz;
-   Double_t        JpsiMass_Gen;
-   Double_t        JpsiPt_Gen;
-   Double_t        JpsiRap_Gen;
-   Double_t        JpsiPx_Gen;
-   Double_t        JpsiPy_Gen;
-   Double_t        JpsiPz_Gen;
-   Double_t        muPosPx_Gen;
-   Double_t        muPosPy_Gen;
-   Double_t        muPosPz_Gen;
-   Double_t        muNegPx_Gen;
-   Double_t        muNegPy_Gen;
-   Double_t        muNegPz_Gen;
+   /* Double_t        JpsiMass_Gen; */
+   /* Double_t        JpsiPt_Gen; */
+   /* Double_t        JpsiRap_Gen; */
+   /* Double_t        JpsiPx_Gen; */
+   /* Double_t        JpsiPy_Gen; */
+   /* Double_t        JpsiPz_Gen; */
+   /* Double_t        muPosPx_Gen; */
+   /* Double_t        muPosPy_Gen; */
+   /* Double_t        muPosPz_Gen; */
+   /* Double_t        muNegPx_Gen; */
+   /* Double_t        muNegPy_Gen; */
+   /* Double_t        muNegPz_Gen; */
    Double_t        eventNb;
    Double_t        runNb;
    Double_t        lumiBlock;
-   /* Int_t           type_L1DoubleMuOpen_idx; */
-   /* Char_t          type_L1DoubleMuOpen_lbl[9]; */
-   /* Int_t           type_L2DoubleMu0_idx; */
-   /* Char_t          type_L2DoubleMu0_lbl[9]; */
-   /* Int_t           type_Mu0_Track0_Jpsi_idx; */
-   /* Char_t          type_Mu0_Track0_Jpsi_lbl[9]; */
-   /* Int_t           type_Mu3_Track0_Jpsi_idx; */
-   /* Char_t          type_Mu3_Track0_Jpsi_lbl[9]; */
-   /* Int_t           type_Mu5_Track0_Jpsi_idx; */
-   /* Char_t          type_Mu5_Track0_Jpsi_lbl[9]; */
-   /* Int_t           type_DoubleMu0_idx; */
-   /* Char_t          type_DoubleMu0_lbl[9]; */
-   /* Int_t           type_DoubleMu3_idx; */
-   /* Char_t          type_DoubleMu3_lbl[9]; */
-   Int_t           MCType_idx;
-   Char_t          MCType_lbl[3];
+   /* Int_t           MCType_idx; */
+   /* Char_t          MCType_lbl[3]; */
+   Double_t        costh_HX;
+   Double_t        costh_CS;
+   Double_t        phi_HX;
+   Double_t        phi_CS;
 
    // List of branches
    TBranch        *b_JpsiMass;   //!
@@ -81,47 +67,33 @@ public :
    TBranch        *b_JpsictErr;   //!
    TBranch        *b_JpsiType_idx;   //!
    TBranch        *b_JpsiType_lbl;   //!
-   /* TBranch        *b_JpsiPtType_idx;   //! */
-   /* TBranch        *b_JpsiPtType_lbl;   //! */
-   /* TBranch        *b_JpsiRapType_idx;   //! */
-   /* TBranch        *b_JpsiRapType_lbl;   //! */
    TBranch        *b_muPosPx;   //!
    TBranch        *b_muPosPy;   //!
    TBranch        *b_muPosPz;   //!
    TBranch        *b_muNegPx;   //!
    TBranch        *b_muNegPy;   //!
    TBranch        *b_muNegPz;   //!
-   TBranch        *b_JpsiMass_Gen;   //!
-   TBranch        *b_JpsiPt_Gen;   //!
-   TBranch        *b_JpsiRap_Gen;   //!
-   TBranch        *b_JpsiPx_Gen;   //!
-   TBranch        *b_JpsiPy_Gen;   //!
-   TBranch        *b_JpsiPz_Gen;   //!
-   TBranch        *b_muPosPx_Gen;   //!
-   TBranch        *b_muPosPy_Gen;   //!
-   TBranch        *b_muPosPz_Gen;   //!
-   TBranch        *b_muNegPx_Gen;   //!
-   TBranch        *b_muNegPy_Gen;   //!
-   TBranch        *b_muNegPz_Gen;   //!
+   /* TBranch        *b_JpsiMass_Gen;   //! */
+   /* TBranch        *b_JpsiPt_Gen;   //! */
+   /* TBranch        *b_JpsiRap_Gen;   //! */
+   /* TBranch        *b_JpsiPx_Gen;   //! */
+   /* TBranch        *b_JpsiPy_Gen;   //! */
+   /* TBranch        *b_JpsiPz_Gen;   //! */
+   /* TBranch        *b_muPosPx_Gen;   //! */
+   /* TBranch        *b_muPosPy_Gen;   //! */
+   /* TBranch        *b_muPosPz_Gen;   //! */
+   /* TBranch        *b_muNegPx_Gen;   //! */
+   /* TBranch        *b_muNegPy_Gen;   //! */
+   /* TBranch        *b_muNegPz_Gen;   //! */
    TBranch        *b_eventNb;   //!
    TBranch        *b_runNb;   //!
    TBranch        *b_lumiBlock;   //!
-   /* TBranch        *b_type_L1DoubleMuOpen_idx;   //! */
-   /* TBranch        *b_type_L1DoubleMuOpen_lbl;   //! */
-   /* TBranch        *b_type_L2DoubleMu0_idx;   //! */
-   /* TBranch        *b_type_L2DoubleMu0_lbl;   //! */
-   /* TBranch        *b_type_Mu0_Track0_Jpsi_idx;   //! */
-   /* TBranch        *b_type_Mu0_Track0_Jpsi_lbl;   //! */
-   /* TBranch        *b_type_Mu3_Track0_Jpsi_idx;   //! */
-   /* TBranch        *b_type_Mu3_Track0_Jpsi_lbl;   //! */
-   /* TBranch        *b_type_Mu5_Track0_Jpsi_idx;   //! */
-   /* TBranch        *b_type_Mu5_Track0_Jpsi_lbl;   //! */
-   /* TBranch        *b_type_DoubleMu0_idx;   //! */
-   /* TBranch        *b_type_DoubleMu0_lbl;   //! */
-   /* TBranch        *b_type_DoubleMu3_idx;   //! */
-   /* TBranch        *b_type_DoubleMu3_lbl;   //! */
-   TBranch        *b_MCType_idx;   //!
-   TBranch        *b_MCType_lbl;   //!
+   /* TBranch        *b_MCType_idx;   //! */
+   /* TBranch        *b_MCType_lbl;   //! */
+   TBranch        *b_costh_HX;   //!
+   TBranch        *b_costh_CS;   //!
+   TBranch        *b_phi_HX;   //!
+   TBranch        *b_phi_CS;   //!
 
    PolData(TTree *tree=0);
    virtual ~PolData();
@@ -205,47 +177,33 @@ void PolData::Init(TTree *tree)
    fChain->SetBranchAddress("JpsictErr", &JpsictErr, &b_JpsictErr);
    fChain->SetBranchAddress("JpsiType_idx", &JpsiType_idx, &b_JpsiType_idx);
    fChain->SetBranchAddress("JpsiType_lbl", JpsiType_lbl, &b_JpsiType_lbl);
-   /* fChain->SetBranchAddress("JpsiPtType_idx", &JpsiPtType_idx, &b_JpsiPtType_idx); */
-   /* fChain->SetBranchAddress("JpsiPtType_lbl", JpsiPtType_lbl, &b_JpsiPtType_lbl); */
-   /* fChain->SetBranchAddress("JpsiRapType_idx", &JpsiRapType_idx, &b_JpsiRapType_idx); */
-   /* fChain->SetBranchAddress("JpsiRapType_lbl", JpsiRapType_lbl, &b_JpsiRapType_lbl); */
    fChain->SetBranchAddress("muPosPx", &muPosPx, &b_muPosPx);
    fChain->SetBranchAddress("muPosPy", &muPosPy, &b_muPosPy);
    fChain->SetBranchAddress("muPosPz", &muPosPz, &b_muPosPz);
    fChain->SetBranchAddress("muNegPx", &muNegPx, &b_muNegPx);
    fChain->SetBranchAddress("muNegPy", &muNegPy, &b_muNegPy);
    fChain->SetBranchAddress("muNegPz", &muNegPz, &b_muNegPz);
-   fChain->SetBranchAddress("JpsiMass_Gen", &JpsiMass_Gen, &b_JpsiMass_Gen);
-   fChain->SetBranchAddress("JpsiPt_Gen", &JpsiPt_Gen, &b_JpsiPt_Gen);
-   fChain->SetBranchAddress("JpsiRap_Gen", &JpsiRap_Gen, &b_JpsiRap_Gen);
-   fChain->SetBranchAddress("JpsiPx_Gen", &JpsiPx_Gen, &b_JpsiPx_Gen);
-   fChain->SetBranchAddress("JpsiPy_Gen", &JpsiPy_Gen, &b_JpsiPy_Gen);
-   fChain->SetBranchAddress("JpsiPz_Gen", &JpsiPz_Gen, &b_JpsiPz_Gen);
-   fChain->SetBranchAddress("muPosPx_Gen", &muPosPx_Gen, &b_muPosPx_Gen);
-   fChain->SetBranchAddress("muPosPy_Gen", &muPosPy_Gen, &b_muPosPy_Gen);
-   fChain->SetBranchAddress("muPosPz_Gen", &muPosPz_Gen, &b_muPosPz_Gen);
-   fChain->SetBranchAddress("muNegPx_Gen", &muNegPx_Gen, &b_muNegPx_Gen);
-   fChain->SetBranchAddress("muNegPy_Gen", &muNegPy_Gen, &b_muNegPy_Gen);
-   fChain->SetBranchAddress("muNegPz_Gen", &muNegPz_Gen, &b_muNegPz_Gen);
-   /* fChain->SetBranchAddress("type_L1DoubleMuOpen_idx", &type_L1DoubleMuOpen_idx, &b_type_L1DoubleMuOpen_idx); */
-   /* fChain->SetBranchAddress("type_L1DoubleMuOpen_lbl", type_L1DoubleMuOpen_lbl, &b_type_L1DoubleMuOpen_lbl); */
-   /* fChain->SetBranchAddress("type_L2DoubleMu0_idx", &type_L2DoubleMu0_idx, &b_type_L2DoubleMu0_idx); */
-   /* fChain->SetBranchAddress("type_L2DoubleMu0_lbl", type_L2DoubleMu0_lbl, &b_type_L2DoubleMu0_lbl); */
-   /* fChain->SetBranchAddress("type_Mu0_Track0_Jpsi_idx", &type_Mu0_Track0_Jpsi_idx, &b_type_Mu0_Track0_Jpsi_idx); */
-   /* fChain->SetBranchAddress("type_Mu0_Track0_Jpsi_lbl", type_Mu0_Track0_Jpsi_lbl, &b_type_Mu0_Track0_Jpsi_lbl); */
-   /* fChain->SetBranchAddress("type_Mu3_Track0_Jpsi_idx", &type_Mu3_Track0_Jpsi_idx, &b_type_Mu3_Track0_Jpsi_idx); */
-   /* fChain->SetBranchAddress("type_Mu3_Track0_Jpsi_lbl", type_Mu3_Track0_Jpsi_lbl, &b_type_Mu3_Track0_Jpsi_lbl); */
-   /* fChain->SetBranchAddress("type_Mu5_Track0_Jpsi_idx", &type_Mu5_Track0_Jpsi_idx, &b_type_Mu5_Track0_Jpsi_idx); */
-   /* fChain->SetBranchAddress("type_Mu5_Track0_Jpsi_lbl", type_Mu5_Track0_Jpsi_lbl, &b_type_Mu5_Track0_Jpsi_lbl); */
-   /* fChain->SetBranchAddress("type_DoubleMu0_idx", &type_DoubleMu0_idx, &b_type_DoubleMu0_idx); */
-   /* fChain->SetBranchAddress("type_DoubleMu0_lbl", type_DoubleMu0_lbl, &b_type_DoubleMu0_lbl); */
-   /* fChain->SetBranchAddress("type_DoubleMu3_idx", &type_DoubleMu3_idx, &b_type_DoubleMu3_idx); */
-   /* fChain->SetBranchAddress("type_DoubleMu3_lbl", type_DoubleMu3_lbl, &b_type_DoubleMu3_lbl); */
+   /* fChain->SetBranchAddress("JpsiMass_Gen", &JpsiMass_Gen, &b_JpsiMass_Gen); */
+   /* fChain->SetBranchAddress("JpsiPt_Gen", &JpsiPt_Gen, &b_JpsiPt_Gen); */
+   /* fChain->SetBranchAddress("JpsiRap_Gen", &JpsiRap_Gen, &b_JpsiRap_Gen); */
+   /* fChain->SetBranchAddress("JpsiPx_Gen", &JpsiPx_Gen, &b_JpsiPx_Gen); */
+   /* fChain->SetBranchAddress("JpsiPy_Gen", &JpsiPy_Gen, &b_JpsiPy_Gen); */
+   /* fChain->SetBranchAddress("JpsiPz_Gen", &JpsiPz_Gen, &b_JpsiPz_Gen); */
+   /* fChain->SetBranchAddress("muPosPx_Gen", &muPosPx_Gen, &b_muPosPx_Gen); */
+   /* fChain->SetBranchAddress("muPosPy_Gen", &muPosPy_Gen, &b_muPosPy_Gen); */
+   /* fChain->SetBranchAddress("muPosPz_Gen", &muPosPz_Gen, &b_muPosPz_Gen); */
+   /* fChain->SetBranchAddress("muNegPx_Gen", &muNegPx_Gen, &b_muNegPx_Gen); */
+   /* fChain->SetBranchAddress("muNegPy_Gen", &muNegPy_Gen, &b_muNegPy_Gen); */
+   /* fChain->SetBranchAddress("muNegPz_Gen", &muNegPz_Gen, &b_muNegPz_Gen); */
    fChain->SetBranchAddress("eventNb", &eventNb, &b_eventNb);
    fChain->SetBranchAddress("runNb", &runNb, &b_runNb);
    fChain->SetBranchAddress("lumiBlock", &lumiBlock, &b_lumiBlock);
-   fChain->SetBranchAddress("MCType_idx", &MCType_idx, &b_MCType_idx);
-   fChain->SetBranchAddress("MCType_lbl", MCType_lbl, &b_MCType_lbl);
+   /* fChain->SetBranchAddress("MCType_idx", &MCType_idx, &b_MCType_idx); */
+   /* fChain->SetBranchAddress("MCType_lbl", MCType_lbl, &b_MCType_lbl); */
+   fChain->SetBranchAddress("costh_HX", &costh_HX, &b_costh_HX);
+   fChain->SetBranchAddress("costh_CS", &costh_CS, &b_costh_CS);
+   fChain->SetBranchAddress("phi_HX", &phi_HX, &b_phi_HX);
+   fChain->SetBranchAddress("phi_CS", &phi_CS, &b_phi_CS);
    Notify();
 }
 

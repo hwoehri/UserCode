@@ -55,7 +55,7 @@ void PolData::Loop(Int_t selDimuType)
   Long64_t nentries = fChain->GetEntries();
   Long64_t cutAtRecEvent = nentries;
   Long64_t countRecEvent = 0;
-  Long64_t nbytes = 0, nb = 0;
+  Long64_t nb = 0;
   printf("number of entries = %d\n", (Int_t) nentries);
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
 
@@ -63,7 +63,7 @@ void PolData::Loop(Int_t selDimuType)
 
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
-    nb = fChain->GetEntry(jentry);   nbytes += nb;
+    nb = fChain->GetEntry(jentry);
 
     Reco_StatEv->Fill(0.5);//count all events
 
@@ -90,11 +90,11 @@ void PolData::Loop(Int_t selDimuType)
 
     //test of fiducial area:
     if(TMath::Abs(etaMuPos) > etaPS || TMath::Abs(etaMuNeg) > etaPS){
-      printf("eta(pos. muon) = %f, eta(neg. muon) = %f\n", etaMuPos, etaMuNeg);
+      // printf("eta(pos. muon) = %f, eta(neg. muon) = %f\n", etaMuPos, etaMuNeg);
       continue;
     }
     if(pTMuPos < pTMuMin && pTMuNeg < pTMuMin){
-      printf("pT(pos. muon) = %f, pT(neg. muon) = %f\n", pTMuPos, pTMuNeg);
+      // printf("pT(pos. muon) = %f, pT(neg. muon) = %f\n", pTMuPos, pTMuNeg);
       continue;
     }
 
@@ -163,9 +163,20 @@ void PolData::Loop(Int_t selDimuType)
       }
     }
 
-    if(pTIndex < 1) printf("pTIndex %d\n", pTIndex);
-    if(rapIndex < 1) printf("rapIndex %d\n", rapIndex);
-    if(rapForPTIndex < 1) printf("rapForPTIndex %d\n", rapForPTIndex);
+    if(pTIndex < 1){
+      printf("pTIndex %d\n", pTIndex);
+      continue;
+    }
+    if(rapIndex < 1){
+      printf("rapIndex %d\n", rapIndex);
+      continue;
+    }
+    if(rapForPTIndex < 1){
+      printf("rapForPTIndex %d\n", rapForPTIndex);
+      continue;
+    }
+
+    Reco_StatEv->Fill(3.5);
 
     countRecEvent++;
 
