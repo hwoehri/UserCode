@@ -1,0 +1,7 @@
+(*) runData.C
+    steering macro that projects from the RooDataSet into histograms
+    containing the 1D and 2D distributions of the polarization related 
+    variables (cosTheta and phi). The actual booking and filling of the 
+    histograms is done in PolData.h/C.
+    --> cuts implemented in PolData.C should always be in sync with the
+    one in PolMC.C
