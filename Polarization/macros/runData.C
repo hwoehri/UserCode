@@ -16,7 +16,7 @@ void runData(Char_t *fNameOut = "pol_data_HLT_Mu0Track0Jpsi.root",
 	     Bool_t newOutputFile = kFALSE, //allows to create a new file or to append info
 	     Char_t *fNameIn = "/home/hermine/CMS/Work/Polarization/Florian/26Aug2010/RooDataSet_pol_Mu0Track0Jpsi_dataR.root",	     
 	     //Char_t *fNameIn = "/home/hermine/CMS/Work/Polarization/Florian/26Aug2010/Spring10_PromptJPsi_TTree.root",
-	     Char_t *nameDataSet = "data", //"data" or "recoData"
+	     Char_t *nameDataSet = "recoData", //"data" or "recoData"
 	     Int_t selDimuType = 3, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
 	     Char_t *oniaLabel = "J/#psi"){//"Ups(1S)"
 
@@ -168,7 +168,7 @@ void BookHistosReco(Char_t *oniaLabel){
 	      pTRange[iPTBin-1], oniaLabel, pTRange[iPTBin]);
       hEtaPos_EtaNeg[iPTBin][iRapBin] = new TH2F(name, title, 24, -2.4, 2.4, 24, -2.4, 2.4);
     }
-    for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
+    for(int iRapBin = 1; iRapBin < 2*kNbRapBins+1; iRapBin++){
       sprintf(name, "Reco_hDeltaPhi_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < y(%s) < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;#phi(#mu^{+}) - #phi(#mu^{-})", 
 	      rapRange[iRapBin-1], oniaLabel, rapRange[iRapBin], 
