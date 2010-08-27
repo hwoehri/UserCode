@@ -14,11 +14,12 @@ void WriteHistosMC(Char_t *fNameOut);
 //==========================================
 void runMC(Char_t *fNameOut = "pol_MC_HLT_Mu0Track0Jpsi.root",
 	   Char_t *fNameIn = "/home/hermine/CMS/Work/Polarization/Florian/25Aug2010/RooDataSet_Spring10_PromptJPsi_TEST_0_10.root",
+	   Char_t *nameDataSet = "data", //"data" or "recoData"
 	   Int_t selDimuType = 3, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
 	   Char_t *oniaLabel = "J/#psi"){//"Ups(1S)"
 
   TFile *fIn = new TFile(fNameIn);
-  RooDataSet* ds = (RooDataSet*)fIn->Get("data");
+  RooDataSet* ds = (RooDataSet*)fIn->Get(nameDataSet);
   TTree *treeData = (TTree*)ds->tree();
 
   // TTree *treeData = (TTree*)fIn->Get("data");
@@ -148,24 +149,24 @@ void BookHistosMC(Char_t *oniaLabel){
       hGen_mumi_eta[iPTBin][iRapBin]->Sumw2();
       hGen_mumi_phi[iPTBin][iRapBin]->Sumw2();
 
-      sprintf(name, "hPhiPos_PhiNeg_pT%d_rap%d" , iPTBin, iRapBin);
+      sprintf(name, "hGen_hPhiPos_PhiNeg_pT%d_rap%d" , iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;#phi(#mu^{-});#phi(#mu^{+})",
           rapForPTRange[iRapBin-1], oniaLabel, rapForPTRange[iRapBin],
           pTRange[iPTBin-1], oniaLabel, pTRange[iPTBin]);
       hPhiPos_PhiNeg[iPTBin][iRapBin] = new TH2F(name, title, 60,-180.,180., 60,-180.,180.);
-      sprintf(name, "hPtPos_PtNeg_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(name, "hGen_hPtPos_PtNeg_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;p_{T}(#mu^{-});p_{T}(#mu^{+})",
           rapForPTRange[iRapBin-1], oniaLabel, rapForPTRange[iRapBin],
           pTRange[iPTBin-1], oniaLabel, pTRange[iPTBin]);
       hPtPos_PtNeg[iPTBin][iRapBin] = new TH2F(name, title, 20, 0., 10., 20, 0., 10.);
-      sprintf(name, "hEtaPos_EtaNeg_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(name, "hGen_hEtaPos_EtaNeg_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;#eta(#mu^{-});#eta(#mu^{+})",
           rapForPTRange[iRapBin-1], oniaLabel, rapForPTRange[iRapBin],
           pTRange[iPTBin-1], oniaLabel, pTRange[iPTBin]);
       hEtaPos_EtaNeg[iPTBin][iRapBin] = new TH2F(name, title, 24, -2.4, 2.4, 24, -2.4, 2.4);
     }
     for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
-      sprintf(name, "hDeltaPhi_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(name, "hGen_hDeltaPhi_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < y(%s) < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;#phi(#mu^{+}) - #phi(#mu^{-})",
           rapRange[iRapBin-1], oniaLabel, rapRange[iRapBin],
           pTRange[iPTBin-1], oniaLabel, pTRange[iPTBin]);
@@ -250,11 +251,11 @@ void BookHistosMC(Char_t *oniaLabel){
   for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
     for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
       //checking the rotation angle between HX and CS:
-      sprintf(name, "hDelta_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(name, "hGen_hDelta_pT%d_rap%d", iPTBin, iRapBin);
 //       hDelta[iPTBin][iRapBin] = new TH1F(name, ";#delta(HX --> CS) [rad]", 64, 0., 3.2);
       hDelta[iPTBin][iRapBin] = new TH1F(name, ";#delta(HX --> CS) [#circ]", 180, 0., 180.);
       hDelta[iPTBin][iRapBin]->Sumw2();
-      sprintf(name, "hSin2Delta_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(name, "hGen_hSin2Delta_pT%d_rap%d", iPTBin, iRapBin);
       hSin2Delta[iPTBin][iRapBin] = new TH1F(name, ";sin^{2}#delta(HX --> CS)", 100, 0., 1.);
       hSin2Delta[iPTBin][iRapBin]->Sumw2();
     }

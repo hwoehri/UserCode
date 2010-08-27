@@ -177,7 +177,7 @@ void PolMC::Loop(Int_t selDimuType)
         continue;
     }
 
-    hGen_StatEv->Fill(3.5);
+    hGen_StatEv->Fill(4.5);
 
     countRecEvent++;
 

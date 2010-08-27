@@ -65,6 +65,11 @@ void PolData::Loop(Int_t selDimuType)
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);
 
+    //fill the RECO variables only
+    //--> reject all events that contain only GEN information:
+    if(JpsiPx < -9900.)
+      continue;
+
     Reco_StatEv->Fill(0.5);//count all events
 
     //reject processing of events where the dimuon type (GG, GT or TT)
@@ -164,19 +169,19 @@ void PolData::Loop(Int_t selDimuType)
     }
 
     if(pTIndex < 1){
-      printf("pTIndex %d\n", pTIndex);
+      printf("pTIndex %d, pT(onia) = %f\n", pTIndex, onia_pt);
       continue;
     }
     if(rapIndex < 1){
-      printf("rapIndex %d\n", rapIndex);
+      printf("rapIndex %d, rap(onia) = %f\n", rapIndex, onia_rap);
       continue;
     }
     if(rapForPTIndex < 1){
-      printf("rapForPTIndex %d\n", rapForPTIndex);
+      printf("rapForPTIndex %d, rap(onia) = %f\n", rapForPTIndex, onia_rap);
       continue;
     }
 
-    Reco_StatEv->Fill(3.5);
+    Reco_StatEv->Fill(4.5);
 
     countRecEvent++;
 
