@@ -59,9 +59,11 @@ void FitJPsi(Int_t thePT, Int_t theRap){
   //add some text
   if(theRap == 0 && thePT == 0) sprintf(name, "|y| < 2.3, all p_{T}");
   else if(theRap == 0) sprintf(name, "|y| < 2.3, %1.1f < p_{T} < %1.1f", pTRange[thePT-1], pTRange[thePT]);
-  else if(theRap > 0 && thePT == 0) sprintf(name, "%1.1f < |y| < %1.1f, all p_{T}", rapForPTRange[theRap-1], rapForPTRange[theRap]);
-  else if(theRap > 0) sprintf(name, "%1.1f < |y| < %1.1f, %1.1f < p_{T} < %1.1f", 
-			      rapForPTRange[theRap-1], rapForPTRange[theRap], pTRange[thePT-1], pTRange[thePT]);
+  else if(theRap > 1 && thePT == 0) sprintf(name, "%1.1f < |y| < %1.1f, all p_{T}", rapForPTRange[theRap-1], rapForPTRange[theRap]);
+  else if(theRap == 1 && thePT == 0) sprintf(name, "|y| < %1.1f, all p_{T}", rapForPTRange[theRap]);
+  else if(theRap == 1) sprintf(name, "|y| < %1.1f, %1.1f < p_{T} < %1.1f", rapForPTRange[theRap], pTRange[thePT-1], pTRange[thePT]);
+  else if(theRap > 1)  sprintf(name, "%1.1f < |y| < %1.1f, %1.1f < p_{T} < %1.1f", 
+	    rapForPTRange[theRap-1], rapForPTRange[theRap], pTRange[thePT-1], pTRange[thePT]);
 
   tex1 = new TLatex(2.73, 0.9*hMass[thePT][theRap]->GetMaximum(), name);
   tex1->Draw();
