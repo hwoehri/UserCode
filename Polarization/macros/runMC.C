@@ -165,7 +165,7 @@ void BookHistosMC(Char_t *oniaLabel){
           pTRange[iPTBin-1], oniaLabel, pTRange[iPTBin]);
       hEtaPos_EtaNeg[iPTBin][iRapBin] = new TH2F(name, title, 24, -2.4, 2.4, 24, -2.4, 2.4);
     }
-    for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
+    for(int iRapBin = 1; iRapBin < 2*kNbRapBins+1; iRapBin++){
       sprintf(name, "hGen_hDeltaPhi_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < y(%s) < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;#phi(#mu^{+}) - #phi(#mu^{-})",
           rapRange[iRapBin-1], oniaLabel, rapRange[iRapBin],
