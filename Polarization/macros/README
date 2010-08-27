@@ -46,3 +46,8 @@
     cd ../latex
     pdflatex dimuMass_Jpsi_data.tex
 
+(*) checkAccCorrectedSpectra.C
+    plots the spectra (phi and cosTheta for the time being) before and after 
+    acceptance correction (1D as well as 2D)
+
+    
