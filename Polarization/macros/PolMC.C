@@ -67,14 +67,7 @@ void PolMC::Loop(Int_t selDimuType)
     nb = fChain->GetEntry(jentry);
 
     hGen_StatEv->Fill(0.5);//count all events
-
-    //reject processing of events where the dimuon type (GG, GT or TT)
-    //does not correspond to the chosen one
-    if(selDimuType < 3 && JpsiType_idx != selDimuType)
-      continue;
-    else if(selDimuType == 3 && JpsiType_idx > 1) //only GG or GT
-      continue;
-
+    //do NOT select on the dimuon type (only a RECO variable)
     hGen_StatEv->Fill(1.5);//count all events
 
     Double_t muMass = 0.105658;
@@ -165,7 +158,7 @@ void PolMC::Loop(Int_t selDimuType)
     }
 
     if(pTIndex < 1) {
-      // printf("pTIndex %d (pT = %f)\n", pTIndex, onia_pt);
+      printf("pTIndex %d (pT = %f)\n", pTIndex, onia_pt);
         continue;
     }
     if(rapIndex < 1) {
