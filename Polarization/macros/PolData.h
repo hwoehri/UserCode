@@ -114,9 +114,9 @@ PolData::PolData(TTree *tree)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/home/hermine/CMS/Work/Polarization/Florian/25Aug2010/Spring10_PromptJPsi_Histos_TEST_0_10.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/tmp/hwoehri/TTree_pol_Mu0Track0Jpsi_MCprompt.root");
       if (!f) {
-         f = new TFile("/home/hermine/CMS/Work/Polarization/Florian/25Aug2010/Spring10_PromptJPsi_Histos_TEST_0_10.root");
+         f = new TFile("/tmp/hwoehri/TTree_pol_Mu0Track0Jpsi_MCprompt.root");
       }
       tree = (TTree*)gDirectory->Get("data");
 

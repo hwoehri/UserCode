@@ -114,9 +114,9 @@ PolMC::PolMC(TTree *tree)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("tree_promptJPsi_v4.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/tmp/hwoehri/TTree_pol_Mu0Track0Jpsi_MCprompt.root");
       if (!f) {
-         f = new TFile("/afs/hephy.at/scratch/f/fat/");
+         f = new TFile("/tmp/hwoehri/TTree_pol_Mu0Track0Jpsi_MCprompt.root");
       }
       tree = (TTree*)gDirectory->Get("data");
 

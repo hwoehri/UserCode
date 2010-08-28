@@ -19,10 +19,9 @@ void runMC(Char_t *fNameOut = "pol_MC_HLT_Mu0Track0Jpsi.root",
 	   Char_t *oniaLabel = "J/#psi"){//"Ups(1S)"
 
   TFile *fIn = new TFile(fNameIn);
-  RooDataSet* ds = (RooDataSet*)fIn->Get(nameDataSet);
-  TTree *treeData = (TTree*)ds->tree();
-
-  // TTree *treeData = (TTree*)fIn->Get("data");
+//   RooDataSet* ds = (RooDataSet*)fIn->Get(nameDataSet);
+//   TTree *treeData = (TTree*)ds->tree();
+  TTree *treeData = (TTree*)fIn->Get(nameDataSet);
 
   TFile *fOut = new TFile(fNameOut, "RECREATE");
 
