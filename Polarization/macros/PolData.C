@@ -7,8 +7,8 @@
 #include <TH2.h>
 #include <TCanvas.h>
 //
-Double_t costh_CS, phi_CS, phi_CS_rad, cos2Phi_CS;
-Double_t costh_HX, phi_HX, phi_HX_rad, cos2Phi_HX;
+Double_t thisCosTh_CS, thisPhi_CS, thisPhi_CS_rad, thisCosPhi_CS;
+Double_t thisCosTh_HX, thisPhi_HX, thisPhi_HX_rad, thisCosPhi_HX;
 
 //some statistics
 TH1F *Reco_StatEv;
@@ -45,7 +45,7 @@ TH1F *hSin2Delta[kNbPTBins+1][kNbRapForPTBins+1];
 
 
 void calcPol(TLorentzVector muplus_LAB, TLorentzVector muminus_LAB);
-Double_t CalcPolWeight(Double_t pf_onia_P, Double_t costh_CS);
+Double_t CalcPolWeight(Double_t pf_onia_P, Double_t thisCosTh_CS);
 
 //==============================================
 void PolData::Loop(Int_t selDimuType)
@@ -127,8 +127,8 @@ void PolData::Loop(Int_t selDimuType)
 //     else
 //       calcPol(*muNeg, *muPos);
 
-    cos2Phi_CS = TMath::Cos(2.*phi_CS_rad);
-    cos2Phi_HX = TMath::Cos(2.*phi_HX_rad);
+    thisCosPhi_CS = TMath::Cos(2.*thisPhi_CS_rad);
+    thisCosPhi_HX = TMath::Cos(2.*thisPhi_HX_rad);
     
     //build the invariant mass, pt, ... of the two muons
     TLorentzVector *onia = new TLorentzVector();
@@ -142,8 +142,8 @@ void PolData::Loop(Int_t selDimuType)
     Double_t onia_phi = onia->Phi();
     Double_t onia_mT = sqrt(onia_mass*onia_mass + onia_pt*onia_pt);
 
-//     Double_t weight = CalcPolWeight(onia_P, costh_CS);
-    Double_t weight = CalcPolWeight(onia_P, costh_HX);
+//     Double_t weight = CalcPolWeight(onia_P, thisCosTh_CS);
+    Double_t weight = CalcPolWeight(onia_P, thisCosTh_HX);
 
     Int_t pTIndex = -1;
     for(int iPT = 0; iPT < kNbPTBins; iPT++){
@@ -239,68 +239,68 @@ void PolData::Loop(Int_t selDimuType)
 
       //1a) polariztion histos - all pT
       //CS frame
-      Reco_Onia_pol_pT[CS][0][cosThPol]->Fill(costh_CS, weight);
-      Reco_Onia_pol_pT[CS][0][phiPol]->Fill(phi_CS, weight);
-      Reco_Onia_pol_pT[CS][0][cos2PhiPol]->Fill(cos2Phi_CS, weight);
-      Reco2D_Onia_pol_pT[CS][0]->Fill(costh_CS, phi_CS, weight);
+      Reco_Onia_pol_pT[CS][0][cosThPol]->Fill(thisCosTh_CS, weight);
+      Reco_Onia_pol_pT[CS][0][phiPol]->Fill(thisPhi_CS, weight);
+      Reco_Onia_pol_pT[CS][0][cos2PhiPol]->Fill(thisCosPhi_CS, weight);
+      Reco2D_Onia_pol_pT[CS][0]->Fill(thisCosTh_CS, thisPhi_CS, weight);
       //HX frame
-      Reco_Onia_pol_pT[HX][0][cosThPol]->Fill(costh_HX, weight);
-      Reco_Onia_pol_pT[HX][0][phiPol]->Fill(phi_HX, weight);
-      Reco_Onia_pol_pT[HX][0][cos2PhiPol]->Fill(cos2Phi_HX, weight);
-      Reco2D_Onia_pol_pT[HX][0]->Fill(costh_HX, phi_HX, weight);
+      Reco_Onia_pol_pT[HX][0][cosThPol]->Fill(thisCosTh_HX, weight);
+      Reco_Onia_pol_pT[HX][0][phiPol]->Fill(thisPhi_HX, weight);
+      Reco_Onia_pol_pT[HX][0][cos2PhiPol]->Fill(thisCosPhi_HX, weight);
+      Reco2D_Onia_pol_pT[HX][0]->Fill(thisCosTh_HX, thisPhi_HX, weight);
 
       //1b) polariztion histos - pT Bin
       if(pTIndex > 0){
 	//CS frame
-	Reco_Onia_pol_pT[CS][pTIndex][cosThPol]->Fill(costh_CS, weight);
-	Reco_Onia_pol_pT[CS][pTIndex][phiPol]->Fill(phi_CS, weight);
-	Reco_Onia_pol_pT[CS][pTIndex][cos2PhiPol]->Fill(cos2Phi_CS, weight);
-	Reco2D_Onia_pol_pT[CS][pTIndex]->Fill(costh_CS, phi_CS, weight);
+	Reco_Onia_pol_pT[CS][pTIndex][cosThPol]->Fill(thisCosTh_CS, weight);
+	Reco_Onia_pol_pT[CS][pTIndex][phiPol]->Fill(thisPhi_CS, weight);
+	Reco_Onia_pol_pT[CS][pTIndex][cos2PhiPol]->Fill(thisCosPhi_CS, weight);
+	Reco2D_Onia_pol_pT[CS][pTIndex]->Fill(thisCosTh_CS, thisPhi_CS, weight);
 	//HX frame
-	Reco_Onia_pol_pT[HX][pTIndex][cosThPol]->Fill(costh_HX, weight);
-	Reco_Onia_pol_pT[HX][pTIndex][phiPol]->Fill(phi_HX, weight);
-	Reco_Onia_pol_pT[HX][pTIndex][cos2PhiPol]->Fill(cos2Phi_HX, weight);
-	Reco2D_Onia_pol_pT[HX][pTIndex]->Fill(costh_HX, phi_HX, weight);
+	Reco_Onia_pol_pT[HX][pTIndex][cosThPol]->Fill(thisCosTh_HX, weight);
+	Reco_Onia_pol_pT[HX][pTIndex][phiPol]->Fill(thisPhi_HX, weight);
+	Reco_Onia_pol_pT[HX][pTIndex][cos2PhiPol]->Fill(thisCosPhi_HX, weight);
+	Reco2D_Onia_pol_pT[HX][pTIndex]->Fill(thisCosTh_HX, thisPhi_HX, weight);
       }
 
       //2a) polariztion histos - all Rap
       //CS frame
-      Reco_Onia_pol_rap[CS][0][cosThPol]->Fill(costh_CS, weight);
-      Reco_Onia_pol_rap[CS][0][phiPol]->Fill(phi_CS, weight);
-      Reco_Onia_pol_rap[CS][0][cos2PhiPol]->Fill(cos2Phi_CS, weight);
-      Reco2D_Onia_pol_rap[CS][0]->Fill(costh_CS, phi_CS, weight);
+      Reco_Onia_pol_rap[CS][0][cosThPol]->Fill(thisCosTh_CS, weight);
+      Reco_Onia_pol_rap[CS][0][phiPol]->Fill(thisPhi_CS, weight);
+      Reco_Onia_pol_rap[CS][0][cos2PhiPol]->Fill(thisCosPhi_CS, weight);
+      Reco2D_Onia_pol_rap[CS][0]->Fill(thisCosTh_CS, thisPhi_CS, weight);
       //HX frame
-      Reco_Onia_pol_rap[HX][0][cosThPol]->Fill(costh_HX, weight);
-      Reco_Onia_pol_rap[HX][0][phiPol]->Fill(phi_HX, weight);
-      Reco_Onia_pol_rap[HX][0][cos2PhiPol]->Fill(cos2Phi_HX, weight);
-      Reco2D_Onia_pol_rap[HX][0]->Fill(costh_HX, phi_HX, weight);
+      Reco_Onia_pol_rap[HX][0][cosThPol]->Fill(thisCosTh_HX, weight);
+      Reco_Onia_pol_rap[HX][0][phiPol]->Fill(thisPhi_HX, weight);
+      Reco_Onia_pol_rap[HX][0][cos2PhiPol]->Fill(thisCosPhi_HX, weight);
+      Reco2D_Onia_pol_rap[HX][0]->Fill(thisCosTh_HX, thisPhi_HX, weight);
 
       //2b) polariztion histos - rap Bin
       if(rapIndex > 0){
 	//CS frame
-	Reco_Onia_pol_rap[CS][rapIndex][cosThPol]->Fill(costh_CS, weight);
-	Reco_Onia_pol_rap[CS][rapIndex][phiPol]->Fill(phi_CS, weight);
-	Reco_Onia_pol_rap[CS][rapIndex][cos2PhiPol]->Fill(cos2Phi_CS, weight);
-	Reco2D_Onia_pol_rap[CS][rapIndex]->Fill(costh_CS, phi_CS, weight);
+	Reco_Onia_pol_rap[CS][rapIndex][cosThPol]->Fill(thisCosTh_CS, weight);
+	Reco_Onia_pol_rap[CS][rapIndex][phiPol]->Fill(thisPhi_CS, weight);
+	Reco_Onia_pol_rap[CS][rapIndex][cos2PhiPol]->Fill(thisCosPhi_CS, weight);
+	Reco2D_Onia_pol_rap[CS][rapIndex]->Fill(thisCosTh_CS, thisPhi_CS, weight);
 	//HX frame
-	Reco_Onia_pol_rap[HX][rapIndex][cosThPol]->Fill(costh_HX, weight);
-	Reco_Onia_pol_rap[HX][rapIndex][phiPol]->Fill(phi_HX, weight);
-	Reco_Onia_pol_rap[HX][rapIndex][cos2PhiPol]->Fill(cos2Phi_HX, weight);
-	Reco2D_Onia_pol_rap[HX][rapIndex]->Fill(costh_HX, phi_HX, weight);
+	Reco_Onia_pol_rap[HX][rapIndex][cosThPol]->Fill(thisCosTh_HX, weight);
+	Reco_Onia_pol_rap[HX][rapIndex][phiPol]->Fill(thisPhi_HX, weight);
+	Reco_Onia_pol_rap[HX][rapIndex][cos2PhiPol]->Fill(thisCosPhi_HX, weight);
+	Reco2D_Onia_pol_rap[HX][rapIndex]->Fill(thisCosTh_HX, thisPhi_HX, weight);
       }
 
       //3) polariztion histos - pT and rap Bin
       if(pTIndex > 0 && rapForPTIndex > 0){
 	//CS frame
-	Reco_Onia_pol_pT_rap[CS][pTIndex][rapForPTIndex][cosThPol]->Fill(costh_CS, weight);
-	Reco_Onia_pol_pT_rap[CS][pTIndex][rapForPTIndex][phiPol]->Fill(phi_CS, weight);
-	Reco_Onia_pol_pT_rap[CS][pTIndex][rapForPTIndex][cos2PhiPol]->Fill(cos2Phi_CS, weight);
-	Reco2D_Onia_pol_pT_rap[CS][pTIndex][rapForPTIndex]->Fill(costh_CS, phi_CS, weight);
+	Reco_Onia_pol_pT_rap[CS][pTIndex][rapForPTIndex][cosThPol]->Fill(thisCosTh_CS, weight);
+	Reco_Onia_pol_pT_rap[CS][pTIndex][rapForPTIndex][phiPol]->Fill(thisPhi_CS, weight);
+	Reco_Onia_pol_pT_rap[CS][pTIndex][rapForPTIndex][cos2PhiPol]->Fill(thisCosPhi_CS, weight);
+	Reco2D_Onia_pol_pT_rap[CS][pTIndex][rapForPTIndex]->Fill(thisCosTh_CS, thisPhi_CS, weight);
 	//HX frame
-	Reco_Onia_pol_pT_rap[HX][pTIndex][rapForPTIndex][cosThPol]->Fill(costh_HX, weight);
-	Reco_Onia_pol_pT_rap[HX][pTIndex][rapForPTIndex][phiPol]->Fill(phi_HX, weight);
-	Reco_Onia_pol_pT_rap[HX][pTIndex][rapForPTIndex][cos2PhiPol]->Fill(cos2Phi_HX, weight);
-	Reco2D_Onia_pol_pT_rap[HX][pTIndex][rapForPTIndex]->Fill(costh_HX, phi_HX, weight);
+	Reco_Onia_pol_pT_rap[HX][pTIndex][rapForPTIndex][cosThPol]->Fill(thisCosTh_HX, weight);
+	Reco_Onia_pol_pT_rap[HX][pTIndex][rapForPTIndex][phiPol]->Fill(thisPhi_HX, weight);
+	Reco_Onia_pol_pT_rap[HX][pTIndex][rapForPTIndex][cos2PhiPol]->Fill(thisCosPhi_HX, weight);
+	Reco2D_Onia_pol_pT_rap[HX][pTIndex][rapForPTIndex]->Fill(thisCosTh_HX, thisPhi_HX, weight);
       }
     }
 
@@ -359,12 +359,12 @@ void calcPol(TLorentzVector muplus_LAB,
   
   muplus_QQBAR_rotated.Transform( rotation );
       
-  costh_CS = muplus_QQBAR_rotated.CosTheta();
+  thisCosTh_CS = muplus_QQBAR_rotated.CosTheta();
 
-  phi_CS_rad = muplus_QQBAR_rotated.Phi();
-  phi_CS = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
-//   if ( phi_CS < 0. ) phi_CS = 360. + phi_CS;      // phi defined in degrees from 0 to 360
-  phi_CS += 180.;
+  thisPhi_CS_rad = muplus_QQBAR_rotated.Phi();
+  thisPhi_CS = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
+//   if ( thisPhi_CS < 0. ) thisPhi_CS = 360. + thisPhi_CS;      // phi defined in degrees from 0 to 360
+  thisPhi_CS += 180.;
 
   /////////////////////////////////////////////////////////////////////
   // HELICITY frame
@@ -381,16 +381,16 @@ void calcPol(TLorentzVector muplus_LAB,
 
   muplus_QQBAR_rotated.Transform( rotation );
 
-  costh_HX = muplus_QQBAR_rotated.CosTheta();
+  thisCosTh_HX = muplus_QQBAR_rotated.CosTheta();
 
-  phi_HX_rad = muplus_QQBAR_rotated.Phi();
-  phi_HX = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
-//   if ( phi_HX < 0. ) phi_HX = 360. + phi_HX;
-  phi_HX += 180.;
+  thisPhi_HX_rad = muplus_QQBAR_rotated.Phi();
+  thisPhi_HX = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
+//   if ( thisPhi_HX < 0. ) thisPhi_HX = 360. + thisPhi_HX;
+  thisPhi_HX += 180.;
 }
 
 //==========================================================
-Double_t CalcPolWeight(Double_t onia_P, Double_t costh_CS){
+Double_t CalcPolWeight(Double_t onia_P, Double_t thisCosTh_CS){
 
 //   Double_t const p0 = 5.;
 //   Double_t const kappa = 0.6;
@@ -399,7 +399,7 @@ Double_t CalcPolWeight(Double_t onia_P, Double_t costh_CS){
 
 
   Double_t lambdaTh = -1.;
-//   Double_t weight = 1. + lambdaTh * TMath::Power(costh_CS, 2.);
+//   Double_t weight = 1. + lambdaTh * TMath::Power(thisCosTh_CS, 2.);
   Double_t weight = 1.;
   return weight;
 }
