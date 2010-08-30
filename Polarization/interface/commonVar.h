@@ -15,6 +15,9 @@ const TLorentzVector beam2_LAB( 0., 0., -pbeam, Ebeam );
 Double_t etaPS = 2.4; //pseudo-rap cuts for muons
 Double_t pTMuMin = 0.;
 Double_t rapYPS = 2.3;
+Double_t JpsiMassMin = 3.0;
+Double_t JpsiMassMax = 3.2;
+Double_t JpsiCtauMax = 0.200;
 
 //pT bins
 Int_t const kNbPTBins = 6;
