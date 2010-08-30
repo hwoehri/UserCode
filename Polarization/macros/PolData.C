@@ -118,6 +118,18 @@ void PolData::Loop(Int_t selDimuType)
 
     Reco_StatEv->Fill(3.5);
 
+    //select events within a narrow mass window around the J/psi
+    if(JpsiMass < JpsiMassMin || JpsiMass > JpsiMassMax)
+      continue;
+
+    Reco_StatEv->Fill(4.5);
+
+    //select events with a cut on the lifetime to reject NP J/psis:
+    if(Jpsict > JpsiCtauMax)
+      continue;
+
+    Reco_StatEv->Fill(5.5);
+
     calcPol(*muPos, *muNeg);
     //test:
 //     calcPol(*muNeg, *muPos);
