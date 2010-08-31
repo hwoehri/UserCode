@@ -12,7 +12,7 @@ Double_t CalcSigOvBG(TF1 *func);
 //usage: root plotMass.C+ or
 //       root 'plotMass.C+("myHistoInputFile.root")'
 //====================================
-void plotMass(Char_t *fileNameIn = "pol_data_HLT_Mu0Track0Jpsi.root"){
+void plotMass(Char_t *fileNameIn = "pol_data_HLT_Mu0Tk0Jpsi.root"){
 
   ReadInHistos(fileNameIn);
   for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++)
