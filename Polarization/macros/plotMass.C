@@ -2,9 +2,11 @@
 #include "../interface/commonVar.h"
 
 TH1F *hMass[kNbPTBins+1][kNbRapForPTBins+1];
+Double_t binWidth = 0.01; //10 MeV
 Double_t nSigma = 2.5;
 void ReadInHistos(Char_t *fileNameIn);
 void FitJPsi(Int_t iPTBin, Int_t iRapBin);
+Double_t fitFunc(Double_t *x, Double_t *par);
 Double_t CalcSigOvBG(TF1 *func);
 //====================================
 //usage: root plotMass.C+ or
@@ -37,21 +39,29 @@ void FitJPsi(Int_t thePT, Int_t theRap){
   TCanvas *c1 = new TCanvas(name, "fits");
   //H: MIND that if the bin width is not 10 MeV anymore, the
   //scaling factor of 0.1 must be adjusted!!!
-  hMass[thePT][theRap]->Rebin(2);
+  // hMass[thePT][theRap]->Rebin(2);
   TF1 *fRECO;
   if(performFit){
 
     sprintf(name, "fit_pT%d_rap%d", thePT, theRap);
-    fRECO = new TF1(name, "0.2*pol1(0) + 0.2*gaus(2)", 2.8, 3.4);
-    fRECO->SetParameters(25.,-0.01,100,3.097,0.04);
+    //fRECO = new TF1(name, "0.2*pol1(0) + 0.2*gaus(2)", 2.8, 3.4);
+    // fRECO = new TF1(name, "0.1*pol1(0) + 0.1*gaus(2)", 2.8, 3.4);
+    fRECO = new TF1(name, fitFunc, 2.8, 3.4, 5);
+    fRECO->SetParameters(25.,-0.1, 1000, 3.097, 0.04);
     //     fRECO->FixParameter(4, 0.035);
     fRECO->SetParLimits(4, 0., 1.);
   
     fRECO->SetParNames("d", "k", "N_{sig}", "#mu", "#sigma_{M}");
     // fRECO->SetLineColor(colour);
     //     hMass[thePT][theRap]->SetAxisRange(2.6, 3.6);
+    binWidth = hMass[thePT][theRap]->GetBinWidth(1);
+    printf("binWidth is %f\n", binWidth);
+
     hMass[thePT][theRap]->Fit(fRECO, "", "", 2.9, 3.3);
     fRECO = hMass[thePT][theRap]->GetFunction(name);
+    printf("integral is %f, while number of J/psi's is %f\n", 
+	   hMass[thePT][theRap]->Integral(),
+	   fRECO->GetParameter(2));
   }
   else
     hMass[thePT][theRap]->Draw("");
@@ -83,14 +93,16 @@ void FitJPsi(Int_t thePT, Int_t theRap){
 //====================================
 void ReadInHistos(Char_t *fileNameIn){
 
-  TFile *fOut = new TFile(fileNameIn);
+  TFile *fIn = new TFile(fileNameIn);
   Char_t name[100];
+  printf("reading file %s\n", fileNameIn);
   for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
     for(int iRapBin = 0; iRapBin < kNbRapForPTBins+1; iRapBin++){
       //Mass:
       sprintf(name, "Reco_Onia_mass_pT%d_rap%d", iPTBin, iRapBin);
       hMass[iPTBin][iRapBin] = (TH1F *) gDirectory->Get(name);
-      printf("pT %d, rap %d, histo %p\n", iPTBin, iRapBin, hMass[iPTBin][iRapBin]);
+      printf("pT %d, rap %d, histo %p has %f entries and integral %f\n", 
+	     iPTBin, iRapBin, hMass[iPTBin][iRapBin], hMass[iPTBin][iRapBin]->GetEntries(), hMass[iPTBin][iRapBin]->Integral());
     }
   }
 }
@@ -101,7 +113,8 @@ Double_t CalcSigOvBG(TF1 *func){
   TF1 *gaus = new TF1("gaus", "gaus(0)", 2., 4.);
   Double_t mean = func->GetParameter(3);
   Double_t sigma = func->GetParameter(4);
-  gaus->FixParameter(0, func->GetParameter(2));
+  
+  gaus->FixParameter(0, func->GetParameter(2) / (TMath::Sqrt(2.*TMath::Pi()) * sigma));
   gaus->FixParameter(1, mean);
   gaus->FixParameter(2, sigma);
 
@@ -119,4 +132,17 @@ Double_t CalcSigOvBG(TF1 *func){
   delete pol1;
 
   return signal / bgContr;
+}
+
+//=========================
+Double_t fitFunc(Double_t *x, Double_t *par){
+
+  Double_t pol1 = par[0] + x[0]*par[1];
+  Double_t mean = par[3];
+  Double_t sigma = par[4];
+
+  Double_t gauss = par[2] / (TMath::Sqrt(2.*TMath::Pi()) * sigma) * TMath::Exp(-(pow(x[0]-mean,2)/(2.*sigma*sigma)));
+  Double_t result = pol1 + gauss;
+  result *= binWidth; //correct for the bin width
+  return result;
 }
