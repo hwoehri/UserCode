@@ -47,48 +47,60 @@ void ReadData(Char_t *fileNameData, Int_t rebinCosTh, Int_t rebinPhi);
 void PlotUncorrData(Int_t iFrame, Char_t *polTag);
 void PlotUncorrData2D(Int_t iFrame, Char_t *polTag, Char_t *oniaLabel);
 void PlotCorrData2D(Int_t iFrame, Char_t *polTag, Char_t *oniaLabel);
-void ReadAccHistos(Char_t *fileNameMC);
+void PlotUnCorr2D_OneByOne(Int_t iFrame, Char_t *label, Char_t *oniaLabel, Int_t rapBin, Int_t pTBin);
+void PlotCorr2D_OneByOne(Int_t iFrame, Char_t *label, Char_t *oniaLabel, Int_t rapBin, Int_t pTBin);
+void ReadAccHistos(Char_t *fileNameMC, Int_t rebinCosTh, Int_t rebinPhi);
 void CorrectForAcc(Char_t *polTag);
 void Get1DHistoFrom2D();
 void PlotHistos(Int_t iFrame, Char_t *polTag);
 void PlotAll(Char_t *polTag);
+void PlotRapIntegrated(Char_t *label, Int_t pTMin, Int_t pTMax);
 void SaveCorrData(Char_t *polTag);
 void AccCorrect(TH1D *hist, TGraphAsymmErrors *gAcc);
 //======================================
 //usage: root checkAccCorrectedSpectra.C+ or
 //       root 'checkAccCorrectedSpectra.C+("HLT_Mu0Track0Jpsi", 1, 1)' (e.g.)
 //======================================
-void checkAccCorrectedSpectra(Char_t *hltTag = "HLT_Mu0Track0Jpsi",
+void checkAccCorrectedSpectra(Char_t *hltTag = "HLT_Mu0TkMu0Jpsi_cut",
 			      Int_t rebinCosTh = 2, //histos will be rebinned by "rebinCosTh"
 			      Int_t rebinPhi = 2, //histos will be rebinned by "rebinPhi"
 			      Char_t *oniaLabel = "J/#psi"){
 
   Char_t fileNameMC[200];
-  sprintf(fileNameMC, "/home/hermine/CMS/Work/Polarization/Florian/23Aug2010/files/accHistos_%s.root", hltTag);
+  //sprintf(fileNameMC, "/home/hermine/CMS/Work/Polarization/Florian/23Aug2010/files/accHistos_%s.root", hltTag);
+  sprintf(fileNameMC, "accHistos_HLT_Mu0Track0Jpsi_cut_30Aug2010.root");
 
   Char_t label[100];
   sprintf(label, "%s", hltTag);
 
   Char_t fileNameData[200];
-  sprintf(fileNameData, "pol_data_HLT_Mu0Track0Jpsi.root", label);
+  sprintf(fileNameData, "pol_data_%s.root", label);
 
   ReadData(fileNameData, rebinCosTh, rebinPhi);
-  ReadAccHistos(fileNameMC);
+  rebinCosTh = 1; rebinPhi = 1;
+  ReadAccHistos(fileNameMC, rebinCosTh, rebinPhi);
   CorrectForAcc(label); //calls internally "Get1DHistoFrom2D" to fill
                          //the histo hData1D_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1];
 
   //1D histos (cosTheta and phi):
-  PlotUncorrData(CS, label);
-  PlotUncorrData(HX, label);
-  PlotHistos(CS, label);
-  PlotHistos(HX, label);
+  // PlotUncorrData(CS, label);
+  // PlotUncorrData(HX, label);
+  // PlotHistos(CS, label); //1D plots are not acceptance corrected!!!
+  // PlotHistos(HX, label); //1D plots are not acceptance corrected!!!
   PlotAll(label);
+  Int_t pTMin = 3, pTMax = 5;
+  PlotRapIntegrated(label, pTMin, pTMax);
 
   //2D histos (cosTheta and phi):
   PlotUncorrData2D(CS, label, oniaLabel);
   PlotUncorrData2D(HX, label, oniaLabel);
   PlotCorrData2D(CS, label, oniaLabel);
   PlotCorrData2D(HX, label, oniaLabel);
+  Int_t rapBin = 1, pTBin = 4;
+  PlotUnCorr2D_OneByOne(CS, label, oniaLabel, rapBin, pTBin);
+  PlotUnCorr2D_OneByOne(HX, label, oniaLabel, rapBin, pTBin);
+  PlotCorr2D_OneByOne(CS, label, oniaLabel, rapBin, pTBin);
+  PlotCorr2D_OneByOne(HX, label, oniaLabel, rapBin, pTBin);
 
 }
 
@@ -232,6 +244,34 @@ void PlotUncorrData2D(Int_t iFrame, Char_t *label, Char_t *oniaLabel){
   }
 }
 
+
+
+// //=================================
+void PlotUnCorr2D_OneByOne(Int_t iFrame, Char_t *label, Char_t *oniaLabel, Int_t rapBin, Int_t pTBin){
+
+  //  gStyle->SetOptStat(0);
+
+  Char_t name[100], title[100];
+  TCanvas *c2D[kNbRapForPTBins+1];
+  for(int iRap = rapBin; iRap < rapBin+1; iRap++){
+    sprintf(name, "c2D_%s_rap%d", frameLabel[iFrame], iRap);
+    sprintf(title, "phi vs cosTheta for pT bins, rap = %d (%s)", iRap, frameLabel[iFrame]);
+    c2D[iRap] = new TCanvas(name, title, 1000, 700);
+    for(int iPTBin = pTBin; iPTBin < pTBin+1; iPTBin++){
+      if(iPTBin == kNbPTBins) 
+	sprintf(name, "%s: %1.2f <|y|< %1.2f, p_{T} > %1.1f GeV/c\n", oniaLabel, rapForPTRange[iRap-1], rapForPTRange[iRap], pTRange[iPTBin-1]);
+      else 
+	sprintf(name, "%s: %1.2f <|y|< %1.2f, %1.1f < p_{T} < %1.1f GeV/c", oniaLabel, rapForPTRange[iRap-1], rapForPTRange[iRap], pTRange[iPTBin-1], pTRange[iPTBin]);
+      Reco2D_pol_pT_rap[iFrame][iPTBin][iRap]->SetTitle(name);
+      //       Reco2D_pol_pT_rap[iFrame][iPTBin][iRap]->Draw("colz");
+      Reco2D_pol_pT_rap[iFrame][iPTBin][iRap]->Draw("lego2");
+      sprintf(name, "Figures/reco2D_%s_%s_rap%d_pT%d.eps", frameLabel[iFrame], label, iRap, iPTBin);  c2D[iRap]->Print(name);
+      sprintf(name, "Figures/reco2D_%s_%s_rap%d_pT%d.pdf", frameLabel[iFrame], label, iRap, iPTBin);  c2D[iRap]->Print(name);
+      sprintf(name, "Figures/reco2D_%s_%s_rap%d_pT%d.png", frameLabel[iFrame], label, iRap, iPTBin);  c2D[iRap]->Print(name);
+    }
+  }
+}
+
 //======================================
 void PlotHistos(Int_t iFrame, Char_t *label){
 
@@ -299,19 +339,78 @@ void PlotAll(Char_t *label){
 
   Char_t name[100];
   //=====================================
-  //rapidity integrated spectra
+  //rapidity integrated spectra:
+  //raw data
+  //=====================================
+  sprintf(name, "c9All_%s", label);
+  TCanvas *c9All = new TCanvas(name, "raw spectra for pT bins (all y)", 1000, 700);
+  c9All->Divide(2,2);
+  c9All->cd(1);
+  Int_t iFrame = 0;
+  TH1F *hFrame9 = gPad->DrawFrame(-1., 0., 1., 1.3*Reco_pol_pT[iFrame][0][cosThPol]->GetMaximum());
+  sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame9->SetXTitle(name);
+  sprintf(name, "Acc #times dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame9->SetYTitle(name);
+  for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+    Reco_pol_pT[iFrame][iPTBin][cosThPol]->Draw("psame");
+  }
+  sprintf(name, "|y| < %1.1f", rapForPTRange[kNbRapForPTBins]);
+  TLatex *tex9 = new TLatex(-0.9, 1.1*Reco_pol_pT[iFrame][0][cosThPol]->GetMaximum(), name);
+  tex9->SetTextSize(0.06); tex9->Draw();
+
+  c9All->cd(2);
+  TH1F *hFrame9b = gPad->DrawFrame(0., 0., 360., 1.3*Reco_pol_pT[iFrame][0][phiPol]->GetMaximum());
+  sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame9b->SetXTitle(name);
+  sprintf(name, "Acc #times dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame9b->SetYTitle(name);
+  for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+    Reco_pol_pT[iFrame][iPTBin][phiPol]->Draw("psame");
+  }
+  TLegend *leg9a = new TLegend(0.6171352,0.6922123,0.9936412,0.9929315);
+  for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+    if(iPTBin == 0) sprintf(name, "all p_{T}");
+    else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+    else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+    leg9a->AddEntry(Reco_pol_pT[iFrame][iPTBin][cosThPol], name, "p");
+  }
+  leg9a->SetTextSize(0.035); leg9a->SetFillColor(0);
+  leg9a->Draw();
+
+  c9All->cd(3);
+  iFrame = 1;
+  TH1F *hFrame9c = gPad->DrawFrame(-1., 0., 1., 1.3*Reco_pol_pT[iFrame][0][cosThPol]->GetMaximum());
+  sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame9c->SetXTitle(name);
+  sprintf(name, "Acc #times dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame9c->SetYTitle(name);
+  for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+    Reco_pol_pT[iFrame][iPTBin][cosThPol]->Draw("psame");
+  }
+  c9All->cd(4);
+  TH1F *hFrame9d = gPad->DrawFrame(0., 0., 360., 1.3*Reco_pol_pT[iFrame][0][phiPol]->GetMaximum());
+  sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame9d->SetXTitle(name);
+  sprintf(name, "Acc #times dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame9d->SetYTitle(name);
+  for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+    Reco_pol_pT[iFrame][iPTBin][phiPol]->Draw("psame");
+  }
+
+  sprintf(name, "Figures/dataUncorr_%s_pTBins.eps", label);  c9All->Print(name);
+  sprintf(name, "Figures/dataUncorr_%s_pTBins.pdf", label);  c9All->Print(name);
+  sprintf(name, "Figures/dataUncorr_%s_pTBins.gif", label);  c9All->Print(name);
+
+  //=====================================
+  //rapidity integrated spectra:
+  //data corrected for acceptance
   //=====================================
   sprintf(name, "c10All_%s", label);
-  TCanvas *c10All = new TCanvas(name, "corrected spectra for pT bins", 1000, 700);
+  TCanvas *c10All = new TCanvas(name, "corrected spectra for pT bins (all y)", 1000, 700);
   c10All->Divide(2,2);
   c10All->cd(1);
-  Int_t iFrame = 0;
   TH1F *hFrame10 = gPad->DrawFrame(-1., 0., 1., 1.3*hData_pol_pT[iFrame][0][cosThPol]->GetMaximum());
   sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame10->SetXTitle(name);
   sprintf(name, "dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame10->SetYTitle(name);
   for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
     hData_pol_pT[iFrame][iPTBin][cosThPol]->Draw("psame");
   }
+  sprintf(name, "|y| < %1.1f", rapForPTRange[kNbRapForPTBins]);
+  TLatex *tex10 = new TLatex(-0.9, 1.1*hData_pol_pT[iFrame][0][cosThPol]->GetMaximum(), name);
+  tex10->SetTextSize(0.06); tex10->Draw();
   c10All->cd(2);
   TH1F *hFrame10b = gPad->DrawFrame(0., 0., 360., 1.3*hData_pol_pT[iFrame][0][phiPol]->GetMaximum());
   sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame10b->SetXTitle(name);
@@ -351,29 +450,30 @@ void PlotAll(Char_t *label){
 
   //=====================================
   //rapidity differential spectra
+  //before acceptance correction
   //=====================================
   Char_t title[100];
   TCanvas *c11All[kNbRapForPTBins+1];
   Int_t maxIndex[kNbRapForPTBins+1] = {1, 4, 3, 2};
   for(int iRap = 1; iRap < kNbRapForPTBins+1; iRap++){
     sprintf(name, "c11All_%s_rap%d", label, iRap);
-    sprintf(title, "corrected spectra for pT bins (rap %d)", iRap);
+    sprintf(title, "raw spectra for pT bins (rap %d)", iRap);
     c11All[iRap] = new TCanvas(name, title, 1000, 700);
     c11All[iRap]->Divide(2,2);
     c11All[iRap]->cd(1);
     Int_t iFrame = 0;
-    TH1F *hFrame10 = gPad->DrawFrame(-1., 0., 1., 1.3*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum());
+    TH1F *hFrame10 = gPad->DrawFrame(-1., 0., 1., 1.3*Reco_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum());
     sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame10->SetXTitle(name);
-    sprintf(name, "dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame10->SetYTitle(name);
+    sprintf(name, "Acc #times dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame10->SetYTitle(name);
     for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++)
-      hData_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol]->Draw("psame");
+      Reco_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol]->Draw("psame");
 
     TLegend *leg10a = new TLegend(0.7,0.6922123,0.9936412,0.9929315);
     for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
       if(iPTBin == 0) sprintf(name, "all p_{T}");
       else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
       else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
-      leg10a->AddEntry(hData_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol], name, "p");
+      leg10a->AddEntry(Reco_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol], name, "p");
     }
     leg10a->SetTextSize(0.035); leg10a->SetFillColor(0);
     leg10a->Draw();
@@ -383,40 +483,360 @@ void PlotAll(Char_t *label){
     else
       sprintf(name, "%1.1f < |y| < %1.1f", rapForPTRange[iRap-1], rapForPTRange[iRap]);
 
-    TLatex *tex10a = new TLatex(-0.9, 1.1*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum(), name);
-    tex10a->SetTextSize(0.06); tex10a->Draw();
+    TLatex *tex11a = new TLatex(-0.9, 1.1*Reco_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum(), name);
+    tex11a->SetTextSize(0.06); tex11a->Draw();
     
     c11All[iRap]->cd(2);
     // gPad->SetLogy(); 
     gPad->SetGridy();
-    TH1F *hFrame10b = gPad->DrawFrame(0., 1., 360., 1.3*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][phiPol]->GetMaximum());
-    sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame10b->SetXTitle(name);
-    sprintf(name, "dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame10b->SetYTitle(name);
+    TH1F *hFrame11b = gPad->DrawFrame(0., 1., 360., 1.3*Reco_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][phiPol]->GetMaximum());
+    sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame11b->SetXTitle(name);
+    sprintf(name, "Acc #times dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame11b->SetYTitle(name);
     for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++)
-      hData_pol_pT_rap[iFrame][iPTBin][iRap][phiPol]->Draw("psame");
+      Reco_pol_pT_rap[iFrame][iPTBin][iRap][phiPol]->Draw("psame");
 
     c11All[iRap]->cd(3);
     iFrame = 1;
-    TH1F *hFrame10c = gPad->DrawFrame(-1., 0., 1., 1.3*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum());
-    sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame10c->SetXTitle(name);
-    sprintf(name, "dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame10c->SetYTitle(name);
+    TH1F *hFrame11c = gPad->DrawFrame(-1., 0., 1., 1.3*Reco_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum());
+    sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame11c->SetXTitle(name);
+    sprintf(name, "Acc #times dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame11c->SetYTitle(name);
     for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++)
-      hData_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol]->Draw("psame");
+      Reco_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol]->Draw("psame");
 
     c11All[iRap]->cd(4);
     // gPad->SetLogy(); 
     gPad->SetGridy();
-    TH1F *hFrame10d = gPad->DrawFrame(0., 1., 360., 1.3*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][phiPol]->GetMaximum());
-    sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame10d->SetXTitle(name);
-    sprintf(name, "dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame10d->SetYTitle(name);
+    TH1F *hFrame11d = gPad->DrawFrame(0., 1., 360., 1.3*Reco_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][phiPol]->GetMaximum());
+    sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame11d->SetXTitle(name);
+    sprintf(name, "Acc #times dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame11d->SetYTitle(name);
+    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+      Reco_pol_pT_rap[iFrame][iPTBin][iRap][phiPol]->Draw("psame");
+    }
+
+    sprintf(name, "Figures/dataUncorr_%s_rap%d_pTBins.eps", label, iRap);  c11All[iRap]->Print(name);
+    sprintf(name, "Figures/dataUncorr_%s_rap%d_pTBins.pdf", label, iRap);  c11All[iRap]->Print(name);
+    sprintf(name, "Figures/dataUncorr_%s_rap%d_pTBins.gif", label, iRap);  c11All[iRap]->Print(name);
+  }
+
+  //=====================================
+  //rapidity differential spectra
+  //=====================================
+  TCanvas *c12All[kNbRapForPTBins+1];
+  for(int iRap = 1; iRap < kNbRapForPTBins+1; iRap++){
+    sprintf(name, "c12All_%s_rap%d", label, iRap);
+    sprintf(title, "corrected spectra for pT bins (rap %d)", iRap);
+    c12All[iRap] = new TCanvas(name, title, 1000, 700);
+    c12All[iRap]->Divide(2,2);
+    c12All[iRap]->cd(1);
+    Int_t iFrame = 0;
+    TH1F *hFrame12 = gPad->DrawFrame(-1., 0., 1., 1.3*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum());
+    sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame12->SetXTitle(name);
+    sprintf(name, "dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame12->SetYTitle(name);
+    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++)
+      hData_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol]->Draw("psame");
+
+    TLegend *leg12a = new TLegend(0.7,0.6922123,0.9936412,0.9929315);
+    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+      if(iPTBin == 0) sprintf(name, "all p_{T}");
+      else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+      else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+      leg12a->AddEntry(hData_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol], name, "p");
+    }
+    leg12a->SetTextSize(0.035); leg12a->SetFillColor(0);
+    leg12a->Draw();
+
+    if(iRap == 1)
+      sprintf(name, "|y| < %1.1f", rapForPTRange[iRap]);
+    else
+      sprintf(name, "%1.1f < |y| < %1.1f", rapForPTRange[iRap-1], rapForPTRange[iRap]);
+
+    TLatex *tex12a = new TLatex(-0.9, 1.1*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum(), name);
+    tex12a->SetTextSize(0.06); tex12a->Draw();
+    
+    c12All[iRap]->cd(2);
+    // gPad->SetLogy(); 
+    gPad->SetGridy();
+    TH1F *hFrame12b = gPad->DrawFrame(0., 1., 360., 1.3*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][phiPol]->GetMaximum());
+    sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame12b->SetXTitle(name);
+    sprintf(name, "dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame12b->SetYTitle(name);
+    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++)
+      hData_pol_pT_rap[iFrame][iPTBin][iRap][phiPol]->Draw("psame");
+
+    c12All[iRap]->cd(3);
+    iFrame = 1;
+    TH1F *hFrame12c = gPad->DrawFrame(-1., 0., 1., 1.3*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum());
+    sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame12c->SetXTitle(name);
+    sprintf(name, "dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame12c->SetYTitle(name);
+    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++)
+      hData_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol]->Draw("psame");
+
+    c12All[iRap]->cd(4);
+    // gPad->SetLogy(); 
+    gPad->SetGridy();
+    TH1F *hFrame12d = gPad->DrawFrame(0., 1., 360., 1.3*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][phiPol]->GetMaximum());
+    sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame12d->SetXTitle(name);
+    sprintf(name, "dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame12d->SetYTitle(name);
     for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
       hData_pol_pT_rap[iFrame][iPTBin][iRap][phiPol]->Draw("psame");
     }
 
-    sprintf(name, "Figures/dataCorr_%s_rap%d_pTBins.eps", label, iRap);  c11All[iRap]->Print(name);
-    sprintf(name, "Figures/dataCorr_%s_rap%d_pTBins.pdf", label, iRap);  c11All[iRap]->Print(name);
-    sprintf(name, "Figures/dataCorr_%s_rap%d_pTBins.gif", label, iRap);  c11All[iRap]->Print(name);
+    sprintf(name, "Figures/dataCorr_%s_rap%d_pTBins.eps", label, iRap);  c12All[iRap]->Print(name);
+    sprintf(name, "Figures/dataCorr_%s_rap%d_pTBins.pdf", label, iRap);  c12All[iRap]->Print(name);
+    sprintf(name, "Figures/dataCorr_%s_rap%d_pTBins.gif", label, iRap);  c12All[iRap]->Print(name);
   }
+}
+
+//=====================================
+void PlotRapIntegrated(Char_t *label, Int_t pTMin, Int_t pTMax){
+
+  Char_t name[100];
+  //=====================================
+  //rapidity integrated spectra:
+  //raw data
+  //=====================================
+  sprintf(name, "c9All_%s", label);
+  TCanvas *c9All = new TCanvas(name, "raw spectra for some pT bins (all y)", 1000, 700);
+  c9All->Divide(2,2);
+  c9All->cd(1);
+  Int_t iFrame = 0;
+  TH1F *hFrame9 = gPad->DrawFrame(-1., 0., 1., 1.3*Reco_pol_pT[iFrame][pTMin][cosThPol]->GetMaximum());
+  sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame9->SetXTitle(name);
+  sprintf(name, "Acc #times dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame9->SetYTitle(name);
+  for(int iPTBin = pTMin; iPTBin < pTMax+1; iPTBin++){
+    Reco_pol_pT[iFrame][iPTBin][cosThPol]->Draw("psame");
+  }
+  sprintf(name, "|y| < %1.1f", rapForPTRange[kNbRapForPTBins]);
+  TLatex *tex9 = new TLatex(-0.9, 1.1*Reco_pol_pT[iFrame][pTMin][cosThPol]->GetMaximum(), name);
+  tex9->SetTextSize(0.06); tex9->Draw();
+
+  c9All->cd(2);
+  TH1F *hFrame9b = gPad->DrawFrame(0., 0., 360., 1.3*Reco_pol_pT[iFrame][pTMin][phiPol]->GetMaximum());
+  sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame9b->SetXTitle(name);
+  sprintf(name, "Acc #times dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame9b->SetYTitle(name);
+  for(int iPTBin = pTMin; iPTBin < pTMax+1; iPTBin++){
+    Reco_pol_pT[iFrame][iPTBin][phiPol]->Draw("psame");
+  }
+  TLegend *leg9a = new TLegend(0.6171352,0.75,0.9936412,0.9929315);
+  for(int iPTBin = pTMin; iPTBin < pTMax+1; iPTBin++){
+    if(iPTBin == 0) sprintf(name, "all p_{T}");
+    else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+    else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+    leg9a->AddEntry(Reco_pol_pT[iFrame][iPTBin][cosThPol], name, "p");
+  }
+  leg9a->SetTextSize(0.035); leg9a->SetFillColor(0);
+  leg9a->Draw();
+
+  c9All->cd(3);
+  iFrame = 1;
+  TH1F *hFrame9c = gPad->DrawFrame(-1., 0., 1., 1.3*Reco_pol_pT[iFrame][pTMin][cosThPol]->GetMaximum());
+  sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame9c->SetXTitle(name);
+  sprintf(name, "Acc #times dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame9c->SetYTitle(name);
+  for(int iPTBin = pTMin; iPTBin < pTMax+1; iPTBin++){
+    Reco_pol_pT[iFrame][iPTBin][cosThPol]->Draw("psame");
+  }
+  c9All->cd(4);
+  TH1F *hFrame9d = gPad->DrawFrame(0., 0., 360., 1.3*Reco_pol_pT[iFrame][pTMin][phiPol]->GetMaximum());
+  sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame9d->SetXTitle(name);
+  sprintf(name, "Acc #times dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame9d->SetYTitle(name);
+  for(int iPTBin = pTMin; iPTBin < pTMax+1; iPTBin++){
+    Reco_pol_pT[iFrame][iPTBin][phiPol]->Draw("psame");
+  }
+
+  sprintf(name, "Figures/dataUncorr_%s_pT%dTo%d.eps",     label, pTMin, pTMax);  c9All->Print(name);
+  sprintf(name, "Figures/dataUncorr_%s_pT%dTo%d.pdf", label, pTMin, pTMax);  c9All->Print(name);
+  sprintf(name, "Figures/dataUncorr_%s_pT%dTo%d.gif", label, pTMin, pTMax);  c9All->Print(name);
+
+  // //=====================================
+  // //rapidity integrated spectra:
+  // //data corrected for acceptance
+  // //=====================================
+  // sprintf(name, "c10All_%s", label);
+  // TCanvas *c10All = new TCanvas(name, "corrected spectra for pT bins (all y)", 1000, 700);
+  // c10All->Divide(2,2);
+  // c10All->cd(1);
+  // TH1F *hFrame10 = gPad->DrawFrame(-1., 0., 1., 1.3*hData_pol_pT[iFrame][0][cosThPol]->GetMaximum());
+  // sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame10->SetXTitle(name);
+  // sprintf(name, "dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame10->SetYTitle(name);
+  // for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+  //   hData_pol_pT[iFrame][iPTBin][cosThPol]->Draw("psame");
+  // }
+  // sprintf(name, "|y| < %1.1f", rapForPTRange[kNbRapForPTBins]);
+  // TLatex *tex10 = new TLatex(-0.9, 1.1*hData_pol_pT[iFrame][0][cosThPol]->GetMaximum(), name);
+  // tex10->SetTextSize(0.06); tex10->Draw();
+  // c10All->cd(2);
+  // TH1F *hFrame10b = gPad->DrawFrame(0., 0., 360., 1.3*hData_pol_pT[iFrame][0][phiPol]->GetMaximum());
+  // sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame10b->SetXTitle(name);
+  // sprintf(name, "dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame10b->SetYTitle(name);
+  // for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+  //   hData_pol_pT[iFrame][iPTBin][phiPol]->Draw("psame");
+  // }
+  // TLegend *leg10a = new TLegend(0.6171352,0.6922123,0.9936412,0.9929315);
+  // for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+  //   if(iPTBin == 0) sprintf(name, "all p_{T}");
+  //   else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+  //   else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+  //   leg10a->AddEntry(hData_pol_pT[iFrame][iPTBin][cosThPol], name, "p");
+  // }
+  // leg10a->SetTextSize(0.035); leg10a->SetFillColor(0);
+  // leg10a->Draw();
+
+  // c10All->cd(3);
+  // iFrame = 1;
+  // TH1F *hFrame10c = gPad->DrawFrame(-1., 0., 1., 1.3*hData_pol_pT[iFrame][0][cosThPol]->GetMaximum());
+  // sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame10c->SetXTitle(name);
+  // sprintf(name, "dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame10c->SetYTitle(name);
+  // for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+  //   hData_pol_pT[iFrame][iPTBin][cosThPol]->Draw("psame");
+  // }
+  // c10All->cd(4);
+  // TH1F *hFrame10d = gPad->DrawFrame(0., 0., 360., 1.3*hData_pol_pT[iFrame][0][phiPol]->GetMaximum());
+  // sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame10d->SetXTitle(name);
+  // sprintf(name, "dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame10d->SetYTitle(name);
+  // for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+  //   hData_pol_pT[iFrame][iPTBin][phiPol]->Draw("psame");
+  // }
+
+  // sprintf(name, "Figures/dataCorr_%s_pTBins.eps", label);  c10All->Print(name);
+  // sprintf(name, "Figures/dataCorr_%s_pTBins.pdf", label);  c10All->Print(name);
+  // sprintf(name, "Figures/dataCorr_%s_pTBins.gif", label);  c10All->Print(name);
+
+  //=====================================
+  //rapidity differential spectra
+  //before acceptance correction
+  //=====================================
+  Char_t title[100];
+  TCanvas *c11All[kNbRapForPTBins+1];
+  Int_t maxIndex[kNbRapForPTBins+1] = {1, 4, 3, 3};
+  for(int iRap = 1; iRap < kNbRapForPTBins+1; iRap++){
+    sprintf(name, "c11All_%s_rap%d", label, iRap);
+    sprintf(title, "raw spectra for pT bins (rap %d)", iRap);
+    c11All[iRap] = new TCanvas(name, title, 1000, 700);
+    c11All[iRap]->Divide(2,2);
+    c11All[iRap]->cd(1);
+    Int_t iFrame = 0;
+    TH1F *hFrame10 = gPad->DrawFrame(-1., 0., 1., 1.3*Reco_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum());
+    sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame10->SetXTitle(name);
+    sprintf(name, "Acc #times dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame10->SetYTitle(name);
+    for(int iPTBin = pTMin; iPTBin < pTMax+1; iPTBin++)
+      Reco_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol]->Draw("psame");
+
+    TLegend *leg10a = new TLegend(0.7,0.75,0.9936412,0.9929315);
+    for(int iPTBin = pTMin; iPTBin < pTMax+1; iPTBin++){
+      if(iPTBin == 0) sprintf(name, "all p_{T}");
+      else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+      else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+      leg10a->AddEntry(Reco_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol], name, "p");
+    }
+    leg10a->SetTextSize(0.035); leg10a->SetFillColor(0);
+    leg10a->Draw();
+
+    if(iRap == 1)
+      sprintf(name, "|y| < %1.1f", rapForPTRange[iRap]);
+    else
+      sprintf(name, "%1.1f < |y| < %1.1f", rapForPTRange[iRap-1], rapForPTRange[iRap]);
+
+    TLatex *tex11a = new TLatex(-0.9, 1.1*Reco_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum(), name);
+    tex11a->SetTextSize(0.06); tex11a->Draw();
+    
+    c11All[iRap]->cd(2);
+    // gPad->SetLogy(); 
+    //    gPad->SetGridy();
+    TH1F *hFrame11b = gPad->DrawFrame(0., 1., 360., 1.3*Reco_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][phiPol]->GetMaximum());
+    sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame11b->SetXTitle(name);
+    sprintf(name, "Acc #times dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame11b->SetYTitle(name);
+    for(int iPTBin = pTMin; iPTBin < pTMax+1; iPTBin++)
+      Reco_pol_pT_rap[iFrame][iPTBin][iRap][phiPol]->Draw("psame");
+
+    c11All[iRap]->cd(3);
+    iFrame = 1;
+    TH1F *hFrame11c = gPad->DrawFrame(-1., 0., 1., 1.3*Reco_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum());
+    sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame11c->SetXTitle(name);
+    sprintf(name, "Acc #times dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame11c->SetYTitle(name);
+    for(int iPTBin = pTMin; iPTBin < pTMax+1; iPTBin++)
+      Reco_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol]->Draw("psame");
+
+    c11All[iRap]->cd(4);
+    // gPad->SetLogy(); 
+    // gPad->SetGridy();
+    TH1F *hFrame11d = gPad->DrawFrame(0., 1., 360., 1.3*Reco_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][phiPol]->GetMaximum());
+    sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame11d->SetXTitle(name);
+    sprintf(name, "Acc #times dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame11d->SetYTitle(name);
+    for(int iPTBin = pTMin; iPTBin < pTMax+1; iPTBin++){
+      Reco_pol_pT_rap[iFrame][iPTBin][iRap][phiPol]->Draw("psame");
+    }
+
+    sprintf(name, "Figures/dataUncorr_%s_rap%d_pT%dTo%d.eps", label, iRap, pTMin, pTMax);  c11All[iRap]->Print(name);
+    sprintf(name, "Figures/dataUncorr_%s_rap%d_pT%dTo%d.pdf", label, iRap, pTMin, pTMax);  c11All[iRap]->Print(name);
+    sprintf(name, "Figures/dataUncorr_%s_rap%d_pT%dTo%d.gif", label, iRap, pTMin, pTMax);  c11All[iRap]->Print(name);
+  }
+
+  // //=====================================
+  // //rapidity differential spectra:
+  // //corrected for acceptance
+  // //=====================================
+  // TCanvas *c12All[kNbRapForPTBins+1];
+  // for(int iRap = 1; iRap < kNbRapForPTBins+1; iRap++){
+  //   sprintf(name, "c12All_%s_rap%d", label, iRap);
+  //   sprintf(title, "corrected spectra for pT bins (rap %d)", iRap);
+  //   c12All[iRap] = new TCanvas(name, title, 1000, 700);
+  //   c12All[iRap]->Divide(2,2);
+  //   c12All[iRap]->cd(1);
+  //   Int_t iFrame = 0;
+  //   TH1F *hFrame12 = gPad->DrawFrame(-1., 0., 1., 1.3*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum());
+  //   sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame12->SetXTitle(name);
+  //   sprintf(name, "dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame12->SetYTitle(name);
+  //   for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++)
+  //     hData_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol]->Draw("psame");
+
+  //   TLegend *leg12a = new TLegend(0.7,0.6922123,0.9936412,0.9929315);
+  //   for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+  //     if(iPTBin == 0) sprintf(name, "all p_{T}");
+  //     else if(iPTBin == kNbPTBins) sprintf(name, "p_{T} > %1.1f GeV/c\n", pTRange[iPTBin-1]);
+  //     else sprintf(name, "%1.1f < p_{T} < %1.1f GeV/c", pTRange[iPTBin-1], pTRange[iPTBin]);
+  //     leg12a->AddEntry(hData_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol], name, "p");
+  //   }
+  //   leg12a->SetTextSize(0.035); leg12a->SetFillColor(0);
+  //   leg12a->Draw();
+
+  //   if(iRap == 1)
+  //     sprintf(name, "|y| < %1.1f", rapForPTRange[iRap]);
+  //   else
+  //     sprintf(name, "%1.1f < |y| < %1.1f", rapForPTRange[iRap-1], rapForPTRange[iRap]);
+
+  //   TLatex *tex12a = new TLatex(-0.9, 1.1*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum(), name);
+  //   tex12a->SetTextSize(0.06); tex12a->Draw();
+    
+  //   c12All[iRap]->cd(2);
+  //   // gPad->SetLogy(); 
+  //   gPad->SetGridy();
+  //   TH1F *hFrame12b = gPad->DrawFrame(0., 1., 360., 1.3*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][phiPol]->GetMaximum());
+  //   sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame12b->SetXTitle(name);
+  //   sprintf(name, "dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame12b->SetYTitle(name);
+  //   for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++)
+  //     hData_pol_pT_rap[iFrame][iPTBin][iRap][phiPol]->Draw("psame");
+
+  //   c12All[iRap]->cd(3);
+  //   iFrame = 1;
+  //   TH1F *hFrame12c = gPad->DrawFrame(-1., 0., 1., 1.3*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][cosThPol]->GetMaximum());
+  //   sprintf(name, "cos#theta_{%s}", frameLabel[iFrame]);  hFrame12c->SetXTitle(name);
+  //   sprintf(name, "dN/d(cos#theta_{%s})", frameLabel[iFrame]);  hFrame12c->SetYTitle(name);
+  //   for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++)
+  //     hData_pol_pT_rap[iFrame][iPTBin][iRap][cosThPol]->Draw("psame");
+
+  //   c12All[iRap]->cd(4);
+  //   // gPad->SetLogy(); 
+  //   gPad->SetGridy();
+  //   TH1F *hFrame12d = gPad->DrawFrame(0., 1., 360., 1.3*hData_pol_pT_rap[iFrame][maxIndex[iRap]][iRap][phiPol]->GetMaximum());
+  //   sprintf(name, "#phi_{%s} [deg]", frameLabel[iFrame]);  hFrame12d->SetXTitle(name);
+  //   sprintf(name, "dN/d#phi_{%s}", frameLabel[iFrame]);  hFrame12d->SetYTitle(name);
+  //   for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+  //     hData_pol_pT_rap[iFrame][iPTBin][iRap][phiPol]->Draw("psame");
+  //   }
+
+  //   sprintf(name, "Figures/dataCorr_%s_rap%d_pTBins.eps", label, iRap);  c12All[iRap]->Print(name);
+  //   sprintf(name, "Figures/dataCorr_%s_rap%d_pTBins.pdf", label, iRap);  c12All[iRap]->Print(name);
+  //   sprintf(name, "Figures/dataCorr_%s_rap%d_pTBins.gif", label, iRap);  c12All[iRap]->Print(name);
+  // }
 }
 
 //======================================
@@ -443,6 +863,32 @@ void PlotCorrData2D(Int_t iFrame, Char_t *label, Char_t *oniaLabel){
     sprintf(name, "Figures/dataCorr2D_%s_%s_rap%d_pTBins.eps", frameLabel[iFrame], label, iRap);  c2D[iRap]->Print(name);
     sprintf(name, "Figures/dataCorr2D_%s_%s_rap%d_pTBins.pdf", frameLabel[iFrame], label, iRap);  c2D[iRap]->Print(name);
     sprintf(name, "Figures/dataCorr2D_%s_%s_rap%d_pTBins.gif", frameLabel[iFrame], label, iRap);  c2D[iRap]->Print(name);
+  }
+}
+
+//======================================
+void PlotCorr2D_OneByOne(Int_t iFrame, Char_t *label, Char_t *oniaLabel, Int_t rapBin, Int_t pTBin){
+
+  gStyle->SetOptStat(0);
+  Char_t name[100], title[100];
+  TCanvas *c2D[kNbRapForPTBins+1];
+  for(int iRap = rapBin; iRap < rapBin+1; iRap++){
+    sprintf(name, "c2DAfter_%s_rap%d", frameLabel[iFrame], iRap);
+    sprintf(title, "Acc corrected phi vs cosTheta for pT bin %d, rap = %d (%s)", pTBin, iRap, frameLabel[iFrame]);
+    c2D[iRap] = new TCanvas(name, title, 1000, 700);
+    for(int iPTBin = pTBin; iPTBin < pTBin+1; iPTBin++){
+      c2D[iRap]->cd(iPTBin);
+      if(iPTBin == kNbPTBins) 
+	sprintf(name, "%s: %1.2f <|y|< %1.2f, p_{T} > %1.1f GeV/c\n", oniaLabel, rapForPTRange[iRap-1], rapForPTRange[iRap], pTRange[iPTBin-1]);
+      else 
+	sprintf(name, "%s: %1.2f <|y|< %1.2f, %1.1f < p_{T} < %1.1f GeV/c", oniaLabel, rapForPTRange[iRap-1], rapForPTRange[iRap], pTRange[iPTBin-1], pTRange[iPTBin]);
+      hData2D_pol_pT_rap[iFrame][iPTBin][iRap]->SetTitle(name);
+//       hData2D_pol_pT_rap[iFrame][iPTBin][iRap]->Draw("colz");
+      hData2D_pol_pT_rap[iFrame][iPTBin][iRap]->Draw("lego2");
+    }
+    sprintf(name, "Figures/dataCorr2D_%s_%s_rap%d_pT%d.eps", frameLabel[iFrame], label, iRap, pTBin);  c2D[iRap]->Print(name);
+    sprintf(name, "Figures/dataCorr2D_%s_%s_rap%d_pT%d.pdf", frameLabel[iFrame], label, iRap, pTBin);  c2D[iRap]->Print(name);
+    sprintf(name, "Figures/dataCorr2D_%s_%s_rap%d_pT%d.gif", frameLabel[iFrame], label, iRap, pTBin);  c2D[iRap]->Print(name);
   }
 }
 
@@ -526,7 +972,7 @@ void CorrectForAcc(Char_t *label){
 
 	sprintf(name, "hData2D_Onia_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
 	hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = (TH2D *) Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Clone(name);
-	// 	hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Divide(hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]);//H: will be done below
+	hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Divide(hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]);//H: can be done in the way below (commented)
 	hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetLineColor(colour_pT[iPTBin]);
 	hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerColor(colour_pT[iPTBin]);
 	hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerStyle(marker_pT[iPTBin]);
@@ -534,36 +980,36 @@ void CorrectForAcc(Char_t *label){
     }
   }
   
-  Double_t binContentReco, binErrorReco;
-  Double_t acc, binContentData, binErrorData;
-  Double_t content, error, maxAcc;
+  // Double_t binContentReco, binErrorReco;
+  // Double_t acc, binContentData, binErrorData;
+  // Double_t content, error, maxAcc;
 
-  //acceptance correct the 2D histogram
-  for(int iFrame = 0; iFrame < kNbFrames; iFrame++){
-    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
-      for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
-	for(int iBinX = 1; iBinX <= hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsX(); iBinX++){
-	  for(int iBinY = 1; iBinY <= hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsY(); iBinY++){
+  // //acceptance correct the 2D histogram
+  // for(int iFrame = 0; iFrame < kNbFrames; iFrame++){
+  //   for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+  //     for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
+  // 	for(int iBinX = 1; iBinX <= hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsX(); iBinX++){
+  // 	  for(int iBinY = 1; iBinY <= hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsY(); iBinY++){
 	    
-	    binContentReco = Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetBinContent(iBinX, iBinY);
-	    binErrorReco = Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetBinError(iBinX, iBinY);
-	    acc = hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetBinContent(iBinX, iBinY);
+  // 	    binContentReco = Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetBinContent(iBinX, iBinY);
+  // 	    binErrorReco = Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetBinError(iBinX, iBinY);
+  // 	    acc = hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetBinContent(iBinX, iBinY);
 
-	    if(acc > 0.){
-	      binErrorData = binErrorReco / acc;
-	      binContentData = binContentReco / acc;
-	    }
-	    else{
-	      binErrorData = 1.;
-	      binContentData = 0.;
-	    }
-	    hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinContent(iBinX, iBinY, binContentData);
-	    hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinError(iBinX, iBinY, binErrorData);
-	  }
-	}
-      }
-    }
-  }
+  // 	    if(acc > 0.){
+  // 	      binErrorData = binErrorReco / acc;
+  // 	      binContentData = binContentReco / acc;
+  // 	    }
+  // 	    else{
+  // 	      binErrorData = 1.;
+  // 	      binContentData = 0.;
+  // 	    }
+  // 	    hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinContent(iBinX, iBinY, binContentData);
+  // 	    hData2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinError(iBinX, iBinY, binErrorData);
+  // 	  }
+  // 	}
+  //     }
+  //   }
+  // }
   Get1DHistoFrom2D();
   SaveCorrData(label); //save the histos here BEFORE we set bin contents to zero for further processing!
 
@@ -646,7 +1092,7 @@ void ReadData(Char_t *fileNameData, Int_t rebinCosTh, Int_t rebinPhi){
 }
 
 //===================================
-void ReadAccHistos(Char_t *fileNameMC){
+void ReadAccHistos(Char_t *fileNameMC, Int_t rebinCosTh, Int_t rebinPhi){
 
   printf("reading in the acceptance histograms\n");
   TFile *fInMC = new TFile(fileNameMC);
@@ -665,6 +1111,8 @@ void ReadAccHistos(Char_t *fileNameMC){
       sprintf(name, "hAcc2D_Onia_%s_pT%d", frameLabel[iFrame], iPTBin);
       hAcc2D_pol_pT[iFrame][iPTBin] = (TH2D *) gDirectory->Get(name);
       // printf("frame %d, pT %d, histo %p\n", iFrame, iPTBin, hAcc2D_pol_pT[iFrame][iPTBin]);
+      if(rebinCosTh > 1 || rebinPhi > 1)
+	hAcc2D_pol_pT[iFrame][iPTBin]->Rebin2D(rebinCosTh, rebinPhi);
     }
     for(int iRapBin = 0; iRapBin < 2*kNbRapBins+1; iRapBin++){
       sprintf(name, "gAcc_Onia_cosTh_%s_rap%d", frameLabel[iFrame], iRapBin);
@@ -678,7 +1126,8 @@ void ReadAccHistos(Char_t *fileNameMC){
       sprintf(name, "hAcc2D_Onia_%s_rap%d", frameLabel[iFrame], iRapBin);
       hAcc2D_pol_rap[iFrame][iRapBin] = (TH2D *) gDirectory->Get(name);
       // printf("frame %d, rap %d, histo %p\n", iFrame, iRapBin, hAcc2D_pol_rap[iFrame][iRapBin]);
-      //
+      if(rebinCosTh > 1 || rebinPhi > 1)
+	hAcc2D_pol_rap[iFrame][iRapBin]->Rebin2D(rebinCosTh, rebinPhi);
     }
     for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
       for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
@@ -693,6 +1142,8 @@ void ReadAccHistos(Char_t *fileNameMC){
 	sprintf(name, "hAcc2D_Onia_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
 	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = (TH2D *) gDirectory->Get(name);
 	// printf("frame %d, pT %d, rap %d, histo %p\n", iFrame, iPTBin, iRapBin, hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]);
+	if(rebinCosTh > 1 || rebinPhi > 1)
+	  hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Rebin2D(rebinCosTh, rebinPhi);
       }
     }
   }
