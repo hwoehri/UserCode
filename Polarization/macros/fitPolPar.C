@@ -1,8 +1,5 @@
-#include "/home/hermine/Work/rootIncludes.inc"
-//#include "/home/hermine/CMS/Work/Polarization/Upsilon/commonVar.h"
-#include "/home/hermine/CMS/CMSSW/hWoehri/Polarization/interface/commonVar.h"
-#include "TROOT.h"
-#include "TString.h"
+#include "../interface/rootIncludes.inc"
+#include "../interface/commonVar.h"
 #include "TGraphAsymmErrors.h"
 #include "TF2.h"
 
@@ -104,7 +101,7 @@ void Write1DFitResults(Char_t *fOutName);
 Double_t fit1D(Double_t *x, Double_t *par);
 Double_t fit2D(Double_t *x, Double_t *par);
 //======================================
-void fitPolPar(Char_t *hltTag = "data_HLT_Mu0TkMu0Jpsi_cut120_1Sep2010",
+void fitPolPar(Char_t *label = "data_HLT_Mu0TkMu0Jpsi_cut120_1Sep2010",
 	       Int_t pT = 4,
 	       Int_t rap = 3,
 	       Bool_t normalise = kTRUE, //normalises the acceptance histograms to 1
@@ -113,15 +110,10 @@ void fitPolPar(Char_t *hltTag = "data_HLT_Mu0TkMu0Jpsi_cut120_1Sep2010",
 	       Int_t rebinPhi = 2){
 
   Char_t fileNameMC[200];
-  sprintf(fileNameMC, "/home/hermine/CMS/CMSSW/hWoehri/Polarization/macros/accHistos_HLT_Mu0Track0Jpsi_cut120_1Sep2010.root", hltTag);
+  sprintf(fileNameMC, "accHistos_HLT_Mu0Track0Jpsi_cut120_1Sep2010.root", label);
 
-  Char_t label[200];
-  sprintf(label, "%s", hltTag);
-
-  Char_t fileNameData[200], fOutName[200], fOutName2D[200], fOutName1D[200];
-  sprintf(fileNameData, "/home/hermine/CMS/CMSSW/hWoehri/Polarization/macros/pol_%s.root", hltTag);
-  sprintf(fOutName, "Results/fitPar_lambda_%s.root", label);
-  sprintf(fOutName2D, "Results/fitPar2D_lambda_%s.root", label);
+  Char_t fileNameData[200], fOutName1D[200];
+  sprintf(fileNameData, "pol_%s.root", label);
   sprintf(fOutName1D, "Results/fitPar1D_lambda_%s.root", label);
 
   ReadData(fileNameData, rebinCosTh, rebinPhi);
@@ -131,31 +123,35 @@ void fitPolPar(Char_t *hltTag = "data_HLT_Mu0TkMu0Jpsi_cut120_1Sep2010",
   CorrectForAcc(label); //calls internally "Get1DHistoFrom2D" to fill
                          //the histo hData1D_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1];
 
-  //1D analysis:
-//   FitHistos(CS, label);
-//   FitHistos(HX, label);
-//   PlotHistos(CS, label);
-//   PlotHistos(HX, label);
-//   PlotAll(label);
-//   WriteFitResults(fOutName);
-
-//2D analysis:
-//   PlotUncorrData2D(CS, label);
-//   PlotUncorrData2D(HX, label);
-//   PlotCorrData2D(CS, label);
-//   PlotCorrData2D(HX, label);
-//   Fit2DHistos(CS, label);
-//   Fit2DHistos(HX, label);
-//   Write2DFitResults(fOutName2D);
-
-// //1D analysis projected from 2D:
+  //1D analysis projected from 2D:
   Fit1DHisto(CS, label, rap, pT, displayOn);
   Fit1DHisto(HX, label, rap, pT, displayOn);
 
   if(rap == 0 && pT == 0)
     Write1DFitResults(fOutName1D);  //shall be run only when looping over all rap and pT bins
 
+  //1D analysis: (should not be used)
+  // FitHistos(CS, label);
+  // FitHistos(HX, label);
+  // PlotHistos(CS, label);
+  // PlotHistos(HX, label);
+  // PlotAll(label);
+  // Char_t fOutName[200];
+  // sprintf(fOutName, "Results/fitPar_lambda_%s.root", label);
+  // WriteFitResults(fOutName);
+
+  //2D analysis: (should not be used)
+//   PlotUncorrData2D(CS, label);
+//   PlotUncorrData2D(HX, label);
+//   PlotCorrData2D(CS, label);
+//   PlotCorrData2D(HX, label);
+//   Fit2DHistos(CS, label);
+//   Fit2DHistos(HX, label);
+//   Char_t fOutName2D[200];
+//   sprintf(fOutName2D, "Results/fitPar2D_lambda_%s.root", label);
+//   Write2DFitResults(fOutName2D);
 }
+
 //======================================
 Double_t fit1D(Double_t *x, Double_t *par){
 

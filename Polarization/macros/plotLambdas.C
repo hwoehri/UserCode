@@ -1,5 +1,5 @@
-#include "/home/hermine/CMS/CMSSW/hWoehri/Polarization/interface/commonVar.h"
-#include "/home/hermine/Work/rootIncludes.inc"
+#include "../interface/commonVar.h"
+#include "../interface/rootIncludes.inc"
 
 TGraphAsymmErrors *gLambdaTh1D_rap[kNbFrames][kNbRapForPTBins+1];
 TGraphAsymmErrors *gLambdaPhi1D_rap[kNbFrames][kNbRapForPTBins+1];
