@@ -50,4 +50,32 @@
     plots the spectra (phi and cosTheta for the time being) before and after 
     acceptance correction (1D as well as 2D)
 
+(4) fitPolPar.C
+    This is a simplified fitting macro that allows to extract the lambda
+    parameters from the acceptance corrected data. Simplified, because the
+    fits are binned and, more importantly, background and non-prompt components
+    are not accounted for. It works well on pure signal MC and for bins in
+    data were both, BG and non-prompt components, are negligible.
+    The inputs are a root file, obtained as an output from step (2) ("data"),
+    and the root file containing the acceptance maps, generated from
+    step (3). The fit results are stored in a subdirectory "Results", "Figures"
+    and a subdirectory of "Figures", constructed on the basis of the label
+    specified as the first input argument:
+    "Figures/FitResults1D_*label*"
+
+    If the macro is run with pT = 0 and rap = 0, the lambda parameters for
+    all pT and rap bins are extracted and stored in TGraphAsymmErrors,
+    available in the "Results" subdirectory. For pT and rap > 0 the particular
+    bin under study is fitted alone. In this case it is suggested to
+    switch one the option "displayOn" from which control histograms for
+    visual inspection can be obtained.
     
+    If "normalise" is set to kTRUE, the acceptance maps are normalised to 1
+    (useful when the acceptance maps simply contain the number of rec. events)
+
+(5) plotLambdas.C
+    once a root file from step (4) is obtained, holding the lambdas of all
+    the rapidity and pT bins, this macro simply does the plotting of the
+    lambda_theta and lambda_phi graphs versus pT for the three rapidity bins
+    some make-up. The user can steer inside the method
+    "FinalizeGraphsForPlotting()" which points should be removed.
