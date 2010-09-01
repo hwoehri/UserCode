@@ -17,7 +17,7 @@ Double_t pTMuMin = 0.;
 Double_t rapYPS = 2.3;
 Double_t JpsiMassMin = 3.0;
 Double_t JpsiMassMax = 3.2;
-Double_t JpsiCtauMax = 0.200;
+Double_t JpsiCtauMax = 0.120; //120 micron
 
 //pT bins
 Int_t const kNbPTBins = 6;
