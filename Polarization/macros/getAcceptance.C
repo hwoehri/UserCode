@@ -40,6 +40,7 @@ TGraphAsymmErrors *gAcc_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1][kN
 TH2D *hAcc2D_pol_pT[kNbFrames][kNbPTBins+1];
 TH2D *hAcc2D_pol_rap[kNbFrames][2*kNbRapBins+1];
 TH2D *hAcc2D_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1];
+TH2D *hAccErr2D_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1];
 TGraphAsymmErrors *gAcc2D_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1];
 
 void ReadInHistos(Char_t *fileNameIn, Int_t rebinCosTh, Int_t rebinPhi);
@@ -50,6 +51,7 @@ void CalcAcceptance();
 void PlotAcceptance(Int_t iFrame);
 void Plot2DAcceptance(Int_t iFrame, Char_t *hltTag);
 void Plot2DAccOneByOne(Int_t iFrame, Char_t *hltTag, Int_t iRap, Int_t iPT);
+void Plot2DAccErrOneByOne(Int_t iFrame, Char_t *hltTag, Int_t iRap, Int_t iPT);
 void PlotKinVarAcceptance();
 void WriteAccHistos(Char_t *fileNameOut);
 void PlotAllAcceptances();
@@ -59,9 +61,9 @@ void Calc2DAcc(TH2D *hReco, TH2D *hGen, TGraphAsymmErrors *graph);
 //usage: root getAcceptance.C+ or
 //       'root getAcceptance.C+("HLT_Mu0Track0Jpsi", 2, 2)' (e.g.)
 //================================================================
-void getAcceptance( Char_t *hltTag = "HLT_Mu0Track0Jpsi", 
-		    Int_t rebinCosTh = 1, 
-		    Int_t rebinPhi = 1){
+void getAcceptance( Char_t *hltTag = "HLT_Mu0Track0Jpsi_cut", 
+		    Int_t rebinCosTh = 2, 
+		    Int_t rebinPhi = 2){
 
   Char_t name[100];
   Char_t fileNameIn[100], fileNameOut[100];
@@ -90,6 +92,8 @@ void getAcceptance( Char_t *hltTag = "HLT_Mu0Track0Jpsi",
     for(int iPT = 1; iPT <= kNbPTBins; iPT++){
       Plot2DAccOneByOne(CS, hltTag, iRap, iPT);
       Plot2DAccOneByOne(HX, hltTag, iRap, iPT);
+      Plot2DAccErrOneByOne(CS, hltTag, iRap, iPT);
+      Plot2DAccErrOneByOne(HX, hltTag, iRap, iPT);
     }
   }
 
@@ -628,16 +632,22 @@ void Plot2DAccOneByOne(Int_t iFrame, Char_t *hltTag, Int_t iRap, Int_t iPT){
 
   gStyle->SetTitleW(1);
 
+  // hAcc2D_pol_pT_rap[iFrame][iPT][iRap]->SetMaximum(1.); //set the scale to 100 %
+
   Char_t name[100];
   Char_t title[100];
 
-  //=====================================================
-  //cosTheta acceptance for different rap and pT bins
-  //=====================================================
+  //=========================================================
+  //phi vs. cosTheta acceptance for different rap and pT bins
+  //=========================================================
   TCanvas *c30_2D;
   sprintf(name, "c30_2D_%s_rap%d_pT%d", frameLabel[iFrame], iRap, iPT);
   sprintf(title, "acc vs cosTheta and phi for pT %d rap Bin %d", iPT, iRap);
   c30_2D = new TCanvas(name, title, 500, 500);
+  // TH1F *hFrame30 = gPad->DrawFrame(-1., 0., 1., 360.);
+  // hFrame30->SetXTitle("hAcc2D_pol_pT_rap[iFrame][iPT][iRap]->GetXTitle());
+  // hFrame30->SetYTitle("hAcc2D_pol_pT_rap[iFrame][iPT][iRap]->GetYTitle());
+
   if(iPT == 0) 
     sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, all p_{T} (%s)", rapForPTRange[iRap-1], rapForPTRange[iRap], hltTag);
   else if(iPT == kNbPTBins) 
@@ -654,7 +664,49 @@ void Plot2DAccOneByOne(Int_t iFrame, Char_t *hltTag, Int_t iRap, Int_t iPT){
   c30_2D->Print(name);
   sprintf(name, "Figures/acceptance2D_%s_%s_rap%d_pT%d.gif", frameLabel[iFrame], hltTag, iRap, iPT); 
   c30_2D->Print(name);
+}
 
+//===============================
+void Plot2DAccErrOneByOne(Int_t iFrame, Char_t *hltTag, Int_t iRap, Int_t iPT){
+
+  gStyle->SetTitleW(1);
+  gStyle->SetOptStat(0);
+
+  // hAcc2D_pol_pT_rap[iFrame][iPT][iRap]->SetMaximum(1.); //set the scale to 100 %
+
+  Char_t name[100];
+  Char_t title[100];
+
+  //==================================================================
+  //phi vs. cosTheta error on acceptance for different rap and pT bins
+  //==================================================================
+  TCanvas *c31_2D;
+  sprintf(name, "c31_2D_%s_rap%d_pT%d", frameLabel[iFrame], iRap, iPT);
+  sprintf(title, "acc error vs cosTheta and phi for pT %d rap Bin %d", iPT, iRap);
+  c31_2D = new TCanvas(name, title, 500, 500);
+  // TH1F *hFrame31 = gPad->DrawFrame(-1., 0., 1., 360.);
+  // hFrame31->SetXTitle("hAccErr2D_pol_pT_rap[iFrame][iPT][iRap]->GetXTitle());
+  // hFrame31->SetYTitle("hAccErr2D_pol_pT_rap[iFrame][iPT][iRap]->GetYTitle());
+
+  if(iPT == 0) 
+    sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, all p_{T} (%s)", rapForPTRange[iRap-1], rapForPTRange[iRap], hltTag);
+  else if(iPT == kNbPTBins) 
+    sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, p_{T} > %1.1f GeV/c (%s)\n", rapForPTRange[iRap-1], rapForPTRange[iRap], pTRange[iPT-1], hltTag);
+  else 
+    sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, %1.1f < p_{T} < %1.1f GeV/c (%s)", rapForPTRange[iRap-1], rapForPTRange[iRap], pTRange[iPT-1], pTRange[iPT], hltTag);
+  hAccErr2D_pol_pT_rap[iFrame][iPT][iRap]->SetTitle(name);
+  hAccErr2D_pol_pT_rap[iFrame][iPT][iRap]->SetZTitle("rel. stat. err. on Acc*Eff");
+  hAccErr2D_pol_pT_rap[iFrame][iPT][iRap]->SetMaximum(0.25);
+  hAccErr2D_pol_pT_rap[iFrame][iPT][iRap]->SetTitleOffset(1.5, "z");
+  //hAccErr2D_pol_pT_rap[iFrame][iPT][iRap]->Draw("colz");//"colz" or "cont"
+  hAccErr2D_pol_pT_rap[iFrame][iPT][iRap]->Draw("lego2");//"colz" or "cont"
+
+  sprintf(name, "Figures/accErr2D_%s_%s_rap%d_pT%d.eps", frameLabel[iFrame], hltTag, iRap, iPT); 
+  c31_2D->Print(name);
+  sprintf(name, "Figures/accErr2D_%s_%s_rap%d_pT%d.pdf", frameLabel[iFrame], hltTag, iRap, iPT); 
+  c31_2D->Print(name);
+  sprintf(name, "Figures/accErr2D_%s_%s_rap%d_pT%d.gif", frameLabel[iFrame], hltTag, iRap, iPT); 
+  c31_2D->Print(name);
 }
 
 //===============================
@@ -759,7 +811,8 @@ void PlotKinVarAcceptance(){
 //===============================
 void CalcAcceptance(){
 
-  Bool_t dividing = kTRUE;
+  // Bool_t dividing = kTRUE;
+  Bool_t dividing = kFALSE;
   Char_t name[100];
 
   printf("preparing pT differential acceptance\n");
@@ -894,6 +947,18 @@ void CalcAcceptance(){
 	
 	sprintf(name, "hAcc2D_Onia_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
 	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = (TH2D *) Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Clone(name);
+	//in case a bin has less than N events, set the acceptance to 0
+	//and increase the bin error to something very large
+	Double_t nEntries;
+	for(int iX = 1; iX <= hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsX(); iX++){
+	  for(int iY = 1; iY <= hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsY(); iY++){
+	    nEntries = Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetBinContent(iX, iY);
+	    if(nEntries < minEntriesPerBin){
+	      hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinContent(iX, iY, 0.);
+	      hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinError(iX, iY, 100.);
+	    }
+	  }
+	}
 	if(dividing)
 	  hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Divide(hGen2D_pol_pT_rap[iFrame][iPTBin][iRapBin]);
 	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetLineColor(colour_pT[iPTBin]);
@@ -912,6 +977,19 @@ void CalcAcceptance(){
 	//       hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinContent(iX, iY, 1.);
 	//   }
 	// }
+
+	//prepare a histogram containing the errors of the acceptance:
+	sprintf(name, "hAccErr2D_Onia_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
+	hAccErr2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = (TH2D *) Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Clone(name);
+	if(!dividing){//pure Possonian error:
+	  for(int iX = 1; iX <= hAccErr2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsX(); iX++){
+	    for(int iY = 1; iY <= hAccErr2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsY(); iY++){
+	      nEntries = hAccErr2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetBinContent(iX,iY);
+	      if(nEntries > 0.)
+		hAccErr2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinContent(iX,iY,1./sqrt(nEntries));
+	    }
+	  }
+	}
       }
     }
   }
