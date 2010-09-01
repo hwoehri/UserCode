@@ -49,7 +49,7 @@ void PlotUncorrData2D(Int_t iFrame, Char_t *polTag, Char_t *oniaLabel);
 void PlotCorrData2D(Int_t iFrame, Char_t *polTag, Char_t *oniaLabel);
 void PlotUnCorr2D_OneByOne(Int_t iFrame, Char_t *label, Char_t *oniaLabel, Int_t rapBin, Int_t pTBin);
 void PlotCorr2D_OneByOne(Int_t iFrame, Char_t *label, Char_t *oniaLabel, Int_t rapBin, Int_t pTBin);
-void ReadAccHistos(Char_t *fileNameMC, Int_t rebinCosTh, Int_t rebinPhi);
+void ReadAccHistos(Char_t *fileNameMC, Int_t rebinCosTh, Int_t rebinPhi, Bool_t normalising);
 void CorrectForAcc(Char_t *polTag);
 void Get1DHistoFrom2D();
 void PlotHistos(Int_t iFrame, Char_t *polTag);
@@ -64,6 +64,7 @@ void AccCorrect(TH1D *hist, TGraphAsymmErrors *gAcc);
 void checkAccCorrectedSpectra(Char_t *hltTag = "HLT_Mu0TkMu0Jpsi_cut",
 			      Int_t rebinCosTh = 2, //histos will be rebinned by "rebinCosTh"
 			      Int_t rebinPhi = 2, //histos will be rebinned by "rebinPhi"
+			      Bool_t normalising = kTRUE, //normalising Acc maps to 1
 			      Char_t *oniaLabel = "J/#psi"){
 
   Char_t fileNameMC[200];
@@ -78,7 +79,7 @@ void checkAccCorrectedSpectra(Char_t *hltTag = "HLT_Mu0TkMu0Jpsi_cut",
 
   ReadData(fileNameData, rebinCosTh, rebinPhi);
   rebinCosTh = 1; rebinPhi = 1;
-  ReadAccHistos(fileNameMC, rebinCosTh, rebinPhi);
+  ReadAccHistos(fileNameMC, rebinCosTh, rebinPhi, normalising);
   CorrectForAcc(label); //calls internally "Get1DHistoFrom2D" to fill
                          //the histo hData1D_pol_pT_rap[kNbFrames][kNbPTBins+1][kNbRapForPTBins+1];
 
@@ -96,12 +97,13 @@ void checkAccCorrectedSpectra(Char_t *hltTag = "HLT_Mu0TkMu0Jpsi_cut",
   PlotUncorrData2D(HX, label, oniaLabel);
   PlotCorrData2D(CS, label, oniaLabel);
   PlotCorrData2D(HX, label, oniaLabel);
-  Int_t rapBin = 1, pTBin = 4;
-  PlotUnCorr2D_OneByOne(CS, label, oniaLabel, rapBin, pTBin);
-  PlotUnCorr2D_OneByOne(HX, label, oniaLabel, rapBin, pTBin);
-  PlotCorr2D_OneByOne(CS, label, oniaLabel, rapBin, pTBin);
-  PlotCorr2D_OneByOne(HX, label, oniaLabel, rapBin, pTBin);
-
+  Int_t pTBin = 4;
+  for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
+    PlotUnCorr2D_OneByOne(CS, label, oniaLabel, iRapBin, pTBin);
+    PlotUnCorr2D_OneByOne(HX, label, oniaLabel, iRapBin, pTBin);
+    PlotCorr2D_OneByOne(CS, label, oniaLabel, iRapBin, pTBin);
+    PlotCorr2D_OneByOne(HX, label, oniaLabel, iRapBin, pTBin);
+  }
 }
 
 //======================================
@@ -254,7 +256,7 @@ void PlotUnCorr2D_OneByOne(Int_t iFrame, Char_t *label, Char_t *oniaLabel, Int_t
   Char_t name[100], title[100];
   TCanvas *c2D[kNbRapForPTBins+1];
   for(int iRap = rapBin; iRap < rapBin+1; iRap++){
-    sprintf(name, "c2D_%s_rap%d", frameLabel[iFrame], iRap);
+    sprintf(name, "c2D_2_%s_rap%d", frameLabel[iFrame], iRap);
     sprintf(title, "phi vs cosTheta for pT bins, rap = %d (%s)", iRap, frameLabel[iFrame]);
     c2D[iRap] = new TCanvas(name, title, 1000, 700);
     for(int iPTBin = pTBin; iPTBin < pTBin+1; iPTBin++){
@@ -862,7 +864,7 @@ void PlotCorrData2D(Int_t iFrame, Char_t *label, Char_t *oniaLabel){
     }
     sprintf(name, "Figures/dataCorr2D_%s_%s_rap%d_pTBins.eps", frameLabel[iFrame], label, iRap);  c2D[iRap]->Print(name);
     sprintf(name, "Figures/dataCorr2D_%s_%s_rap%d_pTBins.pdf", frameLabel[iFrame], label, iRap);  c2D[iRap]->Print(name);
-    sprintf(name, "Figures/dataCorr2D_%s_%s_rap%d_pTBins.gif", frameLabel[iFrame], label, iRap);  c2D[iRap]->Print(name);
+    sprintf(name, "Figures/dataCorr2D_%s_%s_rap%d_pTBins.png", frameLabel[iFrame], label, iRap);  c2D[iRap]->Print(name);
   }
 }
 
@@ -873,7 +875,7 @@ void PlotCorr2D_OneByOne(Int_t iFrame, Char_t *label, Char_t *oniaLabel, Int_t r
   Char_t name[100], title[100];
   TCanvas *c2D[kNbRapForPTBins+1];
   for(int iRap = rapBin; iRap < rapBin+1; iRap++){
-    sprintf(name, "c2DAfter_%s_rap%d", frameLabel[iFrame], iRap);
+    sprintf(name, "c2DAfter2_%s_rap%d", frameLabel[iFrame], iRap);
     sprintf(title, "Acc corrected phi vs cosTheta for pT bin %d, rap = %d (%s)", pTBin, iRap, frameLabel[iFrame]);
     c2D[iRap] = new TCanvas(name, title, 1000, 700);
     for(int iPTBin = pTBin; iPTBin < pTBin+1; iPTBin++){
@@ -1092,7 +1094,7 @@ void ReadData(Char_t *fileNameData, Int_t rebinCosTh, Int_t rebinPhi){
 }
 
 //===================================
-void ReadAccHistos(Char_t *fileNameMC, Int_t rebinCosTh, Int_t rebinPhi){
+void ReadAccHistos(Char_t *fileNameMC, Int_t rebinCosTh, Int_t rebinPhi, Bool_t normalising){
 
   printf("reading in the acceptance histograms\n");
   TFile *fInMC = new TFile(fileNameMC);
@@ -1144,6 +1146,8 @@ void ReadAccHistos(Char_t *fileNameMC, Int_t rebinCosTh, Int_t rebinPhi){
 	// printf("frame %d, pT %d, rap %d, histo %p\n", iFrame, iPTBin, iRapBin, hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]);
 	if(rebinCosTh > 1 || rebinPhi > 1)
 	  hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Rebin2D(rebinCosTh, rebinPhi);
+	if(normalising && hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Integral() > 0)
+	  hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Scale(1./hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Integral());
       }
     }
   }
