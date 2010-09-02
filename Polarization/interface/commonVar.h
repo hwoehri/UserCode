@@ -61,6 +61,9 @@ Int_t marker_pT[kNbPTBins+1] = {20, 21, 22, 23, 20, 21, 29};
 Int_t colour_rap[2*kNbRapBins+1] = {1, 2, 3, 4, 4, 3, 2};
 Int_t marker_rap[2*kNbRapBins+1] = {20, 20, 21, 22, 23, 25, 24};
 
+Int_t colour_rapForPTBins[kNbRapForPTBins+1] = {1, 30, 4, 2};
+Int_t marker_rapForPTBins[kNbRapForPTBins+1] = {20, 21, 25, 20};
+
 //min number of entries to consider the bin
 //(in acceptance map, etc)
 Int_t minEntriesPerBin = 10;
