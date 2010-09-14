@@ -220,8 +220,8 @@ void BookHistosMC(Char_t *oniaLabel){
                              nBinsPhiPol, phiPolMin, phiPolMax);
       hGen2D_Onia_pol_rap[iFrame][iRapBin]->Sumw2();
     }
-    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
-      for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      for(int iRapBin = 0; iRapBin < kNbRapForPTBins+1; iRapBin++){
     sprintf(name, "hGen_Onia_cosTh_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
     sprintf(title, ";cos#theta_{%s}", frameLabel[iFrame]);
     hGen_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol] = new TH1F(name, title, nBinsCosT, cosTMin, cosTMax);
@@ -315,12 +315,12 @@ void WriteHistosMC(Char_t *fNameOut){
       hGen_Onia_pol_rap[iFrame][iRapBin][cos2PhiPol]->Write();
       hGen2D_Onia_pol_rap[iFrame][iRapBin]->Write();
     }
-    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
-      for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
-    hGen_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->Write();
-    hGen_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->Write();
-    hGen_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][cos2PhiPol]->Write();
-    hGen2D_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin]->Write();
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      for(int iRapBin = 0; iRapBin < kNbRapForPTBins+1; iRapBin++){
+	hGen_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->Write();
+	hGen_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->Write();
+	hGen_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][cos2PhiPol]->Write();
+	hGen2D_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin]->Write();
       }
     }
   }

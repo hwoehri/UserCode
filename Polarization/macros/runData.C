@@ -12,9 +12,10 @@ void WriteHistosReco(Char_t *fNameOut);
 //usage: root 'runData.C+' or
 //       root 'runData.C+("pol_MC_HLT_Mu0Track0Jpsi.root", kTRUE)' (e.g.) 
 //==========================================
-void runData(Char_t *fNameOut = "pol_data_HLT_Mu0Track0Jpsi.root",
+void runData(Char_t *fNameOut = "pol_data_HLT_Mu0TkMu0Jpsi.root",
 	     Bool_t newOutputFile = kFALSE, //allows to create a new file or to append info
-	     Char_t *fNameIn = "/home/hermine/CMS/Work/Polarization/Florian/26Aug2010/RooDataSet_pol_Mu0Track0Jpsi_dataR.root",	     
+	     Char_t *fNameIn = "/home/hermine/CMS/Work/Polarization/Florian/11Sep2010/TTree_pol_Mu0TkMu0Jpsi_data_11Sep2010.root",
+	     // Char_t *fNameIn = "/home/hermine/CMS/Work/Polarization/Florian/30Aug2010/TTree_pol_Mu0TkMu0Jpsi_dataR_30Aug2010.root",
 	     //Char_t *fNameIn = "/home/hermine/CMS/Work/Polarization/Florian/26Aug2010/Spring10_PromptJPsi_TTree.root",
 	     Char_t *nameDataSet = "recoData", //"data" or "recoData"
 	     Int_t selDimuType = 3, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
@@ -224,8 +225,8 @@ void BookHistosReco(Char_t *oniaLabel){
 						     nBinsPhiPol, phiPolMin, phiPolMax);
       Reco2D_Onia_pol_rap[iFrame][iRapBin]->Sumw2();
     }
-    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
-      for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      for(int iRapBin = 0; iRapBin < kNbRapForPTBins+1; iRapBin++){
 	sprintf(name, "Reco_Onia_cosTh_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s}", frameLabel[iFrame]);
 	Reco_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol] = new TH1F(name, title, nBinsCosT, cosTMin, cosTMax);
@@ -319,8 +320,8 @@ void WriteHistosReco(Char_t *fNameOut){
       Reco_Onia_pol_rap[iFrame][iRapBin][cos2PhiPol]->Write();
       Reco2D_Onia_pol_rap[iFrame][iRapBin]->Write();
     }
-    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
-      for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      for(int iRapBin = 0; iRapBin < kNbRapForPTBins+1; iRapBin++){
 	Reco_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->Write();
 	Reco_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->Write();
 	Reco_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][cos2PhiPol]->Write();

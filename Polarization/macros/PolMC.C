@@ -290,6 +290,17 @@ void PolMC::Loop(Int_t selDimuType)
       }
 
       //3) polariztion histos - pT and rap Bin
+      //all pT and rapidities
+      hGen2D_Onia_pol_pT_rap[CS][0][0]->Fill(thisCosTh_CS, thisPhi_CS, weight);
+      hGen2D_Onia_pol_pT_rap[HX][0][0]->Fill(thisCosTh_HX, thisPhi_HX, weight);
+      if(pTIndex > 0){
+	hGen2D_Onia_pol_pT_rap[CS][pTIndex][0]->Fill(thisCosTh_CS, thisPhi_CS, weight);
+	hGen2D_Onia_pol_pT_rap[HX][pTIndex][0]->Fill(thisCosTh_HX, thisPhi_HX, weight);
+      }
+      if(rapForPTIndex > 0){
+	hGen2D_Onia_pol_pT_rap[CS][0][rapForPTIndex]->Fill(thisCosTh_CS, thisPhi_CS, weight);
+	hGen2D_Onia_pol_pT_rap[HX][0][rapForPTIndex]->Fill(thisCosTh_HX, thisPhi_HX, weight);
+      }
       if(pTIndex > 0 && rapForPTIndex > 0){
 	//CS frame
 	hGen_Onia_pol_pT_rap[CS][pTIndex][rapForPTIndex][cosThPol]->Fill(thisCosTh_CS, weight);
@@ -309,7 +320,7 @@ void PolMC::Loop(Int_t selDimuType)
     delete onia;
   }//loop over entries
 
-  printf("nb. of rec. events is %d of a total of %d events\n", countRecEvent, nentries);
+  printf("nb. of rec. events is %d of a total of %d events\n", (Int_t) countRecEvent, (Int_t) nentries);
 }
 
 //=========================================
