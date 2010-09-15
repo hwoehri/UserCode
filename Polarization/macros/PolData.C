@@ -48,7 +48,7 @@ void calcPol(TLorentzVector muplus_LAB, TLorentzVector muminus_LAB);
 Double_t CalcPolWeight(Double_t pf_onia_P, Double_t thisCosTh_CS);
 
 //==============================================
-void PolData::Loop(Int_t selDimuType)
+void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 {
   if (fChain == 0) return;
 
@@ -57,6 +57,10 @@ void PolData::Loop(Int_t selDimuType)
   Long64_t countRecEvent = 0;
   Long64_t nb = 0;
   printf("number of entries = %d\n", (Int_t) nentries);
+  FILE *fOutputTextFile;
+  if(writeOutEvents)
+    fOutputTextFile = fopen("jPsiCandidates.txt", "write");
+
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
 
     if(jentry % 100000 == 0) printf("event %d\n", (Int_t) jentry);
@@ -197,6 +201,9 @@ void PolData::Loop(Int_t selDimuType)
 
     countRecEvent++;
 
+    if(writeOutEvents)
+      fprintf(fOutputTextFile, "%d\t%d\t%d\n", (Int_t) runNb, (Int_t) lumiBlock, (Int_t)  eventNb);
+
     //===================================================
     //calculate delta, the angle between the CS and HX frame
     //Formula from EPJC paper
@@ -331,6 +338,9 @@ void PolData::Loop(Int_t selDimuType)
     delete muNeg;
     delete onia;
   }//loop over entries
+
+  if(writeOutEvents)
+    fclose(fOutputTextFile);
 
   printf("nb. of rec. events is %d of a total of %d events\n", (Int_t) countRecEvent, (Int_t) nentries);
 }

@@ -19,6 +19,7 @@ void runData(Char_t *fNameOut = "pol_data_HLT_Mu0TkMu0Jpsi.root",
 	     //Char_t *fNameIn = "/home/hermine/CMS/Work/Polarization/Florian/26Aug2010/Spring10_PromptJPsi_TTree.root",
 	     Char_t *nameDataSet = "recoData", //"data" or "recoData"
 	     Int_t selDimuType = 3, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
+	     Bool_t writeOutEvents = kFALSE, //writes out Run, LS, Ev.Nb for any J/psi candidate
 	     Char_t *oniaLabel = "J/#psi"){//"Ups(1S)"
 
   TFile *fIn = new TFile(fNameIn);
@@ -32,7 +33,7 @@ void runData(Char_t *fNameOut = "pol_data_HLT_Mu0TkMu0Jpsi.root",
 
   PolData treeReco(treeData);
   BookHistosReco(oniaLabel);
-  treeReco.Loop(selDimuType);
+  treeReco.Loop(selDimuType, writeOutEvents);
   WriteHistosReco(fNameOut);
 
   fOut->Close();
