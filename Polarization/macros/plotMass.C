@@ -12,7 +12,7 @@ Double_t theNSig[kNbPTBins+1][kNbRapForPTBins+1];
 TH1F *hMass[kNbPTBins+1][kNbRapForPTBins+1];
 TF1 *fRECO[kNbPTBins+1][kNbRapForPTBins+1];
 Double_t binWidth = 0.01; //10 MeV
-Double_t nSigma = 2.5;
+Double_t nSigma = 3.0; //2.5;
 void ReadInHistos(Char_t *fileNameIn);
 void FitJPsi(Int_t iPTBin, Int_t iRapBin, Int_t fitFunc);
 Double_t fitGaussLin(Double_t *x, Double_t *par);
@@ -106,6 +106,12 @@ void FitJPsi(Int_t thePT, Int_t theRap, Int_t fitFunc){
     tex1->DrawLatex(2.73, 0.7*hMass[thePT][theRap]->GetMaximum(), name);
   }
   
+  //add the lines where we will base the mass cuts:
+  TLine *line = new TLine(JpsiMassMin[theRap], 0., JpsiMassMin[theRap], 0.6*hMass[thePT][theRap]->GetMaximum());
+  //line->SetLineStyle(3);
+  line->Draw();
+  line->DrawLine(JpsiMassMax[theRap], 0., JpsiMassMax[theRap], 0.6*hMass[thePT][theRap]->GetMaximum());
+
   sprintf(name, "Figures/fitData_Jpsi_pT%d_rap%d.eps", thePT, theRap); c1->Print(name);
   sprintf(name, "Figures/fitData_Jpsi_pT%d_rap%d.gif", thePT, theRap); c1->Print(name);
   sprintf(name, "Figures/fitData_Jpsi_pT%d_rap%d.pdf", thePT, theRap); c1->Print(name);
