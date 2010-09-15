@@ -102,12 +102,13 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
       // printf("eta(pos. muon) = %f, eta(neg. muon) = %f\n", etaMuPos, etaMuNeg);
       continue;
     }
+
+    Reco_StatEv->Fill(2.5);//count all events
+
     if(pTMuPos < pTMuMin && pTMuNeg < pTMuMin){
       // printf("pT(pos. muon) = %f, pT(neg. muon) = %f\n", pTMuPos, pTMuNeg);
       continue;
     }
-
-    Reco_StatEv->Fill(2.5);//count all events
 
     //test according to Gavin's proposal:
     //if any of the two muons is within 1.4 < eta < 1.6 AND
@@ -121,18 +122,6 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 //     }
 
     Reco_StatEv->Fill(3.5);
-
-    //select events within a narrow mass window around the J/psi
-    if(JpsiMass < JpsiMassMin || JpsiMass > JpsiMassMax)
-      continue;
-
-    Reco_StatEv->Fill(4.5);
-
-    //select events with a cut on the lifetime to reject NP J/psis:
-    if(Jpsict > JpsiCtauMax)
-      continue;
-
-    Reco_StatEv->Fill(5.5);
 
     calcPol(*muPos, *muNeg);
     //test:
@@ -196,6 +185,21 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
       printf("rapForPTIndex %d, rap(onia) = %f\n", rapForPTIndex, onia_rap);
       continue;
     }
+
+    Reco_StatEv->Fill(4.5);
+
+    //select events with a cut on the lifetime to reject NP J/psis:
+    if(Jpsict > JpsiCtauMax)
+      continue;
+
+    Reco_StatEv->Fill(5.5);
+
+    //select events within a narrow mass window around the J/psi
+    //(rapidity dependence of the resolution --> different mass windows)
+    //values obtained from Gaussian fits in "plotMass.C"
+    if(JpsiMass < JpsiMassMin[rapForPTIndex-1] || 
+       JpsiMass > JpsiMassMax[rapForPTIndex-1])
+      continue;
 
     Reco_StatEv->Fill(6.5);
 
