@@ -11,14 +11,6 @@ const double Ebeam = sqrt( pbeam*pbeam + Mprot*Mprot );
 const TLorentzVector beam1_LAB( 0., 0., pbeam, Ebeam );
 const TLorentzVector beam2_LAB( 0., 0., -pbeam, Ebeam );
 
-//phase space limiting cuts:
-Double_t etaPS = 2.4; //pseudo-rap cuts for muons
-Double_t pTMuMin = 0.;
-Double_t rapYPS = 2.3;
-Double_t JpsiMassMin = 3.0;
-Double_t JpsiMassMax = 3.2;
-Double_t JpsiCtauMax = 0.120; //120 micron
-
 //pT bins
 Int_t const kNbPTBins = 6;
 Double_t pTRange[kNbPTBins+1] = {0., 2.5, 5.0, 7.5, 12.5, 20., 30.};
@@ -51,6 +43,18 @@ Double_t cos2PhiMin = -1., cos2PhiMax = 1.;
 //study the negative and positive rapidity sides separately
 Int_t const kNbRapBins = kNbRapForPTBins;
 Double_t rapRange[2*kNbRapBins+1] = {-2.3, -1.5, -0.9, 0., 0.9, 1.5, 2.3};
+
+//phase space limiting cuts:
+Double_t etaPS = 2.4; //pseudo-rap cuts for muons
+Double_t pTMuMin = 0.;
+Double_t rapYPS = 2.3;
+Double_t JpsiMassMin[kNbRapForPTBins+1] = {2.966, 3.025, 2.979, 2.951};
+Double_t JpsiMassMax[kNbRapForPTBins+1] = {3.218, 3.163, 3.207, 3.233};
+Double_t JpsiCtauMax = 0.120; //120 micron
+/* Double_t JpsiMassMin = 2.0; */
+/* Double_t JpsiMassMax = 4.0; */
+/* Double_t JpsiCtauMax = 20.; //120 micron */
+
 
 //some make up to use the same colour and marker for each pT and rapidity bin
 //in every plotting macro:
