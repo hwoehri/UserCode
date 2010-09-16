@@ -6,8 +6,11 @@ Double_t fitRangeMax[kNbRapForPTBins+1] = {3.4, 3.3, 3.35, 3.45};
 Double_t theChi2[kNbPTBins+1][kNbRapForPTBins+1];
 Int_t theNDF[kNbPTBins+1][kNbRapForPTBins+1];
 Double_t theMean[kNbPTBins+1][kNbRapForPTBins+1];
+Double_t theMeanErr[kNbPTBins+1][kNbRapForPTBins+1];
 Double_t theSigma[kNbPTBins+1][kNbRapForPTBins+1];
+Double_t theSigmaErr[kNbPTBins+1][kNbRapForPTBins+1];
 Double_t theNSig[kNbPTBins+1][kNbRapForPTBins+1];
+Double_t theNSigErr[kNbPTBins+1][kNbRapForPTBins+1];
 
 TH1F *hMass[kNbPTBins+1][kNbRapForPTBins+1];
 TF1 *fRECO[kNbPTBins+1][kNbRapForPTBins+1];
@@ -80,9 +83,11 @@ void FitJPsi(Int_t thePT, Int_t theRap, Int_t fitFunc){
     theChi2[thePT][theRap] = fRECO[thePT][theRap]->GetChisquare();
     theNDF[thePT][theRap] = fRECO[thePT][theRap]->GetNDF();
     theMean[thePT][theRap] = fRECO[thePT][theRap]->GetParameter(3);
+    theMeanErr[thePT][theRap] = fRECO[thePT][theRap]->GetParError(3);
     theSigma[thePT][theRap] = fRECO[thePT][theRap]->GetParameter(4);
-    printf("sigma = %e\n", theSigma[thePT][theRap]);
+    theSigmaErr[thePT][theRap] = fRECO[thePT][theRap]->GetParError(4);
     theNSig[thePT][theRap] = fRECO[thePT][theRap]->GetParameter(2);
+    theNSigErr[thePT][theRap] = fRECO[thePT][theRap]->GetParError(2);
   }
   else
     hMass[thePT][theRap]->Draw("");
@@ -203,49 +208,63 @@ void PrintFitPar(Char_t *fileNameOut){
   FILE *fOut = fopen(fileNameOut, "write");
   fprintf(fOut, "mass resolution [MeV]:\n");
   fprintf(fOut, "======================\n\n");
-  fprintf(fOut, "pT [GeV/c]\tall y\t|y|<%1.1f  %1.1f<|y|<%1.1f %1.1f<|y|<%1.1f\n",
+  fprintf(fOut, "pT [GeV/c]\t   all y\t  |y|<%1.1f       %1.1f<|y|<%1.1f     %1.1f<|y|<%1.1f\n",
 	  rapForPTRange[1], rapForPTRange[1], rapForPTRange[2],
 	  rapForPTRange[2], rapForPTRange[3]);
-  fprintf(fOut, "------------------------------------------------------\n");
-  fprintf(fOut, "all pT   \t%5.1f\t%5.1f\t%5.1f\t\t%5.1f\n",
-	  1000.*theSigma[0][0], 1000.*theSigma[0][1], 1000.*theSigma[0][2], 1000.*theSigma[0][3]);
-  fprintf(fOut, "------------------------------------------------------\n");
+  fprintf(fOut, "----------------------------------------------------------------------------\n");
+  fprintf(fOut, "all pT   \t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\n",
+	  1000.*theSigma[0][0], 1000.*theSigmaErr[0][0], 
+	  1000.*theSigma[0][1], 1000.*theSigmaErr[0][1], 
+	  1000.*theSigma[0][2], 1000.*theSigmaErr[0][2],
+	  1000.*theSigma[0][3], 1000.*theSigmaErr[0][3]);
+  fprintf(fOut, "----------------------------------------------------------------------------\n");
   for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
-    fprintf(fOut, "%4.1f-%4.1f\t%5.1f\t%5.1f\t%5.1f\t\t%5.1f\n",
+    fprintf(fOut, "%4.1f-%4.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\n",
 	    pTRange[iPTBin-1], pTRange[iPTBin],
-	    1000.*theSigma[iPTBin][0], 1000.*theSigma[iPTBin][1], 1000.*theSigma[iPTBin][2], 1000.*theSigma[iPTBin][3]);
+	    1000.*theSigma[iPTBin][0], 1000.*theSigmaErr[iPTBin][0],
+	    1000.*theSigma[iPTBin][1], 1000.*theSigmaErr[iPTBin][1], 
+	    1000.*theSigma[iPTBin][2], 1000.*theSigmaErr[iPTBin][2], 
+	    1000.*theSigma[iPTBin][3], 1000.*theSigmaErr[iPTBin][3]);
   }
 
 
   fprintf(fOut, "\n\nJ/psi mass [MeV]:\n");
   fprintf(fOut, "==================\n\n");
-  fprintf(fOut, "pT [GeV/c]\tall y\t|y|<%1.1f  %1.1f<|y|<%1.1f %1.1f<|y|<%1.1f\n",
+  fprintf(fOut, "pT [GeV/c]\t   all y\t  |y|<%1.1f       %1.1f<|y|<%1.1f     %1.1f<|y|<%1.1f\n",
 	  rapForPTRange[1], rapForPTRange[1], rapForPTRange[2],
 	  rapForPTRange[2], rapForPTRange[3]);
-  fprintf(fOut, "------------------------------------------------------\n");
-  fprintf(fOut, "all pT   \t%5.1f\t%5.1f\t%5.1f\t\t%5.1f\n",
-	  1000.*theMean[0][0], 1000.*theMean[0][1], 1000.*theMean[0][2], 1000.*theMean[0][3]);
-  fprintf(fOut, "------------------------------------------------------\n");
+  fprintf(fOut, "----------------------------------------------------------------------------\n");
+  fprintf(fOut, "all pT   \t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\n",
+	  1000.*theMean[0][0], 1000.*theMeanErr[0][0], 
+	  1000.*theMean[0][1], 1000.*theMeanErr[0][1], 
+	  1000.*theMean[0][2], 1000.*theMeanErr[0][2], 
+	  1000.*theMean[0][3], 1000.*theMeanErr[0][3]);
+  fprintf(fOut, "----------------------------------------------------------------------------\n");
   for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
-    fprintf(fOut, "%4.1f-%4.1f\t%5.1f\t%5.1f\t%5.1f\t\t%5.1f\n",
+    fprintf(fOut, "%4.1f-%4.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\n",
 	    pTRange[iPTBin-1], pTRange[iPTBin],
-	    1000.*theMean[iPTBin][0], 1000.*theMean[iPTBin][1], 
-	    1000.*theMean[iPTBin][2], 1000.*theMean[iPTBin][3]);
+	    1000.*theMean[iPTBin][0], 1000.*theMeanErr[iPTBin][0], 
+	    1000.*theMean[iPTBin][1], 1000.*theMeanErr[iPTBin][1], 
+	    1000.*theMean[iPTBin][2], 1000.*theMeanErr[iPTBin][2], 
+	    1000.*theMean[iPTBin][3], 1000.*theMeanErr[iPTBin][3]);
   }
 
   fprintf(fOut, "\n\nnumber of fitted J/psi's:\n");
   fprintf(fOut, "=============================\n\n");
-  fprintf(fOut, "pT [GeV/c]\tall y\t|y|<%1.1f  %1.1f<|y|<%1.1f %1.1f<|y|<%1.1f\n",
+  fprintf(fOut, "pT [GeV/c]\t      all y\t   |y|<%1.1f       %1.1f<|y|<%1.1f     %1.1f<|y|<%1.1f\n",
 	  rapForPTRange[1], rapForPTRange[1], rapForPTRange[2],
 	  rapForPTRange[2], rapForPTRange[3]);
-  fprintf(fOut, "-----------------------------------------------------------\n");
-  fprintf(fOut, "all pT   \t%6.0f\t%6.0f\t%6.0f\t\t%6.0f\n",
+  fprintf(fOut, "----------------------------------------------------------------------------\n");
+  fprintf(fOut, "all pT   \t%6.0f+-%4.0f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\n",
 	  theNSig[0][0], theNSig[0][1], theNSig[0][2], theNSig[0][3]);
-  fprintf(fOut, "-----------------------------------------------------------\n");
+  fprintf(fOut, "----------------------------------------------------------------------------\n");
   for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
-    fprintf(fOut, "%4.1f-%4.1f\t%6.0f\t%6.0f\t%6.0f\t\t%6.0f\n",
+    fprintf(fOut, "%4.1f-%4.1f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\n",
 	    pTRange[iPTBin-1], pTRange[iPTBin],
-	    theNSig[iPTBin][0], theNSig[iPTBin][1], theNSig[iPTBin][2], theNSig[iPTBin][3]);
+	    theNSig[iPTBin][0], theNSigErr[iPTBin][0], 
+	    theNSig[iPTBin][1], theNSigErr[iPTBin][1], 
+	    theNSig[iPTBin][2], theNSigErr[iPTBin][2], 
+	    theNSig[iPTBin][3], theNSigErr[iPTBin][3]);
   }
 
   fprintf(fOut, "\n\nquality of the fit (chi2/ndf):\n");
