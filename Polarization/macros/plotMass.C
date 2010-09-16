@@ -256,7 +256,10 @@ void PrintFitPar(Char_t *fileNameOut){
 	  rapForPTRange[2], rapForPTRange[3]);
   fprintf(fOut, "----------------------------------------------------------------------------\n");
   fprintf(fOut, "all pT   \t%6.0f+-%4.0f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\n",
-	  theNSig[0][0], theNSig[0][1], theNSig[0][2], theNSig[0][3]);
+	  theNSig[0][0], theNSigErr[0][0], 
+	  theNSig[0][1], theNSigErr[0][1], 
+	  theNSig[0][2], theNSigErr[0][2], 
+	  theNSig[0][3], theNSigErr[0][3]);
   fprintf(fOut, "----------------------------------------------------------------------------\n");
   for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
     fprintf(fOut, "%4.1f-%4.1f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\n",
