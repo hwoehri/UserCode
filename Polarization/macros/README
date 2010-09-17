@@ -21,19 +21,35 @@
     --> cuts implemented in PolData.C should always be in sync with the
     one in PolMC.C
 
-(3) getAcceptance.C
+    The option "writeOutEvents" allows to store in an ascii file the RunNumber,
+    LS and EventNumber of all opposite sign dimuons that we are considering 
+    for the physics data analysis. The output filename is "jPsiCandidates.txt".
+
+(3a) getAcceptance.C
     calculates the product of geometrical acceptance with all efficiencies
     from MC, simply as Acc = RECO / GEN. This is done for the 1D and 2D
     histograms stored in the output file from the previous two steps
     The acceptance maps used for the RooFits of the polarization analyses
     are 2D histos (phi vs cosTheta) for each rapidity and pT bin and are 
-    called "hAcc2D_Onia_CS_pT1_rap1" and ""hAcc2D_Onia_HX_pT1_rap1" etc.
+    called "hAcc2D_Onia_CS_pT1_rap1" and "hAcc2D_Onia_HX_pT1_rap1" etc.
     These are stored in a file called "accHistos_HLT_Mu0Track0Jpsi.root"
     (or similar)
 
     --> the many output plots can be processed by
     cd ../latex
     pdflatex acceptance.tex
+
+    Given that the generation suffers from single muon kinematical cuts,
+    and the cosTheta and phi distributions were generated flat, the acceptance
+    curves are currently just given by the distribution of reconstructed
+    events.
+(3b) getNPAcceptance.C
+    In an analogous fashion the acceptance maps for the NP J/psi's are 
+    prepared. It requests, however, four input files, corresponding to the
+    B0, B+-, Bs and Lambda_b generations. These are added with weights, given
+    by the individual integrated luminosities. By default these weights are:
+    Double_t weights[kNbSpecies] = {10./(44.46*0.894), 10./(36.7*0.898), 
+                                    10./(33.5*0.9), 10./(156.63*0.899)};
 
 (*) plotMass.C
     macro that reads the output of "runData.C", plots the mass distribution
