@@ -952,16 +952,16 @@ void CalcAcceptance(){
 
 	sprintf(name, "hAcc2D_Onia_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
 	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = (TH2D *) Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Clone(name);
-	//in case a bin has less than N events, set the acceptance to 0
-	//and increase the bin error to something very large
 	Double_t nEntries;
 	for(int iX = 1; iX <= hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsX(); iX++){
 	  for(int iY = 1; iY <= hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsY(); iY++){
 	    nEntries = Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetBinContent(iX, iY);
-	    if(nEntries < minEntriesPerBin){
-	      hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinContent(iX, iY, 0.);
-	      hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinError(iX, iY, 100.);
-	    }
+	    //in case a bin has less than N events, set the acceptance to 0
+	    //and increase the bin error to something very large
+	    // if(nEntries < minEntriesPerBin){
+	    //   hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinContent(iX, iY, 0.);
+	    //   hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinError(iX, iY, 100.);
+	    // }
 	  }
 	}
 	if(dividing)

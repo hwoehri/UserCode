@@ -13,7 +13,7 @@ Char_t *speciesName[kNbSpecies+1] = {"B0", "Bp", "Bs", "LambdaB", "NP"};
 //the downscaling factors (0.894 etc) refer to the fact that only 90% of
 //the full MC sample was used to produce the acceptance maps
 //to leave 10% for a MC "pseudoData" sample...
-Double_t weights[kNbSpecies] = {10./(44.46*0.894), 10./(36.7*0.898), 10./(33.5*0.9), 10./(156.63*0.899)};
+Double_t weights[kNbSpecies] = {10./(2.*44.46*0.894), 10./(2.*36.7*0.898), 10./(2.*33.5*0.9), 10./(2.*156.63*0.899)};
 //generated histos
 // TH1D *hGen_pt[kNbRapForPTBins+1];
 // TH1D *hGen_rap[kNbPTBins+1];
@@ -98,8 +98,8 @@ void getNPAcceptance(Char_t *hltTag = "HLT_Mu0Track0Jpsi",
 //   PlotAcceptance(CS);
 // //   PlotAcceptance(HX);
 // //   PlotAllAcceptances();
-  Plot2DAcceptance(CS, hltTag );
-  Plot2DAcceptance(HX, hltTag );
+  Plot2DAcceptance(CS, hltTag);
+  Plot2DAcceptance(HX, hltTag);
 
   for(int iRap = 1; iRap <= kNbRapForPTBins; iRap++){
     for(int iPT = 1; iPT <= kNbPTBins; iPT++){
@@ -974,8 +974,6 @@ void CalcAcceptance(){
 	hAccErr2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = (TH2D *) Reco2D_pol_pT_rap[0][iFrame][iPTBin][iRapBin]->Clone(name);
 	hAccErr2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Reset();
 
-	//in case a bin has less than N events, set the acceptance to 0
-	//and increase the bin error to something very large
 	Double_t nEntries;
 	for(int iX = 1; iX <= hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsX(); iX++){
 	  for(int iY = 1; iY <= hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->GetNbinsY(); iY++){
@@ -983,10 +981,12 @@ void CalcAcceptance(){
 	    for(int iSpecies = 0; iSpecies < kNbSpecies; iSpecies++)
 	      //make the check on the *unscaled* histograms
 	      nEntries += Reco2D_pol_pT_rap[iSpecies][iFrame][iPTBin][iRapBin]->GetBinContent(iX, iY);
-	    if(nEntries < minEntriesPerBin){
-	      hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinContent(iX, iY, 0.);
-	      hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinError(iX, iY, 100.);
-	    }
+	    //in case a bin has less than N events, set the acceptance to 0
+	    //and increase the bin error to something very large
+	    // if(nEntries < minEntriesPerBin){
+	    //   hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinContent(iX, iY, 0.);
+	    //   hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinError(iX, iY, 100.);
+	    // }
 	    if(!dividing){//pure Possonian error:
 	      if(nEntries > 0.)
 		hAccErr2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->SetBinContent(iX,iY,1./sqrt(nEntries));
