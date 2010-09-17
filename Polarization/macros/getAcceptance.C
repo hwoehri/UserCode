@@ -61,15 +61,16 @@ void Calc2DAcc(TH2D *hReco, TH2D *hGen, TGraphAsymmErrors *graph);
 //usage: root getAcceptance.C+ or
 //       'root getAcceptance.C+("HLT_Mu0Track0Jpsi", 2, 2)' (e.g.)
 //================================================================
-void getAcceptance( Char_t *hltTag = "HLT_Mu0Track0Jpsi_cut", 
-		    Int_t rebinCosTh = 2, 
-		    Int_t rebinPhi = 2){
+void getAcceptance(Char_t *hltTag = "HLT_Mu0Track0Jpsi", 
+		   Char_t *lastLabel = "", //optional: if filename contains another string at the end
+		   Int_t rebinCosTh = 2,
+		   Int_t rebinPhi = 2){
 
-  Char_t name[100];
-  Char_t fileNameIn[100], fileNameOut[100];
-
-  sprintf(fileNameIn,  "pol_MC_%s.root", hltTag);
-  sprintf(fileNameOut, "accHistos_%s.root", hltTag );
+  Char_t name[200];
+  Char_t fileNameIn[200], fileNameOut[200];
+  Char_t *processTag = "P";
+  sprintf(fileNameIn,  "pol_MC_%s_%s_%s.root", processTag, hltTag, lastLabel);
+  sprintf(fileNameOut, "accHistos_%s_%s_%s.root", processTag, hltTag, lastLabel);
 
   ReadInHistos(fileNameIn, rebinCosTh, rebinPhi);
 
@@ -944,7 +945,11 @@ void CalcAcceptance(){
 	Calc2DAcc(Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin], 
 		  hGen2D_pol_pT_rap[iFrame][iPTBin][iRapBin],
 		  gAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]);
-	
+      }
+    }
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      for(int iRapBin = 0; iRapBin < kNbRapForPTBins+1; iRapBin++){
+
 	sprintf(name, "hAcc2D_Onia_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
 	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = (TH2D *) Reco2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Clone(name);
 	//in case a bin has less than N events, set the acceptance to 0
@@ -1114,8 +1119,8 @@ void ReadInHistos(Char_t *fileNameIn, Int_t rebinCosTh, Int_t rebinPhi){
       if(rebinCosTh > 1 || rebinPhi > 1)
 	Reco2D_pol_rap[iFrame][iRapBin]->Rebin2D(rebinCosTh, rebinPhi);
     }
-    for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
-      for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      for(int iRapBin = 0; iRapBin < kNbRapForPTBins+1; iRapBin++){
 	//generated
 	sprintf(name, "hGen_Onia_cosTh_%s_pT%d_rap%d", frameLabel[iFrame], iPTBin, iRapBin);
 	hGen_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol] = (TH1D *) gDirectory->Get(name);
@@ -1177,6 +1182,8 @@ void ReadInHistos(Char_t *fileNameIn, Int_t rebinCosTh, Int_t rebinPhi){
 //===============================
 void WriteAccHistos(Char_t *fileNameOut){
 
+  printf("<WriteAccHistos> writing out the histograms\n");
+
   TFile *fOut = new TFile(fileNameOut, "RECREATE");
 
   for(int iRap = 0; iRap < kNbRapForPTBins+1; iRap++)
@@ -1202,8 +1209,17 @@ void WriteAccHistos(Char_t *fileNameOut){
       for(int iRapBin = 1; iRapBin < kNbRapForPTBins+1; iRapBin++){
 	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][cosThPol]->Write();
 	gAcc_pol_pT_rap[iFrame][iPTBin][iRapBin][phiPol]->Write();
-	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Write();
 	gAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Write();
+      }
+    }
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      for(int iRapBin = 0; iRapBin < kNbRapForPTBins+1; iRapBin++){
+	hAccErr2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Write();
+      }
+    }
+    for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
+      for(int iRapBin = 0; iRapBin < kNbRapForPTBins+1; iRapBin++){
+	hAcc2D_pol_pT_rap[iFrame][iPTBin][iRapBin]->Write();
       }
     }
   }
