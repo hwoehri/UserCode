@@ -1,19 +1,19 @@
 #include "../interface/rootIncludes.inc"
 #include "../interface/commonVar.h"
 
-Double_t fitRangeMin[kNbRapForPTBins+1] = {2.8, 2.9, 2.85, 2.75};
-Double_t fitRangeMax[kNbRapForPTBins+1] = {3.4, 3.3, 3.35, 3.45};
-Double_t theChi2[kNbPTBins+1][kNbRapForPTBins+1];
-Int_t theNDF[kNbPTBins+1][kNbRapForPTBins+1];
-Double_t theMean[kNbPTBins+1][kNbRapForPTBins+1];
-Double_t theMeanErr[kNbPTBins+1][kNbRapForPTBins+1];
-Double_t theSigma[kNbPTBins+1][kNbRapForPTBins+1];
-Double_t theSigmaErr[kNbPTBins+1][kNbRapForPTBins+1];
-Double_t theNSig[kNbPTBins+1][kNbRapForPTBins+1];
-Double_t theNSigErr[kNbPTBins+1][kNbRapForPTBins+1];
+Double_t fitRangeMin[jpsi::kNbRapForPTBins+1] = {2.8, 2.9, 2.85, 2.75};
+Double_t fitRangeMax[jpsi::kNbRapForPTBins+1] = {3.4, 3.3, 3.35, 3.45};
+Double_t theChi2[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
+Int_t theNDF[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
+Double_t theMean[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
+Double_t theMeanErr[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
+Double_t theSigma[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
+Double_t theSigmaErr[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
+Double_t theNSig[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
+Double_t theNSigErr[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
 
-TH1F *hMass[kNbPTBins+1][kNbRapForPTBins+1];
-TF1 *fRECO[kNbPTBins+1][kNbRapForPTBins+1];
+TH1F *hMass[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
+TF1 *fRECO[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
 Double_t binWidth = 0.01; //10 MeV
 Double_t nSigma = 3.0; //2.5;
 void ReadInHistos(Char_t *fileNameIn);
@@ -32,8 +32,8 @@ void plotMass(Char_t *fileNameIn = "pol_data_HLT_Mu0TkMu0Jpsi.root",
 	      ){
 
   ReadInHistos(fileNameIn);
-  for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++)
-    for(int iRapBin = 0; iRapBin < kNbRapForPTBins+1; iRapBin++)
+  for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++)
+    for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
       FitJPsi(iPTBin, iRapBin, fitFunc);
   PrintFitPar(fileFitResultsOut);
 }
@@ -94,12 +94,12 @@ void FitJPsi(Int_t thePT, Int_t theRap, Int_t fitFunc){
 
   //add some text
   if(theRap == 0 && thePT == 0) sprintf(name, "|y| < 2.3, all p_{T}");
-  else if(theRap == 0) sprintf(name, "|y| < 2.3, %1.1f < p_{T} < %1.1f", pTRange[thePT-1], pTRange[thePT]);
-  else if(theRap > 1 && thePT == 0) sprintf(name, "%1.1f < |y| < %1.1f, all p_{T}", rapForPTRange[theRap-1], rapForPTRange[theRap]);
-  else if(theRap == 1 && thePT == 0) sprintf(name, "|y| < %1.1f, all p_{T}", rapForPTRange[theRap]);
-  else if(theRap == 1) sprintf(name, "|y| < %1.1f, %1.1f < p_{T} < %1.1f", rapForPTRange[theRap], pTRange[thePT-1], pTRange[thePT]);
+  else if(theRap == 0) sprintf(name, "|y| < 2.3, %1.1f < p_{T} < %1.1f", jpsi::pTRange[thePT-1], jpsi::pTRange[thePT]);
+  else if(theRap > 1 && thePT == 0) sprintf(name, "%1.1f < |y| < %1.1f, all p_{T}", jpsi::rapForPTRange[theRap-1], jpsi::rapForPTRange[theRap]);
+  else if(theRap == 1 && thePT == 0) sprintf(name, "|y| < %1.1f, all p_{T}", jpsi::rapForPTRange[theRap]);
+  else if(theRap == 1) sprintf(name, "|y| < %1.1f, %1.1f < p_{T} < %1.1f", jpsi::rapForPTRange[theRap], jpsi::pTRange[thePT-1], jpsi::pTRange[thePT]);
   else if(theRap > 1)  sprintf(name, "%1.1f < |y| < %1.1f, %1.1f < p_{T} < %1.1f", 
-	    rapForPTRange[theRap-1], rapForPTRange[theRap], pTRange[thePT-1], pTRange[thePT]);
+	    jpsi::rapForPTRange[theRap-1], jpsi::rapForPTRange[theRap], jpsi::pTRange[thePT-1], jpsi::pTRange[thePT]);
 
   tex1 = new TLatex(2.73, 0.9*hMass[thePT][theRap]->GetMaximum(), name);
   tex1->Draw();
@@ -112,10 +112,10 @@ void FitJPsi(Int_t thePT, Int_t theRap, Int_t fitFunc){
   }
   
   //add the lines where we will base the mass cuts:
-  TLine *line = new TLine(JpsiMassMin[theRap], 0., JpsiMassMin[theRap], 0.6*hMass[thePT][theRap]->GetMaximum());
+  TLine *line = new TLine(jpsi::JpsiMassMin[theRap], 0., jpsi::JpsiMassMin[theRap], 0.6*hMass[thePT][theRap]->GetMaximum());
   //line->SetLineStyle(3);
   line->Draw();
-  line->DrawLine(JpsiMassMax[theRap], 0., JpsiMassMax[theRap], 0.6*hMass[thePT][theRap]->GetMaximum());
+  line->DrawLine(jpsi::JpsiMassMax[theRap], 0., jpsi::JpsiMassMax[theRap], 0.6*hMass[thePT][theRap]->GetMaximum());
 
   sprintf(name, "Figures/fitData_Jpsi_pT%d_rap%d.eps", thePT, theRap); c1->Print(name);
   sprintf(name, "Figures/fitData_Jpsi_pT%d_rap%d.gif", thePT, theRap); c1->Print(name);
@@ -128,8 +128,8 @@ void ReadInHistos(Char_t *fileNameIn){
   TFile *fIn = new TFile(fileNameIn);
   Char_t name[100];
   printf("reading file %s\n", fileNameIn);
-  for(int iPTBin = 0; iPTBin < kNbPTBins+1; iPTBin++){
-    for(int iRapBin = 0; iRapBin < kNbRapForPTBins+1; iRapBin++){
+  for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
+    for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
       //Mass:
       sprintf(name, "Reco_Onia_mass_pT%d_rap%d", iPTBin, iRapBin);
       hMass[iPTBin][iRapBin] = (TH1F *) gDirectory->Get(name);
@@ -209,8 +209,8 @@ void PrintFitPar(Char_t *fileNameOut){
   fprintf(fOut, "mass resolution [MeV]:\n");
   fprintf(fOut, "======================\n\n");
   fprintf(fOut, "pT [GeV/c]\t   all y\t  |y|<%1.1f       %1.1f<|y|<%1.1f     %1.1f<|y|<%1.1f\n",
-	  rapForPTRange[1], rapForPTRange[1], rapForPTRange[2],
-	  rapForPTRange[2], rapForPTRange[3]);
+	  jpsi::rapForPTRange[1], jpsi::rapForPTRange[1], jpsi::rapForPTRange[2],
+	  jpsi::rapForPTRange[2], jpsi::rapForPTRange[3]);
   fprintf(fOut, "----------------------------------------------------------------------------\n");
   fprintf(fOut, "all pT   \t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\n",
 	  1000.*theSigma[0][0], 1000.*theSigmaErr[0][0], 
@@ -218,9 +218,9 @@ void PrintFitPar(Char_t *fileNameOut){
 	  1000.*theSigma[0][2], 1000.*theSigmaErr[0][2],
 	  1000.*theSigma[0][3], 1000.*theSigmaErr[0][3]);
   fprintf(fOut, "----------------------------------------------------------------------------\n");
-  for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+  for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
     fprintf(fOut, "%4.1f-%4.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\n",
-	    pTRange[iPTBin-1], pTRange[iPTBin],
+	    jpsi::pTRange[iPTBin-1], jpsi::pTRange[iPTBin],
 	    1000.*theSigma[iPTBin][0], 1000.*theSigmaErr[iPTBin][0],
 	    1000.*theSigma[iPTBin][1], 1000.*theSigmaErr[iPTBin][1], 
 	    1000.*theSigma[iPTBin][2], 1000.*theSigmaErr[iPTBin][2], 
@@ -231,8 +231,8 @@ void PrintFitPar(Char_t *fileNameOut){
   fprintf(fOut, "\n\nJ/psi mass [MeV]:\n");
   fprintf(fOut, "==================\n\n");
   fprintf(fOut, "pT [GeV/c]\t   all y\t  |y|<%1.1f       %1.1f<|y|<%1.1f     %1.1f<|y|<%1.1f\n",
-	  rapForPTRange[1], rapForPTRange[1], rapForPTRange[2],
-	  rapForPTRange[2], rapForPTRange[3]);
+	  jpsi::rapForPTRange[1], jpsi::rapForPTRange[1], jpsi::rapForPTRange[2],
+	  jpsi::rapForPTRange[2], jpsi::rapForPTRange[3]);
   fprintf(fOut, "----------------------------------------------------------------------------\n");
   fprintf(fOut, "all pT   \t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\n",
 	  1000.*theMean[0][0], 1000.*theMeanErr[0][0], 
@@ -240,9 +240,9 @@ void PrintFitPar(Char_t *fileNameOut){
 	  1000.*theMean[0][2], 1000.*theMeanErr[0][2], 
 	  1000.*theMean[0][3], 1000.*theMeanErr[0][3]);
   fprintf(fOut, "----------------------------------------------------------------------------\n");
-  for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+  for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
     fprintf(fOut, "%4.1f-%4.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\t%5.1f+-%3.1f\n",
-	    pTRange[iPTBin-1], pTRange[iPTBin],
+	    jpsi::pTRange[iPTBin-1], jpsi::pTRange[iPTBin],
 	    1000.*theMean[iPTBin][0], 1000.*theMeanErr[iPTBin][0], 
 	    1000.*theMean[iPTBin][1], 1000.*theMeanErr[iPTBin][1], 
 	    1000.*theMean[iPTBin][2], 1000.*theMeanErr[iPTBin][2], 
@@ -252,8 +252,8 @@ void PrintFitPar(Char_t *fileNameOut){
   fprintf(fOut, "\n\nnumber of fitted J/psi's:\n");
   fprintf(fOut, "=============================\n\n");
   fprintf(fOut, "pT [GeV/c]\t      all y\t   |y|<%1.1f       %1.1f<|y|<%1.1f     %1.1f<|y|<%1.1f\n",
-	  rapForPTRange[1], rapForPTRange[1], rapForPTRange[2],
-	  rapForPTRange[2], rapForPTRange[3]);
+	  jpsi::rapForPTRange[1], jpsi::rapForPTRange[1], jpsi::rapForPTRange[2],
+	  jpsi::rapForPTRange[2], jpsi::rapForPTRange[3]);
   fprintf(fOut, "----------------------------------------------------------------------------\n");
   fprintf(fOut, "all pT   \t%6.0f+-%4.0f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\n",
 	  theNSig[0][0], theNSigErr[0][0], 
@@ -261,9 +261,9 @@ void PrintFitPar(Char_t *fileNameOut){
 	  theNSig[0][2], theNSigErr[0][2], 
 	  theNSig[0][3], theNSigErr[0][3]);
   fprintf(fOut, "----------------------------------------------------------------------------\n");
-  for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+  for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
     fprintf(fOut, "%4.1f-%4.1f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\t%6.0f+-%4.0f\n",
-	    pTRange[iPTBin-1], pTRange[iPTBin],
+	    jpsi::pTRange[iPTBin-1], jpsi::pTRange[iPTBin],
 	    theNSig[iPTBin][0], theNSigErr[iPTBin][0], 
 	    theNSig[iPTBin][1], theNSigErr[iPTBin][1], 
 	    theNSig[iPTBin][2], theNSigErr[iPTBin][2], 
@@ -273,16 +273,16 @@ void PrintFitPar(Char_t *fileNameOut){
   fprintf(fOut, "\n\nquality of the fit (chi2/ndf):\n");
   fprintf(fOut, "==================================\n\n");
   fprintf(fOut, "pT [GeV/c]   \tall y\t\t|y|<%1.1f \t %1.1f<|y|<%1.1f\t %1.1f<|y|<%1.1f\n",
-	  rapForPTRange[1], rapForPTRange[1], rapForPTRange[2],
-	  rapForPTRange[2], rapForPTRange[3]);
+	  jpsi::rapForPTRange[1], jpsi::rapForPTRange[1], jpsi::rapForPTRange[2],
+	  jpsi::rapForPTRange[2], jpsi::rapForPTRange[3]);
   fprintf(fOut, "----------------------------------------------------------------------------\n");
   fprintf(fOut, "all pT   \t%5.1f /%3d\t%5.1f /%3d\t%5.1f /%3d\t%5.1f /%3d\n",
 	  theChi2[0][0], theNDF[0][0], theChi2[0][1], theNDF[0][1], 
 	  theChi2[0][2], theNDF[0][2], theChi2[0][3], theNDF[0][3]);
   fprintf(fOut, "----------------------------------------------------------------------------\n");
-  for(int iPTBin = 1; iPTBin < kNbPTBins+1; iPTBin++){
+  for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
     fprintf(fOut, "%4.1f-%4.1f\t%5.1f /%3d\t%5.1f /%3d\t%5.1f /%3d\t%5.1f /%3d\n",
-	    pTRange[iPTBin-1], pTRange[iPTBin],
+	    jpsi::pTRange[iPTBin-1], jpsi::pTRange[iPTBin],
 	    theChi2[iPTBin][0], theNDF[iPTBin][0], theChi2[iPTBin][1], theNDF[iPTBin][1], 
 	    theChi2[iPTBin][2], theNDF[iPTBin][2], theChi2[iPTBin][3], theNDF[iPTBin][3]);
 
