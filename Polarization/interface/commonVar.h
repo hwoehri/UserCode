@@ -33,13 +33,13 @@ namespace jpsi{
   Int_t const kNbPolVar = 3; //cosTheta, phi, cos2Phi
   enum {cosThPol,phiPol,cos2PhiPol};
   //cosTheta 
-  Int_t const nBinsCosT = 40;
+  Int_t const kNbBinsCosT = 40;
   Double_t cosTMin = -1., cosTMax = 1.;
   //phi for pol. 
-  Int_t const nBinsPhiPol = 36;
+  Int_t const kNbBinsPhiPol = 36;
   Double_t phiPolMin = 0., phiPolMax = 360.;
   //cos2Phi
-  Int_t const nBinsCos2Phi = 40;
+  Int_t const kNbBinsCos2Phi = 40;
   Double_t cos2PhiMin = -1., cos2PhiMax = 1.;
 
   //study the negative and positive rapidity sides separately
@@ -52,11 +52,10 @@ namespace jpsi{
   Double_t rapYPS = 2.3;
   Double_t JpsiMassMin[kNbRapForPTBins+1] = {2.966, 3.025, 2.979, 2.951};
   Double_t JpsiMassMax[kNbRapForPTBins+1] = {3.218, 3.163, 3.207, 3.233};
-  Double_t JpsiCtauMax = 0.120; //120 micron
-  /* Double_t JpsiMassMin = 2.0; */
-  /* Double_t JpsiMassMax = 4.0; */
-  /* Double_t JpsiCtauMax = 20.; //120 micron */
-  
+  /* Double_t JpsiCtauMax = 0.120; //120 micron */
+  /* Double_t JpsiMassMin[kNbRapForPTBins+1] = {2., 2., 2., 2.}; */
+  /* Double_t JpsiMassMax[kNbRapForPTBins+1] = {4., 4., 4., 4.}; */
+  Double_t JpsiCtauMax = 1000.; //effectively no cut on lifetime
 
   //some make up to use the same colour and marker for each pT and rapidity bin
   //in every plotting macro:
