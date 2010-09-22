@@ -26,9 +26,9 @@ namespace jpsi{
      {1.522, 3.561, 6.015, 9.536, 15.163, 23.618},
      {1.533, 3.550, 6.085, 9.626, 15.267, 23.544}};
   //number of reference frames
-  Int_t const kNbFrames = 2;
-  Char_t *frameLabel[kNbFrames] = {"CS", "HX"};
-  enum {CS,HX};
+  Int_t const kNbFrames = 5;
+  Char_t *frameLabel[kNbFrames] = {"CS", "HX", "GJ1", "GJ2", "PHX"};
+  enum {CS,HX, GJ1, GJ2, PHX};
   //polarization variables (3rd one was for testing purposes)
   Int_t const kNbPolVar = 3; //cosTheta, phi, cos2Phi
   enum {cosThPol,phiPol,cos2PhiPol};
@@ -50,11 +50,11 @@ namespace jpsi{
   Double_t etaPS = 2.4; //pseudo-rap cuts for muons
   Double_t pTMuMin = 0.;
   Double_t rapYPS = 2.3;
-  Double_t JpsiMassMin[kNbRapForPTBins+1] = {2.966, 3.025, 2.979, 2.951};
-  Double_t JpsiMassMax[kNbRapForPTBins+1] = {3.218, 3.163, 3.207, 3.233};
+  /* Double_t JpsiMassMin[kNbRapForPTBins+1] = {2.966, 3.025, 2.979, 2.951}; */
+  /* Double_t JpsiMassMax[kNbRapForPTBins+1] = {3.218, 3.163, 3.207, 3.233}; */
   /* Double_t JpsiCtauMax = 0.120; //120 micron */
-  /* Double_t JpsiMassMin[kNbRapForPTBins+1] = {2., 2., 2., 2.}; */
-  /* Double_t JpsiMassMax[kNbRapForPTBins+1] = {4., 4., 4., 4.}; */
+  Double_t JpsiMassMin[kNbRapForPTBins+1] = {2., 2., 2., 2.};
+  Double_t JpsiMassMax[kNbRapForPTBins+1] = {4., 4., 4., 4.};
   Double_t JpsiCtauMax = 1000.; //effectively no cut on lifetime
 
   //some make up to use the same colour and marker for each pT and rapidity bin
