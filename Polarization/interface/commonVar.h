@@ -12,7 +12,7 @@ namespace jpsi{
   const double Ebeam = sqrt( pbeam*pbeam + Mprot*Mprot );
   const TLorentzVector beam1_LAB( 0., 0., pbeam, Ebeam );
   const TLorentzVector beam2_LAB( 0., 0., -pbeam, Ebeam );
-
+  const double muMass = 0.105658;
   //pT bins
   Int_t const kNbPTBins = 6;
   Double_t pTRange[kNbPTBins+1] = {0., 2.5, 5.0, 7.5, 12.5, 20., 30.};
