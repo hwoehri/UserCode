@@ -1,14 +1,11 @@
 #define PolData_cxx
 #include "PolData.h"
-#include "../interface/commonVar.h"
+#include "calcPol.C"
 
 #include "TLorentzVector.h"
 #include "TClonesArray.h"
 #include <TH2.h>
 #include <TCanvas.h>
-//
-Double_t thisCosTh_CS, thisPhi_CS, thisPhi_CS_rad, thisCosPhi_CS;
-Double_t thisCosTh_HX, thisPhi_HX, thisPhi_HX_rad, thisCosPhi_HX;
 
 //some statistics
 TH1F *Reco_StatEv;
@@ -43,8 +40,7 @@ TH2F *Reco2D_Onia_pol_pT_rap[jpsi::kNbFrames][jpsi::kNbPTBins+1][jpsi::kNbRapFor
 TH1F *hDelta[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
 TH1F *hSin2Delta[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
 
-void calcPol(TLorentzVector muplus_LAB, TLorentzVector muminus_LAB);
-Double_t CalcPolWeight(Double_t pf_onia_P, Double_t thisCosTh_CS);
+Double_t CalcPolWeight(Double_t pf_onia_P, Double_t thisCosTh);
 //==============================================
 void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 {
@@ -59,6 +55,7 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
   if(writeOutEvents)
     fOutputTextFile = fopen("jPsiCandidates.txt", "write");
 
+  //loop over the events
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
 
     if(jentry % 100000 == 0) printf("event %d\n", (Int_t) jentry);
@@ -73,7 +70,7 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
       continue;
 
     Reco_StatEv->Fill(0.5);//count all events
-
+    
     //reject processing of events where the dimuon type (GG, GT or TT)
     //does not correspond to the chosen one
     if(selDimuType < 3 && JpsiType_idx != selDimuType)
@@ -95,18 +92,18 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     Double_t pTMuPos = muPos->Pt();
     Double_t pTMuNeg = muNeg->Pt();
 
-    //test of fiducial area:
+    //take muons only within a certain eta range
     if(TMath::Abs(etaMuPos) > jpsi::etaPS || TMath::Abs(etaMuNeg) > jpsi::etaPS){
       // printf("eta(pos. muon) = %f, eta(neg. muon) = %f\n", etaMuPos, etaMuNeg);
       continue;
     }
-
     Reco_StatEv->Fill(2.5);//count all events
 
     if(pTMuPos < jpsi::pTMuMin && pTMuNeg < jpsi::pTMuMin){
       // printf("pT(pos. muon) = %f, pT(neg. muon) = %f\n", pTMuPos, pTMuNeg);
       continue;
     }
+    Reco_StatEv->Fill(3.5);
 
     //test according to Gavin's proposal:
     //if any of the two muons is within 1.4 < eta < 1.6 AND
@@ -119,20 +116,6 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 //       continue;
 //     }
 
-    Reco_StatEv->Fill(3.5);
-
-    calcPol(*muPos, *muNeg);
-    //test:
-//     calcPol(*muNeg, *muPos);
-//     //H: test:
-//     if(jentry%2 == 0)
-//       calcPol(*muPos, *muNeg);
-//     else
-//       calcPol(*muNeg, *muPos);
-
-    thisCosPhi_CS = TMath::Cos(2.*thisPhi_CS_rad);
-    thisCosPhi_HX = TMath::Cos(2.*thisPhi_HX_rad);
-    
     //build the invariant mass, pt, ... of the two muons
     TLorentzVector *onia = new TLorentzVector();
     *onia = *(muPos) + *(muNeg);
@@ -144,9 +127,6 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     Double_t onia_rap = onia->Rapidity();
     Double_t onia_phi = onia->Phi();
     Double_t onia_mT = sqrt(onia_mass*onia_mass + onia_pt*onia_pt);
-
-//     Double_t weight = CalcPolWeight(onia_P, thisCosTh_CS);
-    Double_t weight = CalcPolWeight(onia_P, thisCosTh_HX);
 
     Int_t pTIndex = -1;
     for(int iPT = 0; iPT < jpsi::kNbPTBins; iPT++){
@@ -201,22 +181,59 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 
     Reco_StatEv->Fill(6.5);
 
-    countRecEvent++;
+    if(TMath::Abs(onia_rap) > jpsi::rapYPS)
+      continue;
 
+    Reco_StatEv->Fill(7.5);
+
+    //remaining of the events will be used for the analysis
+    countRecEvent++;
     if(writeOutEvents)
       fprintf(fOutputTextFile, "%d\t%d\t%d\n", (Int_t) runNb, (Int_t) lumiBlock, (Int_t)  eventNb);
+
+    //fill mass, phi, pt, eta and rap distributions
+    //a) all bins
+    Reco_Onia_mass[0][0]->Fill(onia_mass);
+    Reco_Onia_phi[0][0]->Fill(onia_phi);
+    Reco_Onia_mass[pTIndex][0]->Fill(onia_mass);
+    Reco_Onia_phi[pTIndex][0]->Fill(onia_phi);
+    Reco_Onia_mass[0][rapForPTIndex]->Fill(onia_mass);
+    Reco_Onia_phi[0][rapForPTIndex]->Fill(onia_phi);
+      
+    Reco_Onia_pt[0]->Fill(onia_pt);
+    Reco_Onia_eta[0]->Fill(onia_eta);
+    Reco_Onia_rap[0]->Fill(onia_rap);
+    //b) individual pT and rap bins:
+    Reco_Onia_mass[pTIndex][rapForPTIndex]->Fill(onia_mass);
+    Reco_Onia_phi[pTIndex][rapForPTIndex]->Fill(onia_phi);
+    Reco_Onia_pt[rapForPTIndex]->Fill(onia_pt);
+    Reco_Onia_eta[pTIndex]->Fill(onia_eta);
+    Reco_Onia_rap[pTIndex]->Fill(onia_rap);
+
+    Reco_Onia_rap_pT->Fill(onia_rap, onia_pt);
+
+    //=====================
+    calcPol(*muPos, *muNeg);
+    //=====================
+
+    //test:
+//     calcPol(*muNeg, *muPos);
+//     //H: test:
+//     if(jentry%2 == 0)
+//       calcPol(*muPos, *muNeg);
+//     else
+//       calcPol(*muNeg, *muPos);
 
     //===================================================
     //calculate delta, the angle between the CS and HX frame
     //Formula from EPJC paper
     Double_t deltaHXToCS = TMath::ACos(onia_mass * onia->Pz() / (onia_mT * onia_P));
-//     Double_t deltaCSToHX = -deltaHXToCS;
+    //     Double_t deltaCSToHX = -deltaHXToCS;
     Double_t sin2Delta = pow((onia_pt * onia->Energy() / (onia_P * onia_mT)),2);
     //sin2Delta does not change sign when going from HX-->CS or vice versa
     hDelta[pTIndex][rapForPTIndex]->Fill(deltaHXToCS * 180./TMath::Pi());
     hSin2Delta[pTIndex][rapForPTIndex]->Fill(sin2Delta);
     //===================================================
-
 
     Double_t deltaPhi = muPos->Phi() - muNeg->Phi();
     if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
@@ -235,104 +252,54 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     Reco_mumi_pt[pTIndex][rapForPTIndex]->Fill(muNeg->Pt());
     Reco_mumi_eta[pTIndex][rapForPTIndex]->Fill(muNeg->PseudoRapidity());
     Reco_mumi_phi[pTIndex][rapForPTIndex]->Fill(muNeg->Phi());
-	
-    if(TMath::Abs(onia_rap) < jpsi::rapYPS){
 
-      //all bins
-      Reco_Onia_mass[0][0]->Fill(onia_mass, weight);
-      Reco_Onia_phi[0][0]->Fill(onia_phi, weight);
-      Reco_Onia_mass[pTIndex][0]->Fill(onia_mass, weight);
-      Reco_Onia_phi[pTIndex][0]->Fill(onia_phi, weight);
-      Reco_Onia_mass[0][rapForPTIndex]->Fill(onia_mass, weight);
-      Reco_Onia_phi[0][rapForPTIndex]->Fill(onia_phi, weight);
-      
-      Reco_Onia_pt[0]->Fill(onia_pt, weight);
-      Reco_Onia_eta[0]->Fill(onia_eta, weight);
-      Reco_Onia_rap[0]->Fill(onia_rap, weight);
-      //individual pT and rap bins:
-      Reco_Onia_mass[pTIndex][rapForPTIndex]->Fill(onia_mass, weight);
-      Reco_Onia_phi[pTIndex][rapForPTIndex]->Fill(onia_phi, weight);
-      Reco_Onia_pt[rapForPTIndex]->Fill(onia_pt, weight);
-      Reco_Onia_eta[pTIndex]->Fill(onia_eta, weight);
-      Reco_Onia_rap[pTIndex]->Fill(onia_rap, weight);
+    //fill the histos for all the different frames
+    for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
 
-      Reco_Onia_rap_pT->Fill(onia_rap, onia_pt, weight);
+      thisCosPhi[iFrame] = TMath::Cos(2.*thisPhi_rad[iFrame]);
+
+      Double_t weight = CalcPolWeight(onia_P, thisCosTh[iFrame]);
 
       //1a) polariztion histos - all pT
-      //CS frame
-      Reco_Onia_pol_pT[jpsi::CS][0][jpsi::cosThPol]->Fill(thisCosTh_CS, weight);
-      Reco_Onia_pol_pT[jpsi::CS][0][jpsi::phiPol]->Fill(thisPhi_CS, weight);
-      Reco_Onia_pol_pT[jpsi::CS][0][jpsi::cos2PhiPol]->Fill(thisCosPhi_CS, weight);
-      Reco2D_Onia_pol_pT[jpsi::CS][0]->Fill(thisCosTh_CS, thisPhi_CS, weight);
-      //HX frame
-      Reco_Onia_pol_pT[jpsi::HX][0][jpsi::cosThPol]->Fill(thisCosTh_HX, weight);
-      Reco_Onia_pol_pT[jpsi::HX][0][jpsi::phiPol]->Fill(thisPhi_HX, weight);
-      Reco_Onia_pol_pT[jpsi::HX][0][jpsi::cos2PhiPol]->Fill(thisCosPhi_HX, weight);
-      Reco2D_Onia_pol_pT[jpsi::HX][0]->Fill(thisCosTh_HX, thisPhi_HX, weight);
+      Reco_Onia_pol_pT[iFrame][0][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
+      Reco_Onia_pol_pT[iFrame][0][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
+      Reco_Onia_pol_pT[iFrame][0][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
+      Reco2D_Onia_pol_pT[iFrame][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
 
       //1b) polariztion histos - pT Bin
       if(pTIndex > 0){
-	//CS frame
-	Reco_Onia_pol_pT[jpsi::CS][pTIndex][jpsi::cosThPol]->Fill(thisCosTh_CS, weight);
-	Reco_Onia_pol_pT[jpsi::CS][pTIndex][jpsi::phiPol]->Fill(thisPhi_CS, weight);
-	Reco_Onia_pol_pT[jpsi::CS][pTIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi_CS, weight);
-	Reco2D_Onia_pol_pT[jpsi::CS][pTIndex]->Fill(thisCosTh_CS, thisPhi_CS, weight);
-	//HX frame
-	Reco_Onia_pol_pT[jpsi::HX][pTIndex][jpsi::cosThPol]->Fill(thisCosTh_HX, weight);
-	Reco_Onia_pol_pT[jpsi::HX][pTIndex][jpsi::phiPol]->Fill(thisPhi_HX, weight);
-	Reco_Onia_pol_pT[jpsi::HX][pTIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi_HX, weight);
-	Reco2D_Onia_pol_pT[jpsi::HX][pTIndex]->Fill(thisCosTh_HX, thisPhi_HX, weight);
+	Reco_Onia_pol_pT[iFrame][pTIndex][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
+	Reco_Onia_pol_pT[iFrame][pTIndex][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
+	Reco_Onia_pol_pT[iFrame][pTIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
+	Reco2D_Onia_pol_pT[iFrame][pTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
       }
 
       //2a) polariztion histos - all Rap
-      //CS frame
-      Reco_Onia_pol_rap[jpsi::CS][0][jpsi::cosThPol]->Fill(thisCosTh_CS, weight);
-      Reco_Onia_pol_rap[jpsi::CS][0][jpsi::phiPol]->Fill(thisPhi_CS, weight);
-      Reco_Onia_pol_rap[jpsi::CS][0][jpsi::cos2PhiPol]->Fill(thisCosPhi_CS, weight);
-      Reco2D_Onia_pol_rap[jpsi::CS][0]->Fill(thisCosTh_CS, thisPhi_CS, weight);
-      //HX frame
-      Reco_Onia_pol_rap[jpsi::HX][0][jpsi::cosThPol]->Fill(thisCosTh_HX, weight);
-      Reco_Onia_pol_rap[jpsi::HX][0][jpsi::phiPol]->Fill(thisPhi_HX, weight);
-      Reco_Onia_pol_rap[jpsi::HX][0][jpsi::cos2PhiPol]->Fill(thisCosPhi_HX, weight);
-      Reco2D_Onia_pol_rap[jpsi::HX][0]->Fill(thisCosTh_HX, thisPhi_HX, weight);
+      Reco_Onia_pol_rap[iFrame][0][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
+      Reco_Onia_pol_rap[iFrame][0][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
+      Reco_Onia_pol_rap[iFrame][0][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
+      Reco2D_Onia_pol_rap[iFrame][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
 
       //2b) polariztion histos - rap Bin
       if(rapIndex > 0){
-	//CS frame
-	Reco_Onia_pol_rap[jpsi::CS][rapIndex][jpsi::cosThPol]->Fill(thisCosTh_CS, weight);
-	Reco_Onia_pol_rap[jpsi::CS][rapIndex][jpsi::phiPol]->Fill(thisPhi_CS, weight);
-	Reco_Onia_pol_rap[jpsi::CS][rapIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi_CS, weight);
-	Reco2D_Onia_pol_rap[jpsi::CS][rapIndex]->Fill(thisCosTh_CS, thisPhi_CS, weight);
-	//HX frame
-	Reco_Onia_pol_rap[jpsi::HX][rapIndex][jpsi::cosThPol]->Fill(thisCosTh_HX, weight);
-	Reco_Onia_pol_rap[jpsi::HX][rapIndex][jpsi::phiPol]->Fill(thisPhi_HX, weight);
-	Reco_Onia_pol_rap[jpsi::HX][rapIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi_HX, weight);
-	Reco2D_Onia_pol_rap[jpsi::HX][rapIndex]->Fill(thisCosTh_HX, thisPhi_HX, weight);
+	Reco_Onia_pol_rap[iFrame][rapIndex][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
+	Reco_Onia_pol_rap[iFrame][rapIndex][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
+	Reco_Onia_pol_rap[iFrame][rapIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
+	Reco2D_Onia_pol_rap[iFrame][rapIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
       }
 
       //3) polariztion histos - pT and rap Bin
       //all pT and rapidities
-      Reco2D_Onia_pol_pT_rap[jpsi::CS][0][0]->Fill(thisCosTh_CS, thisPhi_CS, weight);
-      Reco2D_Onia_pol_pT_rap[jpsi::HX][0][0]->Fill(thisCosTh_HX, thisPhi_HX, weight);
-      if(pTIndex > 0){
-	Reco2D_Onia_pol_pT_rap[jpsi::CS][pTIndex][0]->Fill(thisCosTh_CS, thisPhi_CS, weight);
-	Reco2D_Onia_pol_pT_rap[jpsi::HX][pTIndex][0]->Fill(thisCosTh_HX, thisPhi_HX, weight);
-      }
-      if(rapForPTIndex > 0){
-	Reco2D_Onia_pol_pT_rap[jpsi::CS][0][rapForPTIndex]->Fill(thisCosTh_CS, thisPhi_CS, weight);
-	Reco2D_Onia_pol_pT_rap[jpsi::HX][0][rapForPTIndex]->Fill(thisCosTh_HX, thisPhi_HX, weight);
-      }
+      Reco2D_Onia_pol_pT_rap[iFrame][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+      if(pTIndex > 0)
+	Reco2D_Onia_pol_pT_rap[iFrame][pTIndex][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+      if(rapForPTIndex > 0)
+	Reco2D_Onia_pol_pT_rap[iFrame][0][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
       if(pTIndex > 0 && rapForPTIndex > 0){
-	//CS frame
-	Reco_Onia_pol_pT_rap[jpsi::CS][pTIndex][rapForPTIndex][jpsi::cosThPol]->Fill(thisCosTh_CS, weight);
-	Reco_Onia_pol_pT_rap[jpsi::CS][pTIndex][rapForPTIndex][jpsi::phiPol]->Fill(thisPhi_CS, weight);
-	Reco_Onia_pol_pT_rap[jpsi::CS][pTIndex][rapForPTIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi_CS, weight);
-	Reco2D_Onia_pol_pT_rap[jpsi::CS][pTIndex][rapForPTIndex]->Fill(thisCosTh_CS, thisPhi_CS, weight);
-	//HX frame
-	Reco_Onia_pol_pT_rap[jpsi::HX][pTIndex][rapForPTIndex][jpsi::cosThPol]->Fill(thisCosTh_HX, weight);
-	Reco_Onia_pol_pT_rap[jpsi::HX][pTIndex][rapForPTIndex][jpsi::phiPol]->Fill(thisPhi_HX, weight);
-	Reco_Onia_pol_pT_rap[jpsi::HX][pTIndex][rapForPTIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi_HX, weight);
-	Reco2D_Onia_pol_pT_rap[jpsi::HX][pTIndex][rapForPTIndex]->Fill(thisCosTh_HX, thisPhi_HX, weight);
+	Reco_Onia_pol_pT_rap[iFrame][pTIndex][rapForPTIndex][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
+	Reco_Onia_pol_pT_rap[iFrame][pTIndex][rapForPTIndex][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
+	Reco_Onia_pol_pT_rap[iFrame][pTIndex][rapForPTIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
+	Reco2D_Onia_pol_pT_rap[iFrame][pTIndex][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
       }
     }
 
@@ -347,85 +314,8 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
   printf("nb. of rec. events is %d of a total of %d events\n", (Int_t) countRecEvent, (Int_t) nentries);
 }
 
-//=========================================
-void calcPol(TLorentzVector muplus_LAB, 
-	     TLorentzVector muminus_LAB){
-  
-  TLorentzVector qqbar_LAB = muplus_LAB + muminus_LAB;
-  // calculation of decay angular parameters
-
-  // boost beams and positive muon into the q-qbar rest frame:
-  TVector3 LAB_to_QQBAR = -qqbar_LAB.BoostVector();
-
-  TLorentzVector beam1_QQBAR = jpsi::beam1_LAB;
-  beam1_QQBAR.Boost( LAB_to_QQBAR );
-
-  TLorentzVector beam2_QQBAR = jpsi::beam2_LAB;
-  beam2_QQBAR.Boost( LAB_to_QQBAR );
-
-  TLorentzVector muplus_QQBAR = muplus_LAB;
-  muplus_QQBAR.Boost( LAB_to_QQBAR );
-
-  // reference directions in the Jpsi rest frame:
-
-  TVector3 beam1_direction     = beam1_QQBAR.Vect().Unit();
-  TVector3 beam2_direction     = beam2_QQBAR.Vect().Unit();
-  TVector3 qqbar_direction     = qqbar_LAB.Vect().Unit();
-  TVector3 beam1_beam2_bisect  = ( beam1_direction - beam2_direction ).Unit();
-
-  // all polarization frames have the same Y axis = the normal to the plane formed by
-  // the directions of the colliding hadrons
-  TVector3 Yaxis = ( beam1_direction.Cross( beam2_direction ) ).Unit();
-
-  /////////////////////////////////////////////////////////////////////
-  // CS frame
-
-  TVector3 newZaxis = beam1_beam2_bisect;
-  TVector3 newYaxis = Yaxis;
-  TVector3 newXaxis = newYaxis.Cross( newZaxis );
-
-  TRotation rotation;
-  rotation.RotateAxes( newXaxis, newYaxis, newZaxis );
-  rotation.Invert();   // transforms coordinates from the "xyz" system
-  // to the "new" (rotated) system having the polarization axis
-  // as z axis
-
-  TVector3 muplus_QQBAR_rotated(muplus_QQBAR.Vect());
-  
-  muplus_QQBAR_rotated.Transform( rotation );
-      
-  thisCosTh_CS = muplus_QQBAR_rotated.CosTheta();
-
-  thisPhi_CS_rad = muplus_QQBAR_rotated.Phi();
-  thisPhi_CS = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
-//   if ( thisPhi_CS < 0. ) thisPhi_CS = 360. + thisPhi_CS;      // phi defined in degrees from 0 to 360
-  thisPhi_CS += 180.;
-
-  /////////////////////////////////////////////////////////////////////
-  // HELICITY frame
-
-  newZaxis = qqbar_direction;
-  newYaxis = Yaxis;
-  newXaxis = newYaxis.Cross( newZaxis );
-
-  rotation.SetToIdentity();
-  rotation.RotateAxes( newXaxis, newYaxis, newZaxis );
-  rotation.Invert();
-
-  muplus_QQBAR_rotated = muplus_QQBAR.Vect();
-
-  muplus_QQBAR_rotated.Transform( rotation );
-
-  thisCosTh_HX = muplus_QQBAR_rotated.CosTheta();
-
-  thisPhi_HX_rad = muplus_QQBAR_rotated.Phi();
-  thisPhi_HX = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
-//   if ( thisPhi_HX < 0. ) thisPhi_HX = 360. + thisPhi_HX;
-  thisPhi_HX += 180.;
-}
-
 //==========================================================
-Double_t CalcPolWeight(Double_t onia_P, Double_t thisCosTh_CS){
+Double_t CalcPolWeight(Double_t onia_P, Double_t thisCosTh){
 
 //   Double_t const p0 = 5.;
 //   Double_t const kappa = 0.6;
@@ -434,7 +324,7 @@ Double_t CalcPolWeight(Double_t onia_P, Double_t thisCosTh_CS){
 
 
   Double_t lambdaTh = -1.;
-//   Double_t weight = 1. + lambdaTh * TMath::Power(thisCosTh_CS, 2.);
+//   Double_t weight = 1. + lambdaTh * TMath::Power(thisCosTh, 2.);
   Double_t weight = 1.;
   return weight;
 }
