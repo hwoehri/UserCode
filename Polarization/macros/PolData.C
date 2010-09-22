@@ -80,9 +80,8 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 
     Reco_StatEv->Fill(1.5);//count all events
 
-    Double_t muMass = 0.105658;
-    Double_t enMuPos = sqrt(muPosPx*muPosPx + muPosPy*muPosPy + muPosPz*muPosPz + muMass*muMass);
-    Double_t enMuNeg = sqrt(muNegPx*muNegPx + muNegPy*muNegPy + muNegPz*muNegPz + muMass*muMass);
+    Double_t enMuPos = sqrt(muPosPx*muPosPx + muPosPy*muPosPy + muPosPz*muPosPz + jpsi::muMass*jpsi::muMass);
+    Double_t enMuNeg = sqrt(muNegPx*muNegPx + muNegPy*muNegPy + muNegPz*muNegPz + jpsi::muMass*jpsi::muMass);
     TLorentzVector *muPos = new TLorentzVector();
     TLorentzVector *muNeg = new TLorentzVector();
     muPos->SetPxPyPzE(muPosPx, muPosPy, muPosPz, enMuPos);

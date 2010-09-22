@@ -68,13 +68,12 @@ void PolMC::Loop(Int_t selDimuType)
     //do NOT select on the dimuon type (only a RECO variable)
     hGen_StatEv->Fill(1.5);//count all events
 
-    Double_t muMass = 0.105658;
-    Double_t enMuPos = sqrt(muPosPx*muPosPx + muPosPy*muPosPy + muPosPz*muPosPz + muMass*muMass);
-    Double_t enMuNeg = sqrt(muNegPx*muNegPx + muNegPy*muNegPy + muNegPz*muNegPz + muMass*muMass);
+    Double_t enMuPos = sqrt(muPosPx_Gen*muPosPx_Gen + muPosPy_Gen*muPosPy_Gen + muPosPz_Gen*muPosPz_Gen + jpsi::muMass*jpsi::muMass);
+    Double_t enMuNeg = sqrt(muNegPx_Gen*muNegPx_Gen + muNegPy_Gen*muNegPy_Gen + muNegPz_Gen*muNegPz_Gen + jpsi::muMass*jpsi::muMass);
     TLorentzVector *muPos = new TLorentzVector();
     TLorentzVector *muNeg = new TLorentzVector();
-    muPos->SetPxPyPzE(muPosPx, muPosPy, muPosPz, enMuPos);
-    muNeg->SetPxPyPzE(muNegPx, muNegPy, muNegPz, enMuNeg);
+    muPos->SetPxPyPzE(muPosPx_Gen, muPosPy_Gen, muPosPz_Gen, enMuPos);
+    muNeg->SetPxPyPzE(muNegPx_Gen, muNegPy_Gen, muNegPz_Gen, enMuNeg);
     Double_t etaMuPos = muPos->PseudoRapidity();
     Double_t etaMuNeg = muNeg->PseudoRapidity();
     Double_t pTMuPos = muPos->Pt();
