@@ -174,8 +174,8 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     //select events within a narrow mass window around the J/psi
     //(rapidity dependence of the resolution --> different mass windows)
     //values obtained from Gaussian fits in "plotMass.C"
-    if(JpsiMass < jpsi::JpsiMassMin[rapForPTIndex-1] || 
-       JpsiMass > jpsi::JpsiMassMax[rapForPTIndex-1])
+    if(JpsiMass < jpsi::JpsiMassMin[rapForPTIndex] || 
+       JpsiMass > jpsi::JpsiMassMax[rapForPTIndex])
       continue;
 
     Reco_StatEv->Fill(6.5);

@@ -153,15 +153,6 @@ void PolMC::Loop(Int_t selDimuType)
 
     hGen_StatEv->Fill(4.5);
 
-    //select events within a narrow mass window around the J/psi
-    //(rapidity dependence of the resolution --> different mass windows)
-    //values obtained from Gaussian fits in "plotMass.C"
-    if(JpsiMass < jpsi::JpsiMassMin[rapForPTIndex-1] || 
-       JpsiMass > jpsi::JpsiMassMax[rapForPTIndex-1])
-      continue;
-
-    hGen_StatEv->Fill(6.5);
-
     if(TMath::Abs(onia_rap) > jpsi::rapYPS)
       continue;
 
