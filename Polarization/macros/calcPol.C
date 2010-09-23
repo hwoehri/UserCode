@@ -3,11 +3,13 @@ Double_t thisCosTh[jpsi::kNbFrames], thisPhi[jpsi::kNbFrames];
 Double_t thisPhi_rad[jpsi::kNbFrames], thisCosPhi[jpsi::kNbFrames];
 
 //=========================================
+// calculation of decay angular parameters
+//=========================================
 void calcPol(TLorentzVector muplus_LAB,
 	     TLorentzVector muminus_LAB){
   
   TLorentzVector qqbar_LAB = muplus_LAB + muminus_LAB;
-  // calculation of decay angular parameters
+  Double_t rapidity = qqbar_LAB.Rapidity();
 
   // boost beams and positive muon into the q-qbar rest frame:
   TVector3 LAB_to_QQBAR = -qqbar_LAB.BoostVector();
