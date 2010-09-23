@@ -119,6 +119,31 @@ void calcPol(TLorentzVector muplus_LAB,
   if ( thisPhi[jpsi::GJ2] < 0. ) thisPhi[jpsi::GJ2] = 360. + thisPhi[jpsi::GJ2];
 
   /////////////////////////////////////////////////////////////////////
+  // sGJ frame (symmetrized GJ)
+
+  newZaxis = beam1_direction; if( rapidity < 0. ) newZaxis = beam2_direction;
+  newYaxis = Yaxis;
+
+  // try to swith the following line on or off
+  if( rapidity < 0. ) newYaxis = -Yaxis;
+
+  newXaxis = newYaxis.Cross( newZaxis );
+
+  rotation.SetToIdentity();
+  rotation.RotateAxes( newXaxis, newYaxis, newZaxis );
+  rotation.Invert();
+
+  muplus_QQBAR_rotated = muplus_QQBAR.Vect();
+
+  muplus_QQBAR_rotated.Transform( rotation );
+
+  thisCosTh[jpsi::sGJ] = muplus_QQBAR_rotated.CosTheta();
+
+  thisPhi_rad[jpsi::sGJ] = muplus_QQBAR_rotated.Phi();
+  thisPhi[jpsi::sGJ] = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
+  if ( thisPhi[jpsi::sGJ] < 0. ) thisPhi[jpsi::sGJ] = 360. + thisPhi[jpsi::sGJ];
+
+  /////////////////////////////////////////////////////////////////////
   // PHX frame ("perpendicular helicity frame" - z axis perpendicular
   // to the CS axis)
 
