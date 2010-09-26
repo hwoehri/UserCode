@@ -127,7 +127,7 @@ void calcPol(TLorentzVector muplus_LAB,
   newYaxis = Yaxis;
 
   // try to swith the following line on or off
-  if( rapidity < 0. ) newYaxis = -Yaxis;
+  //if( rapidity < 0. ) newYaxis = -Yaxis;
 
   newXaxis = newYaxis.Cross( newZaxis );
 
