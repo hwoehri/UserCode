@@ -1,5 +1,5 @@
 #ifndef __CINT__
-#include "RooGlobalFunc.h"
+// #include "RooGlobalFunc.h"
 //#include "RooDataSet.h"
 #endif
 
@@ -13,7 +13,7 @@ void runMC(Char_t *fNameOut = "pol_MC_HLT_Mu0Track0Jpsi.root",
 	     Bool_t newOutputFile = kFALSE, //allows to create a new file or to append info
 	     Char_t *fNameIn = "/home/hermine/CMS/Work/Polarization/Florian/25Aug2010/RooDataSet_Spring10_PromptJPsi_TEST_0_10.root",
 	     Char_t *nameDataSet = "data", //"data" or "recoData"
-	     Int_t selDimuType = 3, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
+	     Int_t selDimuType = 4, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
 	     Char_t *oniaLabel = "J/#psi"){//"Ups(1S)"
 
   TFile *fIn = new TFile(fNameIn);
@@ -37,9 +37,9 @@ void BookHistos(Char_t *oniaLabel){
   Int_t nBinsMass = 80;
   Double_t massMin = 8.0, massMax = 12.0;
   if(strncmp(oniaLabel, "J/#psi", 6) == 0){
-    nBinsMass = 80;
-    massMin = 2.7;
-    massMax = 3.5;
+    nBinsMass = 160;
+    massMin = 2.5;
+    massMax = 4.1;
   }
 
   //pt
