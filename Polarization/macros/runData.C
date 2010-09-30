@@ -1,6 +1,6 @@
 #ifndef __CINT__
-#include "RooGlobalFunc.h"
-#include "RooDataSet.h"
+// #include "RooGlobalFunc.h"
+// #include "RooDataSet.h"
 #endif
 
 #include "../interface/rootIncludes.inc"
@@ -16,7 +16,7 @@ void runData(Char_t *fNameOut = "pol_data_HLT_Mu0TkMu0Jpsi.root",
 	     Bool_t newOutputFile = kFALSE, //allows to create a new file or to append info
 	     Char_t *fNameIn = "/home/hermine/CMS/Work/Polarization/Florian/11Sep2010/TTree_pol_Mu0TkMu0Jpsi_data_11Sep2010.root",
 	     Char_t *nameDataSet = "recoData", //"data" or "recoData"
-	     Int_t selDimuType = 3, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
+	     Int_t selDimuType = 4, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
 	     Bool_t writeOutEvents = kFALSE, //writes out Run, LS, Ev.Nb for any J/psi candidate
 	     Char_t *oniaLabel = "J/#psi"){//"Ups(1S)"
 
@@ -44,8 +44,8 @@ void BookHistosReco(Char_t *oniaLabel){
   Double_t massMin = 8.0, massMax = 12.0;
   if(strncmp(oniaLabel, "J/#psi", 6) == 0){
     nBinsMass = 80;
-    massMin = 2.7;
-    massMax = 3.5;
+    massMin = 2.5;
+    massMax = 4.1;
   }
 
   //pt
