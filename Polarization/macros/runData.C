@@ -43,7 +43,7 @@ void BookHistosReco(Char_t *oniaLabel){
   Int_t nBinsMass = 80;
   Double_t massMin = 8.0, massMax = 12.0;
   if(strncmp(oniaLabel, "J/#psi", 6) == 0){
-    nBinsMass = 80;
+    nBinsMass = 160;
     massMin = 2.5;
     massMax = 4.1;
   }
