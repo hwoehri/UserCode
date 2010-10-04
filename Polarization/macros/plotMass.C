@@ -1,8 +1,11 @@
 #include "../interface/rootIncludes.inc"
 #include "../interface/commonVar.h"
+#include "TPaveStats.h"
 
-Double_t fitRangeMin[jpsi::kNbRapForPTBins+1] = {2.8, 2.9, 2.85, 2.75};
-Double_t fitRangeMax[jpsi::kNbRapForPTBins+1] = {3.4, 3.3, 3.35, 3.45};
+// Double_t fitRangeMin[jpsi::kNbRapForPTBins+1] = {2.8, 2.9, 2.85, 2.75};
+// Double_t fitRangeMax[jpsi::kNbRapForPTBins+1] = {3.4, 3.3, 3.35, 3.45};
+Double_t fitRangeMin[jpsi::kNbRapForPTBins+1] = {2.6, 2.6, 2.6, 2.6};
+Double_t fitRangeMax[jpsi::kNbRapForPTBins+1] = {3.5, 3.5, 3.5, 3.5};
 Double_t theChi2[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
 Int_t theNDF[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
 Double_t theMean[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
@@ -15,12 +18,14 @@ Double_t theNSigErr[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
 TH1F *hMass[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
 TF1 *fRECO[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
 Double_t binWidth = 0.01; //10 MeV
-Double_t nSigma = 3.0; //2.5;
+Double_t nSigma = 2.0; //2.5;
 void ReadInHistos(Char_t *fileNameIn);
 void FitJPsi(Int_t iPTBin, Int_t iRapBin, Int_t fitFunc);
 Double_t fitGaussLin(Double_t *x, Double_t *par);
+Double_t fitGaussExp(Double_t *x, Double_t *par);
+Double_t fitGaussPol2(Double_t *x, Double_t *par);
 Double_t fitCBLin(Double_t *x, Double_t *par);
-Double_t CalcSigOvBG(TF1 *func);
+Double_t CalcSigOvBG(TF1 *func, Int_t fitFunc);
 void PrintFitPar(Char_t *fileNameOut);
 //====================================
 //usage: root plotMass.C+ or
@@ -28,12 +33,14 @@ void PrintFitPar(Char_t *fileNameOut);
 //====================================
 void plotMass(Char_t *fileNameIn = "pol_data_HLT_Mu0TkMu0Jpsi.root",
 	      Char_t *fileFitResultsOut = "Results/dimuMassFitPar.txt",
-	      Int_t fitFunc = 0 //[0]...Gauss+Lin, [1]...CB+Lin
+	      Int_t fitFunc = 0 //[0]...Gauss+Lin, [1]... Gauss+Exp, [2]...Gauss+Pol2, [2]...CB+Lin
 	      ){
 
   ReadInHistos(fileNameIn);
   for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++)
     for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
+  // for(int iPTBin = 3; iPTBin < 4; iPTBin++)
+  //   for(int iRapBin = 1; iRapBin < 2; iRapBin++)
       FitJPsi(iPTBin, iRapBin, fitFunc);
   PrintFitPar(fileFitResultsOut);
 }
@@ -43,7 +50,9 @@ void FitJPsi(Int_t thePT, Int_t theRap, Int_t fitFunc){
 
   printf("will fit pT %d and rap %d\n", thePT, theRap);
   gStyle->SetOptFit(kTRUE);
-  gStyle->SetOptStat(kFALSE);
+  gStyle->SetOptStat("ne");
+  // gStyle->SetOptStat(0);
+  TPaveStats *st;
   Char_t name[100];
 
   Bool_t performFit = kTRUE;
@@ -54,19 +63,39 @@ void FitJPsi(Int_t thePT, Int_t theRap, Int_t fitFunc){
   Double_t sigOvBG;
   sprintf(name, "c1_pT%d_rap%d", thePT, theRap);
   TCanvas *c1 = new TCanvas(name, "fits");
+  TH1F *hFrame;
   if(performFit){
 
     sprintf(name, "fit_pT%d_rap%d", thePT, theRap);
     if(fitFunc == 0){
-      fRECO[thePT][theRap] = new TF1(name, fitGaussLin, 2.8, 3.4, 5);
-      fRECO[thePT][theRap]->SetParameters(250.,-0.1, 10000, 3.097, 0.04);
-      fRECO[thePT][theRap]->SetParLimits(4, 0., 1.);  
-      fRECO[thePT][theRap]->SetParNames("d", "k", "N_{sig}", "#mu", "#sigma_{M}");
+      printf("fitting with a Gaussian + a linear\n");
+      fRECO[thePT][theRap] = new TF1(name, fitGaussLin, fitRangeMin[theRap], fitRangeMax[theRap], 5);
+      fRECO[thePT][theRap]->SetParameters(10000, 3.097, 0.04, 250.,-0.1);
+      fRECO[thePT][theRap]->SetParLimits(2, 0., 1.);  
+      fRECO[thePT][theRap]->SetParNames("N_{sig}", "#mu", "#sigma_{M}", "d", "k");
       // // fRECO[thePT][theRap]->SetLineColor(colour);
       // //     hMass[thePT][theRap]->SetAxisRange(2.6, 3.6);
     }
-    else if(fitFunc == 1){
-      fRECO[thePT][theRap] = new TF1(name, fitCBLin, 2.8, 3.4, 7);
+    if(fitFunc == 1){
+      printf("fitting with a Gaussian + an exp\n");
+      fRECO[thePT][theRap] = new TF1(name, fitGaussExp, fitRangeMin[theRap], fitRangeMax[theRap], 5);
+      fRECO[thePT][theRap]->SetParameters(10000, 3.097, 0.04, 250.,-0.1);
+      fRECO[thePT][theRap]->SetParLimits(2, 0., 1.);  
+      fRECO[thePT][theRap]->SetParNames("N_{sig}", "#mu", "#sigma_{M}", "d", "k");
+      // // fRECO[thePT][theRap]->SetLineColor(colour);
+      // //     hMass[thePT][theRap]->SetAxisRange(2.6, 3.6);
+    }
+    else if(fitFunc == 2){
+      printf("fitting with a Gaussian + a Pol2\n");
+      fRECO[thePT][theRap] = new TF1(name, fitGaussPol2, fitRangeMin[theRap], fitRangeMax[theRap], 6);
+      fRECO[thePT][theRap]->SetParameters(10000, 3.097, 0.04, 250.,-0.1, 1.);
+      fRECO[thePT][theRap]->SetParLimits(2, 0., 1.);  
+      fRECO[thePT][theRap]->SetParNames("N_{sig}", "#mu", "#sigma_{M}", "p0", "p1", "p2");
+      // // fRECO[thePT][theRap]->SetLineColor(colour);
+      // //     hMass[thePT][theRap]->SetAxisRange(2.6, 3.6);
+    }
+    else if(fitFunc == 3){
+      fRECO[thePT][theRap] = new TF1(name, fitCBLin, fitRangeMin[theRap], fitRangeMax[theRap], 7);
       fRECO[thePT][theRap]->SetParameters(250.,10., 10000, 3.097, 0.04, 1.6, 5.7);
       fRECO[thePT][theRap]->SetParLimits(4, 0., 1.);
       // fRECO[thePT][theRap]->FixParameter(5, 1.6);
@@ -77,17 +106,35 @@ void FitJPsi(Int_t thePT, Int_t theRap, Int_t fitFunc){
     binWidth = hMass[thePT][theRap]->GetBinWidth(1);
     printf("binWidth is %f\n", binWidth);
 
-    hMass[thePT][theRap]->Fit(fRECO[thePT][theRap], "+", "", fitRangeMin[theRap], fitRangeMax[theRap]);
-    printf("name of function is %s\n", name);
+    hMass[thePT][theRap]->Fit(fRECO[thePT][theRap], "+0", "", 
+			      fitRangeMin[theRap], fitRangeMax[theRap]);    
+
     fRECO[thePT][theRap] = hMass[thePT][theRap]->GetFunction(name);
     theChi2[thePT][theRap] = fRECO[thePT][theRap]->GetChisquare();
     theNDF[thePT][theRap] = fRECO[thePT][theRap]->GetNDF();
-    theMean[thePT][theRap] = fRECO[thePT][theRap]->GetParameter(3);
-    theMeanErr[thePT][theRap] = fRECO[thePT][theRap]->GetParError(3);
-    theSigma[thePT][theRap] = fRECO[thePT][theRap]->GetParameter(4);
-    theSigmaErr[thePT][theRap] = fRECO[thePT][theRap]->GetParError(4);
-    theNSig[thePT][theRap] = fRECO[thePT][theRap]->GetParameter(2);
-    theNSigErr[thePT][theRap] = fRECO[thePT][theRap]->GetParError(2);
+
+    theMean[thePT][theRap] = fRECO[thePT][theRap]->GetParameter(1);
+    theMeanErr[thePT][theRap] = fRECO[thePT][theRap]->GetParError(1);
+    theSigma[thePT][theRap] = fRECO[thePT][theRap]->GetParameter(2);
+    theSigmaErr[thePT][theRap] = fRECO[thePT][theRap]->GetParError(2);
+    theNSig[thePT][theRap] = fRECO[thePT][theRap]->GetParameter(0);
+    theNSigErr[thePT][theRap] = fRECO[thePT][theRap]->GetParError(0);
+
+    hMass[thePT][theRap]->Draw();
+    gPad->Update();
+
+    hFrame = gPad->DrawFrame(2.5, 0.8*hMass[thePT][theRap]->GetMinimum()+0.5, 4.1, 5.*hMass[thePT][theRap]->GetMaximum());
+    gPad->SetLogy();
+    hFrame->SetXTitle(hMass[thePT][theRap]->GetXaxis()->GetTitle());
+    hFrame->Draw();
+
+    hMass[thePT][theRap]->Draw("same");
+    fRECO[thePT][theRap]->Draw("same");
+    st = (TPaveStats *) hMass[thePT][theRap]->FindObject("stats");
+    printf("statistics box: %p\n", st);
+    st->SetOptStat(11);
+    st->SetOptFit(1);
+    st->Paint();
   }
   else
     hMass[thePT][theRap]->Draw("");
@@ -101,21 +148,30 @@ void FitJPsi(Int_t thePT, Int_t theRap, Int_t fitFunc){
   else if(theRap > 1)  sprintf(name, "%1.1f < |y| < %1.1f, %1.1f < p_{T} < %1.1f", 
 	    jpsi::rapForPTRange[theRap-1], jpsi::rapForPTRange[theRap], jpsi::pTRange[thePT-1], jpsi::pTRange[thePT]);
 
-  tex1 = new TLatex(2.73, 0.9*hMass[thePT][theRap]->GetMaximum(), name);
+  //w/o Psi':
+  // tex1 = new TLatex(2.73, 0.9*hMass[thePT][theRap]->GetMaximum(), name);
+  // tex1->Draw();
+  // tex1->DrawLatex(2.73, 0.8*hMass[thePT][theRap]->GetMaximum(), "HLT_Mu0_TkMu0_Jpsi");
+
+  //with Psi' and log scale
+  tex1 = new TLatex(2.52, 3.*hMass[thePT][theRap]->GetMaximum(), name);
   tex1->Draw();
-  tex1->DrawLatex(2.73, 0.8*hMass[thePT][theRap]->GetMaximum(), "HLT_Mu0_TkMu0_Jpsi");
+  tex1->DrawLatex(2.52, 1.9*hMass[thePT][theRap]->GetMaximum(), "HLT_Mu0_TkMu0_Jpsi");
 
   if(performFit){
-    sigOvBG = CalcSigOvBG(fRECO[thePT][theRap]);
+    sigOvBG = CalcSigOvBG(fRECO[thePT][theRap], fitFunc);
     sprintf(name, "S / B (#pm %1.1f #sigma_{M}) = %1.1f", nSigma, sigOvBG);
-    tex1->DrawLatex(2.73, 0.7*hMass[thePT][theRap]->GetMaximum(), name);
+    // tex1->DrawLatex(2.73, 0.7*hMass[thePT][theRap]->GetMaximum(), name);
+    tex1->DrawLatex(2.52, 1.3*hMass[thePT][theRap]->GetMaximum(), name);
   }
   
   //add the lines where we will base the mass cuts:
-  TLine *line = new TLine(jpsi::JpsiMassMin[theRap], 0., jpsi::JpsiMassMin[theRap], 0.6*hMass[thePT][theRap]->GetMaximum());
+  Double_t jPsiMassMin = jpsi::polMassJpsi[theRap] - jpsi::nSigMass*jpsi::sigmaMassJpsi[theRap];
+  Double_t jPsiMassMax = jpsi::polMassJpsi[theRap] + jpsi::nSigMass*jpsi::sigmaMassJpsi[theRap];
+  TLine *line = new TLine(jPsiMassMin, 0., jPsiMassMin, 0.6*hMass[thePT][theRap]->GetMaximum());
   //line->SetLineStyle(3);
   line->Draw();
-  line->DrawLine(jpsi::JpsiMassMax[theRap], 0., jpsi::JpsiMassMax[theRap], 0.6*hMass[thePT][theRap]->GetMaximum());
+  line->DrawLine(jPsiMassMax, 0., jPsiMassMax, 0.6*hMass[thePT][theRap]->GetMaximum());
 
   sprintf(name, "Figures/fitData_Jpsi_pT%d_rap%d.eps", thePT, theRap); c1->Print(name);
   sprintf(name, "Figures/fitData_Jpsi_pT%d_rap%d.gif", thePT, theRap); c1->Print(name);
@@ -140,28 +196,42 @@ void ReadInHistos(Char_t *fileNameIn){
 }
 
 //=============================
-Double_t CalcSigOvBG(TF1 *func){
+Double_t CalcSigOvBG(TF1 *func, Int_t fitFunc){
 
   TF1 *gaus = new TF1("gaus", "gaus(0)", 2., 4.);
-  Double_t mean = func->GetParameter(3);
-  Double_t sigma = func->GetParameter(4);
+  Double_t mean = func->GetParameter(1);
+  Double_t sigma = func->GetParameter(2);
 
-  gaus->FixParameter(0, func->GetParameter(2) / (TMath::Sqrt(2.*TMath::Pi()) * sigma));
+  gaus->FixParameter(0, func->GetParameter(0) / (TMath::Sqrt(2.*TMath::Pi()) * sigma));
   gaus->FixParameter(1, mean);
   gaus->FixParameter(2, sigma);
 
   Double_t signal = gaus->Integral(mean - nSigma*sigma, mean + nSigma*sigma);
   printf("signal = %f (within %f and %f GeV)\n", signal, mean - nSigma*sigma, mean + nSigma*sigma);
 
-  TF1 *pol1 = new TF1("bg", "pol1", 2., 4.);
-  pol1->FixParameter(0, func->GetParameter(0));
-  pol1->FixParameter(1, func->GetParameter(1));
+  TF1 *bgFunc;
+  if(fitFunc == 0){
+    bgFunc = new TF1("bg", "pol1", 2., 4.);
+    bgFunc->FixParameter(0, func->GetParameter(3));
+    bgFunc->FixParameter(1, func->GetParameter(4));
+  }
+  if(fitFunc == 1){
+    bgFunc = new TF1("bg", "expo", 2., 4.);
+    bgFunc->FixParameter(0, func->GetParameter(3));
+    bgFunc->FixParameter(1, func->GetParameter(4));
+  }
+  else if(fitFunc == 2){
+    bgFunc = new TF1("bg", "pol2", 2., 4.);
+    bgFunc->FixParameter(0, func->GetParameter(3));
+    bgFunc->FixParameter(1, func->GetParameter(4));
+    bgFunc->FixParameter(2, func->GetParameter(4));
+  }
 
-  Double_t bgContr = pol1->Integral(mean - nSigma*sigma, mean + nSigma*sigma);
+  Double_t bgContr = bgFunc->Integral(mean - nSigma*sigma, mean + nSigma*sigma);
   printf("bg = %f\n", bgContr);
 
   delete gaus;
-  delete pol1;
+  delete bgFunc;
 
   return signal / bgContr;
 }
@@ -169,12 +239,38 @@ Double_t CalcSigOvBG(TF1 *func){
 //=========================
 Double_t fitGaussLin(Double_t *x, Double_t *par){
 
-  Double_t pol1 = par[0] + x[0]*par[1];
-  Double_t mean = par[3];
-  Double_t sigma = par[4];
+  Double_t pol1 = par[3] + x[0]*par[4];
+  Double_t mean = par[1];
+  Double_t sigma = par[2];
 
-  Double_t gauss = par[2] / (TMath::Sqrt(2.*TMath::Pi()) * sigma) * TMath::Exp(-(pow(x[0]-mean,2)/(2.*sigma*sigma)));
+  Double_t gauss = par[0] / (TMath::Sqrt(2.*TMath::Pi()) * sigma) * TMath::Exp(-(pow(x[0]-mean,2)/(2.*sigma*sigma)));
   Double_t result = pol1 + gauss;
+  result *= binWidth; //correct for the bin width
+  return result;
+}
+
+//=========================
+Double_t fitGaussExp(Double_t *x, Double_t *par){
+
+  Double_t exp = par[3]*TMath::Exp(-par[4]);
+  Double_t mean = par[1];
+  Double_t sigma = par[2];
+
+  Double_t gauss = par[0] / (TMath::Sqrt(2.*TMath::Pi()) * sigma) * TMath::Exp(-(pow(x[0]-mean,2)/(2.*sigma*sigma)));
+  Double_t result = exp + gauss;
+  result *= binWidth; //correct for the bin width
+  return result;
+}
+
+//=========================
+Double_t fitGaussPol2(Double_t *x, Double_t *par){
+
+  Double_t pol2 = par[3] + x[0]*par[4] + x[0]*x[0]*par[5];
+  Double_t mean = par[1];
+  Double_t sigma = par[2];
+
+  Double_t gauss = par[0] / (TMath::Sqrt(2.*TMath::Pi()) * sigma) * TMath::Exp(-(pow(x[0]-mean,2)/(2.*sigma*sigma)));
+  Double_t result = pol2 + gauss;
   result *= binWidth; //correct for the bin width
   return result;
 }
