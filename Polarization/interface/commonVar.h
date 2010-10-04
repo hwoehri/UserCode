@@ -50,12 +50,11 @@ namespace jpsi{
   Double_t etaPS = 2.4; //pseudo-rap cuts for muons
   Double_t pTMuMin = 0.;
   Double_t rapYPS = 2.3;
-  Double_t JpsiMassMin[kNbRapForPTBins+1] = {2.966, 3.025, 2.979, 2.951};
-  Double_t JpsiMassMax[kNbRapForPTBins+1] = {3.218, 3.163, 3.207, 3.233};
   /* Double_t JpsiCtauMax = 0.120; //120 micron */
-  /* Double_t JpsiMassMin[kNbRapForPTBins+1] = {2., 2., 2., 2.}; */
-  /* Double_t JpsiMassMax[kNbRapForPTBins+1] = {4., 4., 4., 4.}; */
   Double_t JpsiCtauMax = 1000.; //effectively no cut on lifetime
+  Double_t nSigMass = 2.;
+  Double_t polMassJpsi[kNbRapForPTBins+1] = {3.092, 3.094, 3.093, 3.092};//[all rap, rap bin 1-3]
+  Double_t sigmaMassJpsi[kNbRapForPTBins+1] = {0.042, 0.024, 0.038, 0.047};//[all rap, rap bin 1-3]
 
   //some make up to use the same colour and marker for each pT and rapidity bin
   //in every plotting macro:
