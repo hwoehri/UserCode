@@ -55,7 +55,8 @@ void calcPol(TLorentzVector muplus_LAB,
 
   thisPhi_rad[jpsi::CS] = muplus_QQBAR_rotated.Phi();
   thisPhi[jpsi::CS] = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
-  if ( thisPhi[jpsi::CS] < 0. ) thisPhi[jpsi::CS]= 360. + thisPhi[jpsi::CS];      // phi defined in degrees from 0 to 360
+  //if ( thisPhi[jpsi::CS] < 0. ) thisPhi[jpsi::CS]= 360. + thisPhi[jpsi::CS];      // phi defined in degrees from 0 to 360
+  thisPhi[jpsi::CS] += 180.;
 
   /////////////////////////////////////////////////////////////////////
   // HELICITY frame
@@ -76,8 +77,9 @@ void calcPol(TLorentzVector muplus_LAB,
 
   thisPhi_rad[jpsi::HX] = muplus_QQBAR_rotated.Phi();
   thisPhi[jpsi::HX] = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
-  if ( thisPhi[jpsi::HX] < 0. ) thisPhi[jpsi::HX] = 360. + thisPhi[jpsi::HX];
-
+  //if ( thisPhi[jpsi::HX] < 0. ) thisPhi[jpsi::HX] = 360. + thisPhi[jpsi::HX]; // phi defined in degrees from 0 to 360
+  thisPhi[jpsi::HX] += 180.;
+ 
   /////////////////////////////////////////////////////////////////////
   // GJ1 frame
 
@@ -97,7 +99,8 @@ void calcPol(TLorentzVector muplus_LAB,
 
   thisPhi_rad[jpsi::GJ1] = muplus_QQBAR_rotated.Phi();
   thisPhi[jpsi::GJ1] = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
-  if ( thisPhi[jpsi::GJ1] < 0. ) thisPhi[jpsi::GJ1] = 360. + thisPhi[jpsi::GJ1];
+  //if ( thisPhi[jpsi::GJ1] < 0. ) thisPhi[jpsi::GJ1] = 360. + thisPhi[jpsi::GJ1]; // phi defined in degrees from 0 to 360
+  thisPhi[jpsi::HGJ1] += 180.;
 
   /////////////////////////////////////////////////////////////////////
   // GJ2 frame
@@ -118,8 +121,8 @@ void calcPol(TLorentzVector muplus_LAB,
 
   thisPhi_rad[jpsi::GJ2] = muplus_QQBAR_rotated.Phi();
   thisPhi[jpsi::GJ2] = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
-  if ( thisPhi[jpsi::GJ2] < 0. ) thisPhi[jpsi::GJ2] = 360. + thisPhi[jpsi::GJ2];
-
+  //if ( thisPhi[jpsi::GJ2] < 0. ) thisPhi[jpsi::GJ2] = 360. + thisPhi[jpsi::GJ2]; // phi defined in degrees from 0 to 360
+  thisPhi[jpsi::GJ2] += 180.;
   /////////////////////////////////////////////////////////////////////
   // sGJ frame (symmetrized GJ)
 
@@ -143,7 +146,8 @@ void calcPol(TLorentzVector muplus_LAB,
 
   thisPhi_rad[jpsi::sGJ] = muplus_QQBAR_rotated.Phi();
   thisPhi[jpsi::sGJ] = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
-  if ( thisPhi[jpsi::sGJ] < 0. ) thisPhi[jpsi::sGJ] = 360. + thisPhi[jpsi::sGJ];
+  //if ( thisPhi[jpsi::sGJ] < 0. ) thisPhi[jpsi::sGJ] = 360. + thisPhi[jpsi::sGJ]; // phi defined in degrees from 0 to 360
+  thisPhi[jpsi::sGJ] += 180.;
 
   /////////////////////////////////////////////////////////////////////
   // PHX frame ("perpendicular helicity frame" - z axis perpendicular
@@ -165,6 +169,6 @@ void calcPol(TLorentzVector muplus_LAB,
 
   thisPhi_rad[jpsi::PHX] = muplus_QQBAR_rotated.Phi();
   thisPhi[jpsi::PHX] = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
-  if ( thisPhi[jpsi::PHX] < 0. ) thisPhi[jpsi::PHX] = 360. + thisPhi[jpsi::PHX];
-
+  //if ( thisPhi[jpsi::PHX] < 0. ) thisPhi[jpsi::PHX] = 360. + thisPhi[jpsi::PHX]; // phi defined in degrees from 0 to 360
+  thisPhi[jpsi::PHX] += 180.;
 }
