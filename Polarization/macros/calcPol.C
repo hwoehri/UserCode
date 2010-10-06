@@ -100,7 +100,7 @@ void calcPol(TLorentzVector muplus_LAB,
   thisPhi_rad[jpsi::GJ1] = muplus_QQBAR_rotated.Phi();
   thisPhi[jpsi::GJ1] = muplus_QQBAR_rotated.Phi() * 180. / TMath::Pi();
   //if ( thisPhi[jpsi::GJ1] < 0. ) thisPhi[jpsi::GJ1] = 360. + thisPhi[jpsi::GJ1]; // phi defined in degrees from 0 to 360
-  thisPhi[jpsi::HGJ1] += 180.;
+  thisPhi[jpsi::GJ1] += 180.;
 
   /////////////////////////////////////////////////////////////////////
   // GJ2 frame
