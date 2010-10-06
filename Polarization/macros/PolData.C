@@ -176,7 +176,7 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     //values obtained from Gaussian fits in "plotMass.C"
     Double_t jPsiMassMin = jpsi::polMassJpsi[rapForPTIndex] - jpsi::nSigMass*jpsi::sigmaMassJpsi[rapForPTIndex];
     Double_t jPsiMassMax = jpsi::polMassJpsi[rapForPTIndex] + jpsi::nSigMass*jpsi::sigmaMassJpsi[rapForPTIndex];
-    if(JpsiMass < jPsiMassMin || JpsiMass > jPsiMassMin)
+    if(JpsiMass < jPsiMassMin || JpsiMass > jPsiMassMax)
       continue;
 
     Reco_StatEv->Fill(6.5);
