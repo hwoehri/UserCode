@@ -13,18 +13,30 @@ namespace jpsi{
   const TLorentzVector beam1_LAB( 0., 0., pbeam, Ebeam );
   const TLorentzVector beam2_LAB( 0., 0., -pbeam, Ebeam );
   const double muMass = 0.105658;
-  //pT bins
-  Int_t const kNbPTBins = 6;
-  Double_t pTRange[kNbPTBins+1] = {0., 2.5, 5.0, 7.5, 12.5, 20., 30.};
-  //need to be extracted from the real data:
-  Double_t pTWCentre[kNbPTBins] = {1.527, 3.561, 6.021, 9.540, 15.205, 23.566};
   //rap bins
-  Int_t const kNbRapForPTBins = 3;
-  Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 0.9, 1.5, 2.3};
-  Double_t pTWCentre_rap[kNbRapForPTBins][kNbPTBins] = 
-    {{1.529, 3.569, 5.991, 9.468, 15.206, 23.586},
-     {1.522, 3.561, 6.015, 9.536, 15.163, 23.618},
-     {1.533, 3.550, 6.085, 9.626, 15.267, 23.544}};
+  Int_t const kNbRapForPTBins = 5;
+  /* Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 0.9, 1.5, 1.9, 2.3}; */
+  Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 0.9, 1.2, 1.6, 2.1, 2.4};
+  //pT bins (optimized to have at least 10.000 entries per bin)
+  Int_t const kNbPTMaxBins = 12;
+  Int_t const kNbPTBins[kNbRapForPTBins+1] = {kNbPTMaxBins, 7,8,9,12,12};//all y, y1, y2, y3, y4, y5
+  Double_t pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = {
+    {0., 1., 2., 3., 4., 5., 6., 7., 8., 10., 15., 20., 30.},//all rapidities
+    {0., 6., 7., 8., 10., 15., 20., 30.},//mid-rap
+    {0., 4., 6., 7., 8., 10., 15., 20., 30.},
+    {0., 4., 5., 6., 7., 8., 10., 15., 20., 30.},
+    {0., 1., 2., 3., 4., 5., 6., 7., 8., 10., 15., 20., 30.},
+    {0., 1., 2., 3., 4., 5., 6., 7., 8., 10., 15., 20., 30.}};//most forward
+  //the following values are dummy and need to be filled out at end of analysis
+  Double_t pTWCentre_rap[kNbRapForPTBins+1][23] = 
+    {{0.5, 1.25, 1.75, 1.95, 2.5, 2.8, 3.1, 3.4, 3.9, 4.3, 4.6, 5.0, 5.5, 6.0, 6.5, 7.2, 7.8, 8.5, 9.6, 11.0, 14., 27.},
+     {7., 12.},
+     {4.5, 6.0, 7.3, 15.},
+     {1.0, 2.5, 3.5, 4.5, 5.5, 6.7, 10.},
+     {0.5, 1.5, 2.5, 3.5, 5.0, 13.},
+     {0.5, 1.5, 2.5, 3.5, 5.0, 13.}};
+  //need to be extracted from the real data:
+  /* Double_t pTWCentre[kNbPTBins] = {1.527, 3.561, 6.021, 9.540, 15.205, 23.566}; */
   //number of reference frames
   Int_t const kNbFrames = 6;
   Char_t *frameLabel[kNbFrames] = {"CS", "HX", "PHX", "sGJ", "GJ1", "GJ2"};
@@ -44,29 +56,30 @@ namespace jpsi{
 
   //study the negative and positive rapidity sides separately
   Int_t const kNbRapBins = kNbRapForPTBins;
-  Double_t rapRange[2*kNbRapBins+1] = {-2.3, -1.5, -0.9, 0., 0.9, 1.5, 2.3};
+  /* Double_t rapRange[2*kNbRapBins+1] = {-2.3, -1.9, -1.5, -0.9, 0., 0.9, 1.5, 1.9, 2.3}; */
+  Double_t rapRange[2*kNbRapBins+1] = {-2.4, -2.1, -1.6, -1.2, -0.9, 0., 0.9, 1.2, 1.6, 2.1, 2.4};
   
   //phase space limiting cuts:
   Double_t etaPS = 2.4; //pseudo-rap cuts for muons
   Double_t pTMuMin = 0.;
-  Double_t rapYPS = 2.3;
-  /* Double_t JpsiCtauMax = 0.120; //120 micron */
+  Double_t rapYPS = 2.4;
+  /* Double_t JpsiCtauMax = 0.100; //100 micron */
   Double_t JpsiCtauMax = 1000.; //effectively no cut on lifetime
-  Double_t nSigMass = 2.;
-  Double_t polMassJpsi[kNbRapForPTBins+1] = {3.092, 3.094, 3.093, 3.092};//[all rap, rap bin 1-3]
-  Double_t sigmaMassJpsi[kNbRapForPTBins+1] = {0.042, 0.024, 0.038, 0.047};//[all rap, rap bin 1-3]
+  Double_t nSigMass = 1000.;
+  Double_t polMassJpsi[kNbRapForPTBins+1] = {3.092, 3.094, 3.094, 3.092, 3.092, 3.090};//[all rap, rap bin 1-3]
+  Double_t sigmaMassJpsi[kNbRapForPTBins+1] = {0.042, 0.024, 0.035, 0.040, 0.045, 0.56};//[all rap, rap bin 1-3]
 
   //some make up to use the same colour and marker for each pT and rapidity bin
   //in every plotting macro:
-  Int_t colour_pT[kNbPTBins+1] = {1, 2, 3, 4, 6, 7, 8};
-  Int_t marker_pT[kNbPTBins+1] = {20, 21, 22, 23, 20, 21, 29};
+  /* Int_t colour_pT[kNbPTBins+1] = {1, 2, 3, 4, 6, 7, 8}; */
+  /* Int_t marker_pT[kNbPTBins+1] = {20, 21, 22, 23, 20, 21, 29}; */
   /* Int_t colour_rap[2*kNbRapBins+1] = {1, 2, 3, 4, 6, 7, 7, 6, 4, 3, 2}; */
   /* Int_t marker_rap[2*kNbRapBins+1] = {20, 20, 21, 22, 29, 20, 24, 30, 23, 25, 24}; */
-  Int_t colour_rap[2*kNbRapBins+1] = {1, 2, 3, 4, 4, 3, 2};
-  Int_t marker_rap[2*kNbRapBins+1] = {20, 20, 21, 22, 23, 25, 24};
+  /* Int_t colour_rap[2*kNbRapBins+1] = {1, 2, 3, 4, 4, 3, 2}; */
+  /* Int_t marker_rap[2*kNbRapBins+1] = {20, 20, 21, 22, 23, 25, 24}; */
   
-  Int_t colour_rapForPTBins[kNbRapForPTBins+1] = {1, 30, 4, 2};
-  Int_t marker_rapForPTBins[kNbRapForPTBins+1] = {20, 21, 25, 20};
+  Int_t colour_rapForPTBins[kNbRapForPTBins+1] = {1, 30, 4, 2, 3, kMagenta+1};
+  Int_t marker_rapForPTBins[kNbRapForPTBins+1] = {20, 21, 25, 20, 22, 29};
 
   //min number of entries to consider the bin
   //(in acceptance map, etc)
