@@ -62,8 +62,9 @@ void BookHistos(Char_t *oniaLabel){
   //statistics
   hGen_StatEv = new TH1F("hGen_StatEv", "", 12, 0., 12.);
 
-  for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
-    for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+  for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+
       //Mass:
       sprintf(name, "hGen_Onia_mass_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, ";M [GeV/c^{2}]");
@@ -75,17 +76,19 @@ void BookHistos(Char_t *oniaLabel){
       hGen_Onia_phi[iPTBin][iRapBin] = new TH1F(name, title, nBinsPhi,phiMin,phiMax);
       hGen_Onia_phi[iPTBin][iRapBin]->Sumw2();
     }
-    //eta:
-    sprintf(name, "hGen_Onia_eta_pT%d", iPTBin);
-    sprintf(title, ";%s #eta", oniaLabel);
-    hGen_Onia_eta[iPTBin] = new TH1F(name, title,nBinsEtaGamma,etaMinGamma,etaMaxGamma);
-    hGen_Onia_eta[iPTBin]->Sumw2();
-    //rap
-    sprintf(name, "hGen_Onia_rap_pT%d", iPTBin);
-    sprintf(title, ";y(%s)", oniaLabel);
-    hGen_Onia_rap[iPTBin] = new TH1F(name, title, nBinsRap,rapMin,rapMax);
-    hGen_Onia_rap[iPTBin]->Sumw2();
   }
+  // for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[0]+1; iPTBin++){
+  //   //eta:
+  //   sprintf(name, "hGen_Onia_eta_pT%d", iPTBin);
+  //   sprintf(title, ";%s #eta", oniaLabel);
+  //   hGen_Onia_eta[iPTBin] = new TH1F(name, title,nBinsEtaGamma,etaMinGamma,etaMaxGamma);
+  //   hGen_Onia_eta[iPTBin]->Sumw2();
+  //   //rap
+  //   sprintf(name, "hGen_Onia_rap_pT%d", iPTBin);
+  //   sprintf(title, ";y(%s)", oniaLabel);
+  //   hGen_Onia_rap[iPTBin] = new TH1F(name, title, nBinsRap,rapMin,rapMax);
+  //   hGen_Onia_rap[iPTBin]->Sumw2();
+  // }
   for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
     //pT
     sprintf(name, "hGen_Onia_pt_rap%d", iRapBin);
@@ -102,39 +105,39 @@ void BookHistos(Char_t *oniaLabel){
 
 
   //debugging histos (single Muons):
-  for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
-    for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
-
+  for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+      
       sprintf(name, "hGen_mupl_pt_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;p_{T}(#mu^{+})[GeV/c]",
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
-	      jpsi::pTRange[iPTBin-1], oniaLabel, jpsi::pTRange[iPTBin]);
+	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hGen_mupl_pt[iPTBin][iRapBin]  = new TH1F(name, title,nBinsPt,pTMin,pTMaxOnia);
       sprintf(name,"hGen_mupl_eta_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;#eta(#mu^{+})",
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
-	      jpsi::pTRange[iPTBin-1], oniaLabel, jpsi::pTRange[iPTBin]);
+	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hGen_mupl_eta[iPTBin][iRapBin] = new TH1F(name,title,nBinsRap,rapMin,rapMax);
       sprintf(name,"hGen_mupl_phi_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;#phi(#mu^{+})",
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
-	      jpsi::pTRange[iPTBin-1], oniaLabel, jpsi::pTRange[iPTBin]);
+	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hGen_mupl_phi[iPTBin][iRapBin] = new TH1F(name,title, nBinsPhi,phiMin,phiMax);
       
       sprintf(name,"hGen_mumi_pt_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;p_{T}(#mu^{-}) [GeV/c]",
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
-	      jpsi::pTRange[iPTBin-1], oniaLabel, jpsi::pTRange[iPTBin]);
+	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hGen_mumi_pt[iPTBin][iRapBin]  = new TH1F(name, title,nBinsPt,pTMin,pTMaxOnia);
       sprintf(name,"hGen_mumi_eta_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;#eta(#mu^{-})",
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
-	      jpsi::pTRange[iPTBin-1], oniaLabel, jpsi::pTRange[iPTBin]);
+	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hGen_mumi_eta[iPTBin][iRapBin] = new TH1F(name,title,nBinsRap,rapMin,rapMax);
       sprintf(name,"hGen_mumi_phi_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;#phi(#mu^{-})",
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
-	      jpsi::pTRange[iPTBin-1], oniaLabel, jpsi::pTRange[iPTBin]);
+	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hGen_mumi_phi[iPTBin][iRapBin] = new TH1F(name,title, nBinsPhi,phiMin,phiMax);
       
       hGen_mupl_pt[iPTBin][iRapBin] ->Sumw2();
@@ -148,24 +151,27 @@ void BookHistos(Char_t *oniaLabel){
       sprintf(name, "hGen_hPhiPos_PhiNeg_pT%d_rap%d" , iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;#phi(#mu^{-});#phi(#mu^{+})", 
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
-	      jpsi::pTRange[iPTBin-1], oniaLabel, jpsi::pTRange[iPTBin]);
+	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hPhiPos_PhiNeg[iPTBin][iRapBin] = new TH2F(name, title, 60,-180.,180., 60,-180.,180.);
       sprintf(name, "hGen_hPtPos_PtNeg_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;p_{T}(#mu^{-});p_{T}(#mu^{+})", 
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
-	      jpsi::pTRange[iPTBin-1], oniaLabel, jpsi::pTRange[iPTBin]);
+	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hPtPos_PtNeg[iPTBin][iRapBin] = new TH2F(name, title, 20, 0., 10., 20, 0., 10.);
       sprintf(name, "hGen_hEtaPos_EtaNeg_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;#eta(#mu^{-});#eta(#mu^{+})", 
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
-	      jpsi::pTRange[iPTBin-1], oniaLabel, jpsi::pTRange[iPTBin]);
+	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hEtaPos_EtaNeg[iPTBin][iRapBin] = new TH2F(name, title, 24, -2.4, 2.4, 24, -2.4, 2.4);
     }
-    for(int iRapBin = 1; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++){
+  }
+  //for(int iRapBin = 1; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++){
+  for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
       sprintf(name, "hGen_hDeltaPhi_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < y(%s) < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;#phi(#mu^{+}) - #phi(#mu^{-})", 
 	      jpsi::rapRange[iRapBin-1], oniaLabel, jpsi::rapRange[iRapBin], 
-	      jpsi::pTRange[iPTBin-1], oniaLabel, jpsi::pTRange[iPTBin]);
+	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hDeltaPhi[iPTBin][iRapBin] = new TH1F(name, title, 96, -1.6, 1.6);
       hDeltaPhi[iPTBin][iRapBin]->Sumw2();
     }
@@ -173,52 +179,53 @@ void BookHistos(Char_t *oniaLabel){
 
   //polarization histos:
   for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
-    for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
-      sprintf(name, "hGen_Onia_cosTh_%s_pT%d", jpsi::frameLabel[iFrame], iPTBin);
-      sprintf(title, ";cos#theta_{%s}", jpsi::frameLabel[iFrame]);
-      hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::cosThPol] = new TH1F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax);
-      hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::cosThPol]->Sumw2();
-      //
-      sprintf(name, "hGen_Onia_phi_%s_pT%d", jpsi::frameLabel[iFrame], iPTBin);
-      sprintf(title, ";#phi_{%s} [deg]", jpsi::frameLabel[iFrame]);
-      hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::phiPol] = new TH1F(name, title, jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
-      hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::phiPol]->Sumw2();
-      //
-      sprintf(name, "hGen_Onia_cos2Phi_%s_pT%d", jpsi::frameLabel[iFrame], iPTBin);
-      sprintf(title, ";cos(2#phi_{%s})", jpsi::frameLabel[iFrame]);
-      hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::cos2PhiPol] = new TH1F(name, title, jpsi::kNbBinsCos2Phi, jpsi::cos2PhiMin, jpsi::cos2PhiMax);
-      hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::cos2PhiPol]->Sumw2();
-      //2D histo:
-      sprintf(name, "hGen2D_Onia_%s_pT%d", jpsi::frameLabel[iFrame], iPTBin);
-      sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", jpsi::frameLabel[iFrame], jpsi::frameLabel[iFrame]);
-      hGen2D_Onia_pol_pT[iFrame][iPTBin] = new TH2F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax, 
-						    jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
-      hGen2D_Onia_pol_pT[iFrame][iPTBin]->Sumw2();
-    }
-    for(int iRapBin = 0; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++){
-      sprintf(name, "hGen_Onia_cosTh_%s_rap%d", jpsi::frameLabel[iFrame], iRapBin);
-      sprintf(title, ";cos#theta_{%s}", jpsi::frameLabel[iFrame]);
-      hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::cosThPol] = new TH1F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax);
-      hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::cosThPol]->Sumw2();
-      //
-      sprintf(name, "hGen_Onia_phi_%s_rap%d", jpsi::frameLabel[iFrame], iRapBin);
-      sprintf(title, ";#phi_{%s} [deg]", jpsi::frameLabel[iFrame]);
-      hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::phiPol] = new TH1F(name, title, jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
-      hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::phiPol]->Sumw2();
-      //
-      sprintf(name, "hGen_Onia_cos2Phi_%s_rap%d", jpsi::frameLabel[iFrame], iRapBin);
-      sprintf(title, ";cos(2#phi_{%s})", jpsi::frameLabel[iFrame]);
-      hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::cos2PhiPol] = new TH1F(name, title, jpsi::kNbBinsCos2Phi, jpsi::cos2PhiMin, jpsi::cos2PhiMax);
-      hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::cos2PhiPol]->Sumw2();
-      //2D histo:
-      sprintf(name, "hGen2D_Onia_%s_rap%d", jpsi::frameLabel[iFrame], iRapBin);
-      sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", jpsi::frameLabel[iFrame], jpsi::frameLabel[iFrame]);
-      hGen2D_Onia_pol_rap[iFrame][iRapBin] = new TH2F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax, 
-						     jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
-      hGen2D_Onia_pol_rap[iFrame][iRapBin]->Sumw2();
-    }
-    for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
-      for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+    //pT differential, integrated in rapidity
+    // for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++) {
+    //   sprintf(name, "hGen_Onia_cosTh_%s_pT%d", jpsi::frameLabel[iFrame], iPTBin);
+    //   sprintf(title, ";cos#theta_{%s}", jpsi::frameLabel[iFrame]);
+    //   hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::cosThPol] = new TH1F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax);
+    //   hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::cosThPol]->Sumw2();
+    //   //
+    //   sprintf(name, "hGen_Onia_phi_%s_pT%d", jpsi::frameLabel[iFrame], iPTBin);
+    //   sprintf(title, ";#phi_{%s} [deg]", jpsi::frameLabel[iFrame]);
+    //   hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::phiPol] = new TH1F(name, title, jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
+    //   hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::phiPol]->Sumw2();
+    //   //
+    //   sprintf(name, "hGen_Onia_cos2Phi_%s_pT%d", jpsi::frameLabel[iFrame], iPTBin);
+    //   sprintf(title, ";cos(2#phi_{%s})", jpsi::frameLabel[iFrame]);
+    //   hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::cos2PhiPol] = new TH1F(name, title, jpsi::kNbBinsCos2Phi, jpsi::cos2PhiMin, jpsi::cos2PhiMax);
+    //   hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::cos2PhiPol]->Sumw2();
+    //   //2D histo:
+    //   sprintf(name, "hGen2D_Onia_%s_pT%d", jpsi::frameLabel[iFrame], iPTBin);
+    //   sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", jpsi::frameLabel[iFrame], jpsi::frameLabel[iFrame]);
+    //   hGen2D_Onia_pol_pT[iFrame][iPTBin] = new TH2F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax, 
+    // 						    jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
+    //   hGen2D_Onia_pol_pT[iFrame][iPTBin]->Sumw2();
+    // }
+    // for(int iRapBin = 0; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++) {
+    //   sprintf(name, "hGen_Onia_cosTh_%s_rap%d", jpsi::frameLabel[iFrame], iRapBin);
+    //   sprintf(title, ";cos#theta_{%s}", jpsi::frameLabel[iFrame]);
+    //   hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::cosThPol] = new TH1F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax);
+    //   hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::cosThPol]->Sumw2();
+    //   //
+    //   sprintf(name, "hGen_Onia_phi_%s_rap%d", jpsi::frameLabel[iFrame], iRapBin);
+    //   sprintf(title, ";#phi_{%s} [deg]", jpsi::frameLabel[iFrame]);
+    //   hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::phiPol] = new TH1F(name, title, jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
+    //   hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::phiPol]->Sumw2();
+    //   //
+    //   sprintf(name, "hGen_Onia_cos2Phi_%s_rap%d", jpsi::frameLabel[iFrame], iRapBin);
+    //   sprintf(title, ";cos(2#phi_{%s})", jpsi::frameLabel[iFrame]);
+    //   hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::cos2PhiPol] = new TH1F(name, title, jpsi::kNbBinsCos2Phi, jpsi::cos2PhiMin, jpsi::cos2PhiMax);
+    //   hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::cos2PhiPol]->Sumw2();
+    //   //2D histo:
+    //   sprintf(name, "hGen2D_Onia_%s_rap%d", jpsi::frameLabel[iFrame], iRapBin);
+    //   sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", jpsi::frameLabel[iFrame], jpsi::frameLabel[iFrame]);
+    //   hGen2D_Onia_pol_rap[iFrame][iRapBin] = new TH2F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax, 
+    // 						     jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
+    //   hGen2D_Onia_pol_rap[iFrame][iRapBin]->Sumw2();
+    // }
+    for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+      for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
 	sprintf(name, "hGen_Onia_cosTh_%s_pT%d_rap%d", jpsi::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s}", jpsi::frameLabel[iFrame]);
 	hGen_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][jpsi::cosThPol] = new TH1F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax);
@@ -244,8 +251,8 @@ void BookHistos(Char_t *oniaLabel){
     }
   }
 
-  for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
-    for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+  for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
       //checking the rotation angle between HX and CS:
       sprintf(name, "hGen_hDelta_pT%d_rap%d", iPTBin, iRapBin);
 //       hDelta[iPTBin][iRapBin] = new TH1F(name, ";#delta(HX --> CS) [rad]", 64, 0., 3.2);
@@ -263,24 +270,25 @@ void WriteHistos(Char_t *fNameOut){
 
   hGen_StatEv->Write();
 
-  for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++)
-    for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
+  for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
+    for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++)
       hGen_Onia_mass[iPTBin][iRapBin]->Write();
-  for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++)
-    for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
+  for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
+    for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++)
+
       hGen_Onia_phi[iPTBin][iRapBin]->Write();
 
   for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
     hGen_Onia_pt[iRapBin]->Write();
-  for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++)
-    hGen_Onia_eta[iPTBin] ->Write();
-  for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++)
-    hGen_Onia_rap[iPTBin] ->Write();
+  // for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++)
+  //   hGen_Onia_eta[iPTBin] ->Write();
+  // for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++)
+  //   hGen_Onia_rap[iPTBin] ->Write();
 
   hGen_Onia_rap_pT->Write();
 
-  for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
-     for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+  for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
        //debugging histos (single muons):
        hGen_mupl_pt[iPTBin][iRapBin] ->Write();
        hGen_mupl_eta[iPTBin][iRapBin]->Write();
@@ -294,26 +302,29 @@ void WriteHistos(Char_t *fNameOut){
        hPtPos_PtNeg[iPTBin][iRapBin]->Write();
        hEtaPos_EtaNeg[iPTBin][iRapBin]->Write();
      }
-     for(int iRapBin = 1; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++)
-       hDeltaPhi[iPTBin][iRapBin]->Write();
   }
+  for(int iRapBin = 1; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++)
+    for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++)
+      hDeltaPhi[iPTBin][iRapBin]->Write();
+
 
   //polarization histos
   for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
-    for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
-      hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::cosThPol]->Write();
-      hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::phiPol]->Write();
-      hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::cos2PhiPol]->Write();
-      hGen2D_Onia_pol_pT[iFrame][iPTBin]->Write();
-    }
-    for(int iRapBin = 0; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++){
-      hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::cosThPol]->Write();
-      hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::phiPol]->Write();
-      hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::cos2PhiPol]->Write();
-      hGen2D_Onia_pol_rap[iFrame][iRapBin]->Write();
-    }
-    for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
-      for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+    // for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+    //   hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::cosThPol]->Write();
+    //   hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::phiPol]->Write();
+    //   hGen_Onia_pol_pT[iFrame][iPTBin][jpsi::cos2PhiPol]->Write();
+    //   hGen2D_Onia_pol_pT[iFrame][iPTBin]->Write();
+    // }
+    // for(int iRapBin = 0; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++){
+    //   hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::cosThPol]->Write();
+    //   hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::phiPol]->Write();
+    //   hGen_Onia_pol_rap[iFrame][iRapBin][jpsi::cos2PhiPol]->Write();
+    //   hGen2D_Onia_pol_rap[iFrame][iRapBin]->Write();
+    // }
+    for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+      for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+
 	hGen_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][jpsi::cosThPol]->Write();
 	hGen_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][jpsi::phiPol]->Write();
 	hGen_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][jpsi::cos2PhiPol]->Write();
@@ -322,8 +333,9 @@ void WriteHistos(Char_t *fNameOut){
     }
   }
 
-  for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins+1; iPTBin++){
-    for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+  for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+
       hDelta[iPTBin][iRapBin]->Write();
       hSin2Delta[iPTBin][iRapBin]->Write();
     }

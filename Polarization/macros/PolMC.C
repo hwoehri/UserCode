@@ -11,34 +11,34 @@
 TH1F *hGen_StatEv;
 
 //histos at gen level for mu+, mu-, gamma, Onia
-TH1F *hGen_mupl_pt[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
-TH1F *hGen_mumi_pt[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
-TH1F *hGen_mupl_eta[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
-TH1F *hGen_mumi_eta[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
-TH1F *hGen_mupl_phi[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
-TH1F *hGen_mumi_phi[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
-TH1F *hGen_Onia_mass[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
+TH1F *hGen_mupl_pt[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+TH1F *hGen_mumi_pt[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+TH1F *hGen_mupl_eta[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+TH1F *hGen_mumi_eta[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+TH1F *hGen_mupl_phi[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+TH1F *hGen_mumi_phi[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+TH1F *hGen_Onia_mass[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH1F *hGen_Onia_pt[jpsi::kNbRapForPTBins+1];
-TH1F *hGen_Onia_eta[jpsi::kNbPTBins+1];
-TH1F *hGen_Onia_rap[jpsi::kNbPTBins+1];
-TH1F *hGen_Onia_phi[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
+// TH1F *hGen_Onia_eta[jpsi::kNbPTMaxBins+1];
+// TH1F *hGen_Onia_rap[jpsi::kNbPTMaxBins+1];
+TH1F *hGen_Onia_phi[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH2F *hGen_Onia_rap_pT;
 //debugging histos:
-TH2F *hPhiPos_PhiNeg[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
-TH2F *hPtPos_PtNeg[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
-TH2F *hEtaPos_EtaNeg[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
-TH1F *hDeltaPhi[jpsi::kNbPTBins+1][2*jpsi::kNbRapBins+1];
+TH2F *hPhiPos_PhiNeg[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+TH2F *hPtPos_PtNeg[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+TH2F *hEtaPos_EtaNeg[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+TH1F *hDeltaPhi[jpsi::kNbPTMaxBins+1][2*jpsi::kNbRapBins+1];
 
 //polarization histos:
-TH1F *hGen_Onia_pol_pT[jpsi::kNbFrames][jpsi::kNbPTBins+1][jpsi::kNbPolVar];
-TH1F *hGen_Onia_pol_rap[jpsi::kNbFrames][2*jpsi::kNbRapBins+1][jpsi::kNbPolVar];
-TH1F *hGen_Onia_pol_pT_rap[jpsi::kNbFrames][jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1][jpsi::kNbPolVar];
-TH2F *hGen2D_Onia_pol_pT[jpsi::kNbFrames][jpsi::kNbPTBins+1];
-TH2F *hGen2D_Onia_pol_rap[jpsi::kNbFrames][2*jpsi::kNbRapBins+1];
-TH2F *hGen2D_Onia_pol_pT_rap[jpsi::kNbFrames][jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
+// TH1F *hGen_Onia_pol_pT[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbPolVar];
+// TH1F *hGen_Onia_pol_rap[jpsi::kNbFrames][2*jpsi::kNbRapBins+1][jpsi::kNbPolVar];
+TH1F *hGen_Onia_pol_pT_rap[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1][jpsi::kNbPolVar];
+// TH2F *hGen2D_Onia_pol_pT[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1];
+// TH2F *hGen2D_Onia_pol_rap[jpsi::kNbFrames][2*jpsi::kNbRapBins+1];
+TH2F *hGen2D_Onia_pol_pT_rap[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 
-TH1F *hDelta[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
-TH1F *hSin2Delta[jpsi::kNbPTBins+1][jpsi::kNbRapForPTBins+1];
+TH1F *hDelta[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+TH1F *hSin2Delta[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 
 Double_t CalcPolWeight(Double_t pf_onia_P, Double_t thisCosTh);
 //==============================================
@@ -115,20 +115,13 @@ void PolMC::Loop(Int_t selDimuType)
     Double_t onia_phi = onia->Phi();
     Double_t onia_mT = sqrt(onia_mass*onia_mass + onia_pt*onia_pt);
 
-    Int_t pTIndex = -1;
-    for(int iPT = 0; iPT < jpsi::kNbPTBins; iPT++){
-      if(onia_pt > jpsi::pTRange[iPT] && onia_pt < jpsi::pTRange[iPT+1]){
-	pTIndex = iPT+1;
-	break;
-      }
-    }
-    Int_t rapIndex = -1;
-    for(int iRap = 0; iRap < 2*jpsi::kNbRapBins; iRap++){
-      if(onia_rap > jpsi::rapRange[iRap] && onia_rap < jpsi::rapRange[iRap+1]){
-	rapIndex = iRap+1;
-	break;
-      }
-    }
+    // Int_t rapIndex = -1;
+    // for(int iRap = 0; iRap < 2*jpsi::kNbRapBins; iRap++){
+    //   if(onia_rap > jpsi::rapRange[iRap] && onia_rap < jpsi::rapRange[iRap+1]){
+    // 	rapIndex = iRap+1;
+    // 	break;
+    //   }
+    // }
     Int_t rapForPTIndex = -1;
     for(int iRap = 0; iRap < jpsi::kNbRapForPTBins; iRap++){
       if(TMath::Abs(onia_rap) > jpsi::rapForPTRange[iRap] && 
@@ -137,17 +130,31 @@ void PolMC::Loop(Int_t selDimuType)
 	break;
       }
     }
+    Int_t pTIndex = -1;
+    for(int iPT = 0; iPT < jpsi::kNbPTBins[rapForPTIndex]; iPT++){
+      if(onia_pt > jpsi::pTRange[rapForPTIndex][iPT] && onia_pt < jpsi::pTRange[rapForPTIndex][iPT+1]){
+	pTIndex = iPT+1;
+	break;
+      }
+    }
+    Int_t rapIntegratedPTIndex = -1;
+    for(int iPT = 0; iPT < jpsi::kNbPTBins[0]; iPT++){
+      if(onia_pt > jpsi::pTRange[0][iPT] && onia_pt < jpsi::pTRange[0][iPT+1]){
+	rapIntegratedPTIndex = iPT+1;
+	break;
+      }
+    }
 
-    if(pTIndex < 1){
-      printf("pTIndex %d, pT(onia) = %f\n", pTIndex, onia_pt);
-      continue;
-    }
-    if(rapIndex < 1){
-      printf("rapIndex %d, rap(onia) = %f\n", rapIndex, onia_rap);
-      continue;
-    }
+    // if(rapIndex < 1){
+    //   printf("rapIndex %d, rap(onia) = %f\n", rapIndex, onia_rap);
+    //   continue;
+    // }
     if(rapForPTIndex < 1){
-      printf("rapForPTIndex %d, rap(onia) = %f\n", rapForPTIndex, onia_rap);
+      // printf("rapForPTIndex %d, rap(onia) = %f\n", rapForPTIndex, onia_rap);
+      continue;
+    }
+    if(pTIndex < 1){
+      // printf("pTIndex %d, pT(onia) = %f\n", pTIndex, onia_pt);
       continue;
     }
 
@@ -164,21 +171,22 @@ void PolMC::Loop(Int_t selDimuType)
     //fill mass, phi, pt, eta and rap distributions
     //a) all bins
     hGen_Onia_mass[0][0]->Fill(onia_mass);
-    hGen_Onia_phi[0][0]->Fill(onia_phi);
-    hGen_Onia_mass[pTIndex][0]->Fill(onia_mass);
-    hGen_Onia_phi[pTIndex][0]->Fill(onia_phi);
+    hGen_Onia_mass[rapIntegratedPTIndex][0]->Fill(onia_mass);
     hGen_Onia_mass[0][rapForPTIndex]->Fill(onia_mass);
+    //
+    hGen_Onia_phi[0][0]->Fill(onia_phi);
+    hGen_Onia_phi[rapIntegratedPTIndex][0]->Fill(onia_phi);
     hGen_Onia_phi[0][rapForPTIndex]->Fill(onia_phi);
       
     hGen_Onia_pt[0]->Fill(onia_pt);
-    hGen_Onia_eta[0]->Fill(onia_eta);
-    hGen_Onia_rap[0]->Fill(onia_rap);
+    // hGen_Onia_eta[0]->Fill(onia_eta);
+    // hGen_Onia_rap[0]->Fill(onia_rap);
     //b) individual pT and rap bins:
     hGen_Onia_mass[pTIndex][rapForPTIndex]->Fill(onia_mass);
     hGen_Onia_phi[pTIndex][rapForPTIndex]->Fill(onia_phi);
     hGen_Onia_pt[rapForPTIndex]->Fill(onia_pt);
-    hGen_Onia_eta[pTIndex]->Fill(onia_eta);
-    hGen_Onia_rap[pTIndex]->Fill(onia_rap);
+    // hGen_Onia_eta[pTIndex]->Fill(onia_eta);
+    // hGen_Onia_rap[pTIndex]->Fill(onia_rap);
 
     hGen_Onia_rap_pT->Fill(onia_rap, onia_pt);
 
@@ -213,7 +221,8 @@ void PolMC::Loop(Int_t selDimuType)
     hPhiPos_PhiNeg[pTIndex][rapForPTIndex]->Fill(180./TMath::Pi() * muNeg->Phi(), 180./TMath::Pi() * muPos->Phi());
     hPtPos_PtNeg[pTIndex][rapForPTIndex]->Fill(muNeg->Pt(), muPos->Pt());
     hEtaPos_EtaNeg[pTIndex][rapForPTIndex]->Fill(muNeg->PseudoRapidity(), muPos->PseudoRapidity());
-    hDeltaPhi[pTIndex][rapIndex]->Fill(deltaPhi);
+    // hDeltaPhi[pTIndex][rapIndex]->Fill(deltaPhi);
+    hDeltaPhi[pTIndex][rapForPTIndex]->Fill(deltaPhi);
 
     hGen_mupl_pt[pTIndex][rapForPTIndex]->Fill(muPos->Pt());
     hGen_mupl_eta[pTIndex][rapForPTIndex]->Fill(muPos->PseudoRapidity());
@@ -231,38 +240,38 @@ void PolMC::Loop(Int_t selDimuType)
       Double_t weight = CalcPolWeight(onia_P, thisCosTh[iFrame]);
 
       //1a) polariztion histos - all pT
-      hGen_Onia_pol_pT[iFrame][0][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
-      hGen_Onia_pol_pT[iFrame][0][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
-      hGen_Onia_pol_pT[iFrame][0][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
-      hGen2D_Onia_pol_pT[iFrame][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+      // hGen_Onia_pol_pT[iFrame][0][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
+      // hGen_Onia_pol_pT[iFrame][0][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
+      // hGen_Onia_pol_pT[iFrame][0][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
+      // hGen2D_Onia_pol_pT[iFrame][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
 
       //1b) polariztion histos - pT Bin
-      if(pTIndex > 0){
-	hGen_Onia_pol_pT[iFrame][pTIndex][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
-	hGen_Onia_pol_pT[iFrame][pTIndex][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
-	hGen_Onia_pol_pT[iFrame][pTIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
-	hGen2D_Onia_pol_pT[iFrame][pTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
-      }
+      // if(pTIndex > 0){
+      // 	hGen_Onia_pol_pT[iFrame][pTIndex][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
+      // 	hGen_Onia_pol_pT[iFrame][pTIndex][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
+      // 	hGen_Onia_pol_pT[iFrame][pTIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
+      // 	hGen2D_Onia_pol_pT[iFrame][pTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+      // }
 
-      //2a) polariztion histos - all Rap
-      hGen_Onia_pol_rap[iFrame][0][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
-      hGen_Onia_pol_rap[iFrame][0][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
-      hGen_Onia_pol_rap[iFrame][0][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
-      hGen2D_Onia_pol_rap[iFrame][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+      // //2a) polariztion histos - all Rap
+      // hGen_Onia_pol_rap[iFrame][0][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
+      // hGen_Onia_pol_rap[iFrame][0][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
+      // hGen_Onia_pol_rap[iFrame][0][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
+      // hGen2D_Onia_pol_rap[iFrame][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
 
-      //2b) polariztion histos - rap Bin
-      if(rapIndex > 0){
-	hGen_Onia_pol_rap[iFrame][rapIndex][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
-	hGen_Onia_pol_rap[iFrame][rapIndex][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
-	hGen_Onia_pol_rap[iFrame][rapIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
-	hGen2D_Onia_pol_rap[iFrame][rapIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
-      }
+      // //2b) polariztion histos - rap Bin
+      // if(rapIndex > 0){
+      // 	hGen_Onia_pol_rap[iFrame][rapIndex][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
+      // 	hGen_Onia_pol_rap[iFrame][rapIndex][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
+      // 	hGen_Onia_pol_rap[iFrame][rapIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
+      // 	hGen2D_Onia_pol_rap[iFrame][rapIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+      // }
 
       //3) polariztion histos - pT and rap Bin
       //all pT and rapidities
       hGen2D_Onia_pol_pT_rap[iFrame][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
-      if(pTIndex > 0)
-	hGen2D_Onia_pol_pT_rap[iFrame][pTIndex][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+      if(rapIntegratedPTIndex > 0)
+	hGen2D_Onia_pol_pT_rap[iFrame][rapIntegratedPTIndex][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
       if(rapForPTIndex > 0)
 	hGen2D_Onia_pol_pT_rap[iFrame][0][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
       if(pTIndex > 0 && rapForPTIndex > 0){
