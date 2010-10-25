@@ -7,7 +7,7 @@ while [ $thisFrame -lt 2 ]; do
     while [ $thisPT -lt 13 ]; do 
 
 	thisRap=1
-	while [ $thisRap -lt 5 ]; do 
+	while [ $thisRap -lt 6 ]; do 
 
 	    root -b -q "plotRec.C+(${thisFrame}, ${thisPT}, ${thisRap})"
 	    thisRap=$(( $thisRap + 1 ))
