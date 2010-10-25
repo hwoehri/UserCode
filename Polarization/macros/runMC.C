@@ -275,7 +275,6 @@ void WriteHistos(Char_t *fNameOut){
       hGen_Onia_mass[iPTBin][iRapBin]->Write();
   for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
     for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++)
-
       hGen_Onia_phi[iPTBin][iRapBin]->Write();
 
   for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
@@ -303,10 +302,10 @@ void WriteHistos(Char_t *fNameOut){
        hEtaPos_EtaNeg[iPTBin][iRapBin]->Write();
      }
   }
-  for(int iRapBin = 1; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++)
+  // for(int iRapBin = 1; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++)
+  for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
     for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++)
       hDeltaPhi[iPTBin][iRapBin]->Write();
-
 
   //polarization histos
   for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
