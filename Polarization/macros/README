@@ -74,7 +74,20 @@
     --> the many output plots can be processed by
     cd ../latex
     pdflatex deltaPhiLab.tex
+
+(*) plotRec.C
+    plots the cosTheta vs phi 2D distributions and corresponding 1D projections
+    overlapping for different trigger paths
+    To run over all pT and rap bins, using the script makeCosThetaPhiPlots.sh
+    and plot all the figures with:
+    cd ../latex
+    pdflatex cosThetaPhi_variousTriggers.tex
     
+(*) optimizeBinning.C
+    reads the pT distribution for the various rapidity bins and finds the 
+    bins in pT that equalises the statistics. As an argument one should put
+    the minimum number of events in each bin (including BG)
+
 (4) fitPolPar.C
     This is a simplified fitting macro that allows to extract the lambda
     parameters from the acceptance corrected data. Simplified, because the
