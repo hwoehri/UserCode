@@ -46,14 +46,20 @@ public :
    /* Double_t        muNegPx_Gen; */
    /* Double_t        muNegPy_Gen; */
    /* Double_t        muNegPz_Gen; */
-   Double_t        HLT_Mu0_TkMu0_Jpsi;
-   Double_t        HLT_Mu3_TkMu0_Jpsi;
-   Double_t        HLT_DoubleMu0;
-   Double_t        HLT_Mu3;
-   Double_t        HLT_Mu5;
-   Double_t        HLT_Mu7;
-   Double_t        HLT_Mu9;
-   Double_t        HLT_Mu11;
+   Int_t        HLT_Mu0_Track0_Jpsi;
+   Int_t        HLT_Mu3_Track0_Jpsi;
+   Int_t        HLT_Mu5_Track0_Jpsi;
+   Int_t        HLT_Mu0_TkMu0_Jpsi;
+   Int_t        HLT_Mu3_TkMu0_Jpsi;
+   Int_t        HLT_Mu0_TkMu0_OST_Jpsi;
+   Int_t        HLT_Mu3_TkMu0_OST_Jpsi;
+   Int_t        HLT_Mu5_TkMu0_OST_Jpsi;
+   Int_t        HLT_DoubleMu0;
+   Int_t        HLT_Mu3;
+   Int_t        HLT_Mu5;
+   Int_t        HLT_Mu7;
+   Int_t        HLT_Mu9;
+   Int_t        HLT_Mu11;
    Double_t        eventNb;
    Double_t        runNb;
    Double_t        lumiBlock;
@@ -93,8 +99,14 @@ public :
    /* TBranch        *b_muNegPx_Gen;   //! */
    /* TBranch        *b_muNegPy_Gen;   //! */
    /* TBranch        *b_muNegPz_Gen;   //! */
+   TBranch_t        *b_HLT_Mu0_Track0_Jpsi;
+   TBranch_t        *b_HLT_Mu3_Track0_Jpsi;
+   TBranch_t        *b_HLT_Mu5_Track0_Jpsi;
    TBranch        *b_HLT_Mu0_TkMu0_Jpsi;   //!
    TBranch        *b_HLT_Mu3_TkMu0_Jpsi;   //!
+   TBranch_t        *b_HLT_Mu0_TkMu0_OST_Jpsi;
+   TBranch_t        *b_HLT_Mu3_TkMu0_OST_Jpsi;
+   TBranch_t        *b_HLT_Mu5_TkMu0_OST_Jpsi;
    TBranch        *b_HLT_DoubleMu0;   //!
    TBranch        *b_HLT_Mu3;   //!
    TBranch        *b_HLT_Mu5;   //!
@@ -211,8 +223,14 @@ void PolData::Init(TTree *tree)
    /* fChain->SetBranchAddress("muNegPx_Gen", &muNegPx_Gen, &b_muNegPx_Gen); */
    /* fChain->SetBranchAddress("muNegPy_Gen", &muNegPy_Gen, &b_muNegPy_Gen); */
    /* fChain->SetBranchAddress("muNegPz_Gen", &muNegPz_Gen, &b_muNegPz_Gen); */
+   fChain->SetBranchAddress("HLT_Mu0_Track0_Jpsi", &HLT_Mu0_Track0_Jpsi, &b_HLT_Mu0_Track0_Jpsi);
+   fChain->SetBranchAddress("HLT_Mu3_Track0_Jpsi", &HLT_Mu3_Track0_Jpsi, &b_HLT_Mu3_Track0_Jpsi);
+   fChain->SetBranchAddress("HLT_Mu5_Track0_Jpsi", &HLT_Mu3_Track0_Jpsi, &b_HLT_Mu3_Track0_Jpsi);
    fChain->SetBranchAddress("HLT_Mu0_TkMu0_Jpsi", &HLT_Mu0_TkMu0_Jpsi, &b_HLT_Mu0_TkMu0_Jpsi);
    fChain->SetBranchAddress("HLT_Mu3_TkMu0_Jpsi", &HLT_Mu3_TkMu0_Jpsi, &b_HLT_Mu3_TkMu0_Jpsi);
+   fChain->SetBranchAddress("HLT_Mu0_TkMu0_OST_Jpsi", &HLT_Mu0_TkMu0_OST_Jpsi, &b_HLT_Mu0_TkMu0_OST_Jpsi);
+   fChain->SetBranchAddress("HLT_Mu3_TkMu0_OST_Jpsi", &HLT_Mu3_TkMu0_OST_Jpsi, &b_HLT_Mu3_TkMu0_OST_Jpsi);
+   fChain->SetBranchAddress("HLT_Mu5_TkMu0_OST_Jpsi", &HLT_Mu5_TkMu0_OST_Jpsi, &b_HLT_Mu5_TkMu0_OST_Jpsi);
    fChain->SetBranchAddress("HLT_DoubleMu0", &HLT_DoubleMu0, &b_HLT_DoubleMu0);
    fChain->SetBranchAddress("HLT_Mu3", &HLT_Mu3, &b_HLT_Mu3);
    fChain->SetBranchAddress("HLT_Mu5", &HLT_Mu5, &b_HLT_Mu5);
