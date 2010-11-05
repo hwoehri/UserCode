@@ -99,14 +99,14 @@ public :
    /* TBranch        *b_muNegPx_Gen;   //! */
    /* TBranch        *b_muNegPy_Gen;   //! */
    /* TBranch        *b_muNegPz_Gen;   //! */
-   TBranch_t        *b_HLT_Mu0_Track0_Jpsi;
-   TBranch_t        *b_HLT_Mu3_Track0_Jpsi;
-   TBranch_t        *b_HLT_Mu5_Track0_Jpsi;
+   TBranch        *b_HLT_Mu0_Track0_Jpsi;
+   TBranch        *b_HLT_Mu3_Track0_Jpsi;
+   TBranch        *b_HLT_Mu5_Track0_Jpsi;
    TBranch        *b_HLT_Mu0_TkMu0_Jpsi;   //!
    TBranch        *b_HLT_Mu3_TkMu0_Jpsi;   //!
-   TBranch_t        *b_HLT_Mu0_TkMu0_OST_Jpsi;
-   TBranch_t        *b_HLT_Mu3_TkMu0_OST_Jpsi;
-   TBranch_t        *b_HLT_Mu5_TkMu0_OST_Jpsi;
+   TBranch        *b_HLT_Mu0_TkMu0_OST_Jpsi;
+   TBranch        *b_HLT_Mu3_TkMu0_OST_Jpsi;
+   TBranch        *b_HLT_Mu5_TkMu0_OST_Jpsi;
    TBranch        *b_HLT_DoubleMu0;   //!
    TBranch        *b_HLT_Mu3;   //!
    TBranch        *b_HLT_Mu5;   //!
