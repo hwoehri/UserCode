@@ -27,7 +27,7 @@ TH2F *Reco_Onia_rap_pT;
 TH2F *hPhiPos_PhiNeg[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH2F *hPtPos_PtNeg[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH2F *hEtaPos_EtaNeg[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
-TH1F *hDeltaPhi[jpsi::kNbPTMaxBins+1][2*jpsi::kNbRapBins+1];
+TH1F *hDeltaPhi[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 
 //polarization histos:
 // TH1F *Reco_Onia_pol_pT[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbPolVar];
@@ -76,10 +76,10 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     Reco_StatEv->Fill(0.5);//count all events
 
     //check the trigger flag: 0... no trigger, 1 ... triggered+matched, 2 ... triggered
-// //     if(HLT_Mu0_TkMu0_OST_Jpsi != 1) 
+    if(HLT_Mu0_TkMu0_OST_Jpsi != 1) 
 //     if(HLT_DoubleMu0 != 1) 
 //     // if(HLT_Mu7 != 1)
-//       continue;
+      continue;
 
     Reco_StatEv->Fill(1.5);
 
@@ -273,7 +273,7 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 
     Double_t deltaPhi = muPos->Phi() - muNeg->Phi();
     if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
-    else if(deltaPhi > TMath::Pi()) deltaPhi = 2.*TMath::Pi() - deltaPhi;
+    else if(deltaPhi > TMath::Pi()) deltaPhi -= 2.*TMath::Pi();
 
     //debugging histos
     hPhiPos_PhiNeg[pTIndex][rapForPTIndex]->Fill(180./TMath::Pi() * muNeg->Phi(), 180./TMath::Pi() * muPos->Phi());

@@ -155,21 +155,21 @@ void BookHistosReco(Char_t *oniaLabel){
       Reco_mumi_eta[iPTBin][iRapBin]->Sumw2();
       Reco_mumi_phi[iPTBin][iRapBin]->Sumw2();
 
-      sprintf(name, "Reco_hPhiPos_PhiNeg_pT%d_rap%d" , iPTBin, iRapBin);
+      sprintf(name, "Reco_PhiPos_PhiNeg_pT%d_rap%d" , iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;#phi(#mu^{-});#phi(#mu^{+})", 
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
 	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hPhiPos_PhiNeg[iPTBin][iRapBin] = new TH2F(name, title, 60,-180.,180., 60,-180.,180.);
-      sprintf(name, "Reco_hPtPos_PtNeg_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;p_{T}(#mu^{-});p_{T}(#mu^{+})", 
+      sprintf(name, "Reco_PtPos_PtNeg_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;p_{T}(#mu^{-}) [GeV/c];p_{T}(#mu^{+}) [GeV/c]", 
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
 	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
-      hPtPos_PtNeg[iPTBin][iRapBin] = new TH2F(name, title, 20, 0., 10., 20, 0., 10.);
-      sprintf(name, "Reco_hEtaPos_EtaNeg_pT%d_rap%d", iPTBin, iRapBin);
+      hPtPos_PtNeg[iPTBin][iRapBin] = new TH2F(name, title, 80, 0., 20., 80, 0., 20.);
+      sprintf(name, "Reco_EtaPos_EtaNeg_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;#eta(#mu^{-});#eta(#mu^{+})", 
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
 	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
-      hEtaPos_EtaNeg[iPTBin][iRapBin] = new TH2F(name, title, 24, -2.4, 2.4, 24, -2.4, 2.4);
+      hEtaPos_EtaNeg[iPTBin][iRapBin] = new TH2F(name, title, 48, -2.4, 2.4, 48, -2.4, 2.4);
     }
   }
   // for(int iRapBin = 1; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++)
@@ -177,7 +177,7 @@ void BookHistosReco(Char_t *oniaLabel){
     for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
 
 //       printf("deltaPhi: rap %d, pT %d\n", iRapBin, iPTBin);
-      sprintf(name, "Reco_hDeltaPhi_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(name, "Reco_DeltaPhi_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < y(%s) < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;#phi(#mu^{+}) - #phi(#mu^{-})", 
 	      jpsi::rapRange[iRapBin-1], oniaLabel, jpsi::rapRange[iRapBin], 
 	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
