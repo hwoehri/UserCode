@@ -7,6 +7,10 @@
 #include <TH2.h>
 #include <TCanvas.h>
 
+
+Int_t const kNbMassBins = 2;
+char *massLabel[kNbMassBins] = {"L","R"};
+
 //some statistics
 TH1F *Reco_StatEv;
 
@@ -36,13 +40,25 @@ TH1F *Reco_Onia_pol_pT_rap[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapFo
 // TH2F *Reco2D_Onia_pol_pT[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1];
 // TH2F *Reco2D_Onia_pol_rap[jpsi::kNbFrames][2*jpsi::kNbRapBins+1];
 TH2F *Reco2D_Onia_pol_pT_rap[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
-//same pol histos, but split into FWD and BWD rapidity:
-TH1F *Reco_Onia_pol_pT_rap_FWDBWD[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][2*jpsi::kNbRapBins][jpsi::kNbPolVar];
-TH2F *Reco2D_Onia_pol_pT_rap_FWDBWD[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][2*jpsi::kNbRapBins];
 
-//
 TH1F *hDelta[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH1F *hSin2Delta[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+
+//sidebands histos:
+TH1F *h_LifeSideband[kNbMassBins][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+//TH1F *h_LifeRightSideband[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+//TH1F *h_LifeLeftSidebandInt;
+//TH1F *h_LifeRightSidebandInt;
+
+TH2F *h_PhiCosSideband[jpsi::kNbFrames][kNbMassBins][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+//TH2F *h_PhiCosRightSideband[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+//TH2F *h_PhiCosLeftSidebandInt[jpsi::kNbFrames];
+//TH2F *h_PhiCosRightSidebandInt[jpsi::kNbFrames];
+
+TH1F *h_PtSideband[jpsi::kNbFrames];
+
+
+
 
 Double_t CalcPolWeight(Double_t pf_onia_P, Double_t thisCosTh);
 //==============================================
@@ -61,6 +77,7 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 
   //loop over the events
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
+ // for (Long64_t jentry=0; jentry<100000;jentry++) {
 
     if(jentry % 100000 == 0) printf("event %d\n", (Int_t) jentry);
 
@@ -76,13 +93,20 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     Reco_StatEv->Fill(0.5);//count all events
 
     //check the trigger flag: 0... no trigger, 1 ... triggered+matched, 2 ... triggered
+<<<<<<< PolData.C
+    //if(HLT_Mu0_TkMu0_Jpsi != 1) 
+    if(HLT_DoubleMu0 != 1) 
+      continue;
+=======
     if(HLT_Mu0_TkMu0_OST_Jpsi != 1) 
 //     if(HLT_DoubleMu0 != 1) 
 //     // if(HLT_Mu7 != 1)
       continue;
+>>>>>>> 1.19
 
     Reco_StatEv->Fill(1.5);
 
+    
     //reject processing of events where the dimuon type (GG, GT or TT)
     //does not correspond to the chosen one
     if(selDimuType < 3 && JpsiType_idx != selDimuType)
@@ -139,13 +163,13 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     Double_t onia_phi = onia->Phi();
     Double_t onia_mT = sqrt(onia_mass*onia_mass + onia_pt*onia_pt);
 
-    Int_t rapIndex = -1;
-    for(int iRap = 0; iRap < 2*jpsi::kNbRapBins; iRap++){
-      if(onia_rap > jpsi::rapRange[iRap] && onia_rap < jpsi::rapRange[iRap+1]){
-    	rapIndex = iRap;
-    	break;
-      }
-    }
+    // Int_t rapIndex = -1;
+    // for(int iRap = 0; iRap < 2*jpsi::kNbRapBins; iRap++){
+    //   if(onia_rap > jpsi::rapRange[iRap] && onia_rap < jpsi::rapRange[iRap+1]){
+    // 	rapIndex = iRap+1;
+    // 	break;
+    //   }
+    // }
     Int_t rapForPTIndex = -1;
     for(int iRap = 0; iRap < jpsi::kNbRapForPTBins; iRap++){
       if(TMath::Abs(onia_rap) > jpsi::rapForPTRange[iRap] && 
@@ -168,10 +192,10 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 	break;
       }
     }
-    if(rapIndex < 0){
-      // printf("rapIndex %d, rap(onia) = %f\n", rapIndex, onia_rap);
-      continue;
-    }
+    // if(rapIndex < 1){
+    //   // printf("rapIndex %d, rap(onia) = %f\n", rapIndex, onia_rap);
+    //   continue;
+    // }
     if(rapForPTIndex < 1){
       // printf("rapForPTIndex %d, rap(onia) = %f\n", rapForPTIndex, onia_rap);
       continue;
@@ -180,10 +204,11 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
       // printf("pTIndex %d, pT(onia) = %f\n", pTIndex, onia_pt);
       continue;
     }
-
-//     printf("rap %1.3f, pT %1.3f gives rapIndex %d and |rapIndex| %d and pTIndex %d\n", 
-// 	   onia_rap, onia_pt,
-// 	   rapIndex, rapForPTIndex, pTIndex);
+    //Fill(Jpsict, weight)Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+    //*** SIDEBANDS ***
+    int massIndex = -1;
+    if ((JpsiMass > 2.7) && (JpsiMass < (jpsi::polMassJpsi[rapForPTIndex] - 3.*jpsi::sigmaMassJpsi[rapForPTIndex])))       massIndex = 0;
+    else if ((JpsiMass > (jpsi::polMassJpsi[rapForPTIndex] + 3.*jpsi::sigmaMassJpsi[rapForPTIndex])) && (JpsiMass < 3.5)) massIndex = 1;
 
     Reco_StatEv->Fill(5.5);
 
@@ -207,12 +232,6 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
       continue;
 
     Reco_StatEv->Fill(8.5);
-
-    // //test: reject all Cowbody dimuons
-    // if((muPos->Phi() - muNeg->Phi()) > 0)
-    //   continue;
-
-    // Reco_StatEv->Fill(9.5);
 
     //remaining of the events will be used for the analysis
     countRecEvent++;
@@ -254,15 +273,15 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 
     //test:
 //     calcPol(*muNeg, *muPos);
-    //H: test:
-    // if(jentry%2 == 0)
-    //   calcPol(*muPos, *muNeg);
-    // else
-    //   calcPol(*muNeg, *muPos);
+//     //H: test:
+//     if(jentry%2 == 0)
+//       calcPol(*muPos, *muNeg);
+//     else
+//       calcPol(*muNeg, *muPos);
 
     //===================================================
     //calculate delta, the angle between the CS and HX frame
-    //Formula from: EJP C69 (2010) 657
+    //Formula from EPJC paper
     Double_t deltaHXToCS = TMath::ACos(onia_mass * onia->Pz() / (onia_mT * onia_P));
     //     Double_t deltaCSToHX = -deltaHXToCS;
     Double_t sin2Delta = pow((onia_pt * onia->Energy() / (onia_P * onia_mT)),2);
@@ -290,6 +309,13 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     Reco_mumi_eta[pTIndex][rapForPTIndex]->Fill(muNeg->PseudoRapidity());
     Reco_mumi_phi[pTIndex][rapForPTIndex]->Fill(muNeg->Phi());
 
+    // lifetime in sidebands histos
+    if(massIndex >=0){//sidebands defined
+      h_LifeSideband[massIndex][0][0]->Fill(Jpsict);
+      h_LifeSideband[massIndex][0][rapForPTIndex]->Fill(Jpsict);
+      h_LifeSideband[massIndex][pTIndex][0]->Fill(Jpsict);
+      h_LifeSideband[massIndex][pTIndex][rapForPTIndex]->Fill(Jpsict);
+    }
     //fill the histos for all the different frames
     for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
 
@@ -337,15 +363,19 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 	Reco_Onia_pol_pT_rap[iFrame][pTIndex][rapForPTIndex][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
 	Reco_Onia_pol_pT_rap[iFrame][pTIndex][rapForPTIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
 	Reco2D_Onia_pol_pT_rap[iFrame][pTIndex][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
-      }
-      //4) polarization histos - pT and rap Bin for FWD and BWD rapidities, separately 
-      if(pTIndex > 0 && rapIndex >= 0){
-	Reco_Onia_pol_pT_rap_FWDBWD[iFrame][pTIndex][rapIndex][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
-	Reco_Onia_pol_pT_rap_FWDBWD[iFrame][pTIndex][rapIndex][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
-	Reco_Onia_pol_pT_rap_FWDBWD[iFrame][pTIndex][rapIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
-	Reco2D_Onia_pol_pT_rap_FWDBWD[iFrame][pTIndex][rapIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+     }
+      // CosPhi in sidebands
+      if(massIndex >= 0){ //sidebands defined
+	h_PhiCosSideband[iFrame][massIndex][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	if(rapIntegratedPTIndex > 0)
+	  h_PhiCosSideband[iFrame][massIndex][rapIntegratedPTIndex][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	if(rapForPTIndex > 0)
+	  h_PhiCosSideband[iFrame][massIndex][0][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	if(pTIndex > 0 && rapForPTIndex > 0)
+	  h_PhiCosSideband[iFrame][massIndex][pTIndex][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
       }
     }
+    
 
     delete muPos;
     delete muNeg;

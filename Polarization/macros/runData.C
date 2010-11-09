@@ -3,7 +3,7 @@
 // #include "RooDataSet.h"
 #endif
 
-#include "../interface/rootIncludes.inc"
+#include "/home/hermine/CMS/CMSSW/hWoehri/Polarization/interface/rootIncludes.inc"
 #include "PolData.C"
 
 void BookHistosReco(Char_t *oniaLabel);
@@ -12,9 +12,9 @@ void WriteHistosReco(Char_t *fNameOut);
 //usage: root 'runData.C+' or
 //       root 'runData.C+("pol_MC_HLT_Mu0Track0Jpsi.root", kTRUE)' (e.g.) 
 //==========================================
-void runData(Char_t *fNameOut = "pol_data_HLT_Mu0TkMu0Jpsi.root",
+void runData(Char_t *fNameOut = "pol_data_testoutput.root",
 	     Bool_t newOutputFile = kFALSE, //allows to create a new file or to append info
-	     Char_t *fNameIn = "/home/hermine/CMS/Work/Polarization/Florian/11Sep2010/TTree_pol_Mu0TkMu0Jpsi_data_11Sep2010.root",
+             Char_t *fNameIn = "TTree_pol_dataR_Run2010A-PromptReco-v2_RooDataSet_JSON_01Oct2010.root",
 	     Char_t *nameDataSet = "recoData", //"data" or "recoData"
 	     Int_t selDimuType = 4, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
 	     Bool_t writeOutEvents = kFALSE, //writes out Run, LS, Ev.Nb for any J/psi candidate
@@ -37,6 +37,7 @@ void runData(Char_t *fNameOut = "pol_data_HLT_Mu0TkMu0Jpsi.root",
 
   fOut->Close();
 }
+
 //==========================================
 void BookHistosReco(Char_t *oniaLabel){
 
@@ -65,6 +66,11 @@ void BookHistosReco(Char_t *oniaLabel){
   Int_t nBinsEtaGamma = 120;
   Double_t etaMinGamma = -3.0, etaMaxGamma = 3.0;
 
+  //lifetime windows
+  Double_t lifetime_window_max = -2.;
+  Double_t lifetime_window_min = 4.;
+  Int_t   lifetime_window_bin = 120;
+
   Char_t name[100], title[300];
   //statistics
   Reco_StatEv = new TH1F("Reco_StatEv", "", 12, 0., 12.);
@@ -72,7 +78,7 @@ void BookHistosReco(Char_t *oniaLabel){
   //reconstruction variables for the Onia
   for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
     for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
-//       printf("mass and phi: rap %d, pT %d\n", iRapBin, iPTBin);
+      printf("mass and phi: rap %d, pT %d\n", iRapBin, iPTBin);
       //Mass:
       sprintf(name, "Reco_Onia_mass_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, ";M [GeV/c^{2}]");
@@ -114,7 +120,7 @@ void BookHistosReco(Char_t *oniaLabel){
   //debugging histos (single Muons):
   for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
     for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
-//       printf("single muons: rap %d, pT %d\n", iRapBin, iPTBin);
+      printf("single muons: rap %d, pT %d\n", iRapBin, iPTBin);
       sprintf(name, "Reco_mupl_pt_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;p_{T}(#mu^{+})[GeV/c]",
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
@@ -176,8 +182,13 @@ void BookHistosReco(Char_t *oniaLabel){
   for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
     for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
 
+<<<<<<< runData.C
+      printf("deltaPhi: rap %d, pT %d\n", iRapBin, iPTBin);
+      sprintf(name, "Reco_hDeltaPhi_pT%d_rap%d", iPTBin, iRapBin);
+=======
 //       printf("deltaPhi: rap %d, pT %d\n", iRapBin, iPTBin);
       sprintf(name, "Reco_DeltaPhi_pT%d_rap%d", iPTBin, iRapBin);
+>>>>>>> 1.14
       sprintf(title, "%1.1f < y(%s) < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;#phi(#mu^{+}) - #phi(#mu^{-})", 
 	      jpsi::rapRange[iRapBin-1], oniaLabel, jpsi::rapRange[iRapBin], 
 	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
@@ -234,7 +245,6 @@ void BookHistosReco(Char_t *oniaLabel){
     // 						     jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
     //   Reco2D_Onia_pol_rap[iFrame][iRapBin]->Sumw2();
     // }
-
     //pT and y double differential pol histos:
     for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
       for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
@@ -258,38 +268,7 @@ void BookHistosReco(Char_t *oniaLabel){
 	Reco2D_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TH2F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax, 
 								   jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
 	Reco2D_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin]->Sumw2();
-      }
-    }
-    //pT and y double differential pol histos: FWD and BWD rapidities separately
-    for(int iRapBin = 0; iRapBin < 2*jpsi::kNbRapBins; iRapBin++){
-      Int_t matchRapBin = fabs(jpsi::kNbRapForPTBins - iRapBin);
-      if(iRapBin >= jpsi::kNbRapForPTBins) matchRapBin += 1;
-      printf("rapBin %d corresponds to %d\n", iRapBin, matchRapBin);
-      for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[matchRapBin]+1; iPTBin++){
-// 	printf("FWDBWD 1: rap %d, pT %d\n", iRapBin, iPTBin);
-	sprintf(name, "Reco_Onia_cosTh_%s_pT%d_rap%d_FWDBWD", jpsi::frameLabel[iFrame], iPTBin, iRapBin);
-	sprintf(title, ";cos#theta_{%s}", jpsi::frameLabel[iFrame]);
-	Reco_Onia_pol_pT_rap_FWDBWD[iFrame][iPTBin][iRapBin][jpsi::cosThPol] = new TH1F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax);
-	Reco_Onia_pol_pT_rap_FWDBWD[iFrame][iPTBin][iRapBin][jpsi::cosThPol]->Sumw2();
-	//
-// 	printf("FWDBWD 2: rap %d, pT %d\n", iRapBin, iPTBin);
-	sprintf(name, "Reco_Onia_phi_%s_pT%d_rap%d_FWDBWD", jpsi::frameLabel[iFrame], iPTBin, iRapBin);
-	sprintf(title, ";#phi_{%s} [deg]", jpsi::frameLabel[iFrame]);
-	Reco_Onia_pol_pT_rap_FWDBWD[iFrame][iPTBin][iRapBin][jpsi::phiPol] = new TH1F(name, title, jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
-	Reco_Onia_pol_pT_rap_FWDBWD[iFrame][iPTBin][iRapBin][jpsi::phiPol]->Sumw2();
-	//
-// 	printf("FWDBWD 3: rap %d, pT %d\n", iRapBin, iPTBin);
-	sprintf(name, "Reco_Onia_cos2Phi_%s_pT%d_rap%d_FWDBWD", jpsi::frameLabel[iFrame], iPTBin, iRapBin);
-	sprintf(title, ";cos(2#phi_{%s})", jpsi::frameLabel[iFrame]);
-	Reco_Onia_pol_pT_rap_FWDBWD[iFrame][iPTBin][iRapBin][jpsi::cos2PhiPol] = new TH1F(name, title, jpsi::kNbBinsCos2Phi, jpsi::cos2PhiMin, jpsi::cos2PhiMax);
-	Reco_Onia_pol_pT_rap_FWDBWD[iFrame][iPTBin][iRapBin][jpsi::cos2PhiPol]->Sumw2();
-	//2D histo:
-// 	printf("FWDBWD 4: rap %d, pT %d\n", iRapBin, iPTBin);
-	sprintf(name, "Reco2D_Onia_%s_pT%d_rap%d_FWDBWD", jpsi::frameLabel[iFrame], iPTBin, iRapBin);
-	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", jpsi::frameLabel[iFrame], jpsi::frameLabel[iFrame]);
-	Reco2D_Onia_pol_pT_rap_FWDBWD[iFrame][iPTBin][iRapBin] = new TH2F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax, 
-								   jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
-	Reco2D_Onia_pol_pT_rap_FWDBWD[iFrame][iPTBin][iRapBin]->Sumw2();
+
       }
     }
   }
@@ -306,7 +285,54 @@ void BookHistosReco(Char_t *oniaLabel){
       hSin2Delta[iPTBin][iRapBin]->Sumw2();
     }
   }
+
+
+  
+  cout << "DEBUG: before booking sideband lifetime histos" << endl;
+
+  // *** SIDEBANDS ***
+  //instantiating and setting up sidebands lifetime histos:
+  for(int iMassWin = 0; iMassWin < 2; iMassWin++){
+    for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+      for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+	//cout << "DEBUG: before Life histos printf" << endl;
+	printf("Life: MassWin %s, rap %d, pT %d\n", massLabel[iMassWin], iRapBin, iPTBin);
+	//cout << "DEBUG: before Life histos sprintf" << endl;
+	sprintf(name, "Sideband_Lifetime_%s_pT%d_rap%d", massLabel[iMassWin], iPTBin, iRapBin);
+	//cout << "DEBUG: before Life histos sprintf2" << endl;
+	sprintf(title, ";l_{J/#psi} [mm]");
+	h_LifeSideband[iMassWin][iPTBin][iRapBin] = new TH1F(name, title, lifetime_window_bin, lifetime_window_min, lifetime_window_max);
+	h_LifeSideband[iMassWin][iPTBin][iRapBin]->Sumw2();
+        printf("mass %d, rap %d, pT %d: sideband histos have %d bins\n", iMassWin, iRapBin, iPTBin, h_LifeSideband[iMassWin][iPTBin][iRapBin]->GetNbinsX());
+      }
+    }
+   }
+cout << "DEBUG: before booking sideband cosPhi histos" << endl;
+   
+//instantiating and setting up sidebands cosPhi histos:
+   for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){             // using only CS and HX 
+      for(int iMassWin = 0; iMassWin < 2; iMassWin++){
+      for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+         for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+            //cout << "DEBUG: before cosPhi histos printf" << endl;
+            printf("cosTheta: frame %s, %s, rap %d, pT %d\n", jpsi::frameLabel[iFrame], massLabel[iMassWin], iRapBin, iPTBin);
+            //cout << "DEBUG: before cosPhi histos sprintf" << endl;
+            sprintf(name, "Sideband_cosThPhi_%s_%s_pT%d_rap%d", jpsi::frameLabel[iFrame], massLabel[iMassWin], iPTBin, iRapBin);
+            //cout << "DEBUG: before cosPhi histos printf2" << endl;
+            sprintf(title, ";cos#theta_{%s}", jpsi::frameLabel[iFrame]);
+            h_PhiCosSideband[iFrame][iMassWin][iPTBin][iRapBin] = new TH2F(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax, jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
+            h_PhiCosSideband[iFrame][iMassWin][iPTBin][iRapBin]->Sumw2();
+
+	 }
+      }
+   }
 }
+
+cout << "DEBUG: finished booking sideband cosPhi histos" << endl;
+
+//end of procedure
+}
+
 
 //==========================================
 void WriteHistosReco(Char_t *fNameOut){
@@ -315,8 +341,8 @@ void WriteHistosReco(Char_t *fNameOut){
 
   for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
     for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){  
-//       if(iPTBin == jpsi::kNbPTBins[iRapBin])
-// 	printf("rap %d: writing mass histo of pT bin %d (%s)\n", iRapBin, iPTBin, Reco_Onia_mass[iPTBin][iRapBin]->GetName());
+      if(iPTBin == jpsi::kNbPTBins[iRapBin])
+	printf("rap %d: writing mass histo of pT bin %d (%s)\n", iRapBin, iPTBin, Reco_Onia_mass[iPTBin][iRapBin]->GetName());
       Reco_Onia_mass[iPTBin][iRapBin]->Write();
     }
   }
@@ -347,53 +373,56 @@ void WriteHistosReco(Char_t *fNameOut){
        hPhiPos_PhiNeg[iPTBin][iRapBin]->Write();
        hPtPos_PtNeg[iPTBin][iRapBin]->Write();
        hEtaPos_EtaNeg[iPTBin][iRapBin]->Write();
+
      }
   }
   // for(int iRapBin = 1; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++)
   for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
-    for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++)
+     for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++)
        hDeltaPhi[iPTBin][iRapBin]->Write();
 
-  //polarization histos: Reco
-  for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
-    // for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[0]+1; iPTBin++){
-    //   Reco_Onia_pol_pT[iFrame][iPTBin][jpsi::cosThPol]->Write();
-    //   Reco_Onia_pol_pT[iFrame][iPTBin][jpsi::phiPol]->Write();
-    //   Reco_Onia_pol_pT[iFrame][iPTBin][jpsi::cos2PhiPol]->Write();
-    //   Reco2D_Onia_pol_pT[iFrame][iPTBin]->Write();
-    // }
-    // for(int iRapBin = 0; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++){
-    //   Reco_Onia_pol_rap[iFrame][iRapBin][jpsi::cosThPol]->Write();
-    //   Reco_Onia_pol_rap[iFrame][iRapBin][jpsi::phiPol]->Write();
-    //   Reco_Onia_pol_rap[iFrame][iRapBin][jpsi::cos2PhiPol]->Write();
-    //   Reco2D_Onia_pol_rap[iFrame][iRapBin]->Write();
-    // }
-    for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+//polarization histos: Reco
+for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
+   // for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[0]+1; iPTBin++){
+   //   Reco_Onia_pol_pT[iFrame][iPTBin][jpsi::cosThPol]->Write();
+   //   Reco_Onia_pol_pT[iFrame][iPTBin][jpsi::phiPol]->Write();
+   //   Reco_Onia_pol_pT[iFrame][iPTBin][jpsi::cos2PhiPol]->Write();
+   //   Reco2D_Onia_pol_pT[iFrame][iPTBin]->Write();
+   // }
+   // for(int iRapBin = 0; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++){
+   //   Reco_Onia_pol_rap[iFrame][iRapBin][jpsi::cosThPol]->Write();
+   //   Reco_Onia_pol_rap[iFrame][iRapBin][jpsi::phiPol]->Write();
+   //   Reco_Onia_pol_rap[iFrame][iRapBin][jpsi::cos2PhiPol]->Write();
+   //   Reco2D_Onia_pol_rap[iFrame][iRapBin]->Write();
+   // }
+   for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
       for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
-	Reco_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][jpsi::cosThPol]->Write();
-	Reco_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][jpsi::phiPol]->Write();
-	Reco_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][jpsi::cos2PhiPol]->Write();
- 	Reco2D_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin]->Write();
-      }
-    }
-  }
-  for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
-    for(int iRapBin = 0; iRapBin < 2*jpsi::kNbRapBins; iRapBin++){
-      Int_t matchRapBin = fabs(jpsi::kNbRapForPTBins - iRapBin);
-      if(iRapBin >= jpsi::kNbRapForPTBins) matchRapBin += 1;
-      for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[matchRapBin]+1; iPTBin++){
-	Reco_Onia_pol_pT_rap_FWDBWD[iFrame][iPTBin][iRapBin][jpsi::cosThPol]->Write();
-	Reco_Onia_pol_pT_rap_FWDBWD[iFrame][iPTBin][iRapBin][jpsi::phiPol]->Write();
-	Reco_Onia_pol_pT_rap_FWDBWD[iFrame][iPTBin][iRapBin][jpsi::cos2PhiPol]->Write();
- 	Reco2D_Onia_pol_pT_rap_FWDBWD[iFrame][iPTBin][iRapBin]->Write();
-      }
-    }
-  }
+      Reco_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][jpsi::cosThPol]->Write();
+      Reco_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][jpsi::phiPol]->Write();
+      Reco_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin][jpsi::cos2PhiPol]->Write();
+      Reco2D_Onia_pol_pT_rap[iFrame][iPTBin][iRapBin]->Write();
+      // sidebands histos
+      for(int iMassWin = 0; iMassWin < 2; iMassWin++){
+            h_PhiCosSideband[iFrame][iMassWin][iPTBin][iRapBin]->Write();
+            }
+   }
+   }
+}
 
   for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
     for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
       hDelta[iPTBin][iRapBin]->Write();
       hSin2Delta[iPTBin][iRapBin]->Write();
+    }
+  }
+
+  // sidebands histos
+  for(int iMassWin = 0; iMassWin < 2; iMassWin++){
+    for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+      for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+        printf("%s has %d bins\n", h_LifeSideband[iMassWin][iPTBin][iRapBin]->GetName(), h_LifeSideband[iMassWin][iPTBin][iRapBin]->GetNbinsX());
+	h_LifeSideband[iMassWin][iPTBin][iRapBin]->Write();
+      }
     }
   }
 }
