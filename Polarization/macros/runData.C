@@ -14,7 +14,7 @@ void WriteHistosReco(Char_t *fNameOut);
 //==========================================
 void runData(Char_t *fNameOut = "pol_data_HLT_Mu0TkMu0Jpsi.root",
 	     Bool_t newOutputFile = kFALSE, //allows to create a new file or to append info
-             Char_t *fNameIn = "data/TTree_pol_dataR_Run2010A-PromptReco-v2_RooDataSet_JSON_01Oct2010.root",
+	     Char_t *fNameIn = "/home/hermine/CMS/Work/Polarization/Florian/11Sep2010/TTree_pol_Mu0TkMu0Jpsi_data_11Sep2010.root",
 	     Char_t *nameDataSet = "recoData", //"data" or "recoData"
 	     Int_t selDimuType = 4, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
 	     Bool_t writeOutEvents = kFALSE, //writes out Run, LS, Ev.Nb for any J/psi candidate
