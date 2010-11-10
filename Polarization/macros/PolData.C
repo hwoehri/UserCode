@@ -76,9 +76,10 @@ void PolData::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     Reco_StatEv->Fill(0.5);//count all events
 
     //check the trigger flag: 0... no trigger, 1 ... triggered+matched, 2 ... triggered
+    //for a full list of accessible triggers, check out "PolData.h"
     if(HLT_Mu0_TkMu0_OST_Jpsi != 1) 
-//     if(HLT_DoubleMu0 != 1) 
-//     // if(HLT_Mu7 != 1)
+    // if(HLT_DoubleMu0 != 1) 
+    //if(HLT_Mu7 != 1)
       continue;
 
     Reco_StatEv->Fill(1.5);
