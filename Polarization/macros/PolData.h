@@ -51,10 +51,24 @@ public :
    Int_t        HLT_Mu5_Track0_Jpsi;
    Int_t        HLT_Mu0_TkMu0_Jpsi;
    Int_t        HLT_Mu3_TkMu0_Jpsi;
+   Int_t        HLT_Mu5_TkMu0_Jpsi;
    Int_t        HLT_Mu0_TkMu0_OST_Jpsi;
    Int_t        HLT_Mu3_TkMu0_OST_Jpsi;
    Int_t        HLT_Mu5_TkMu0_OST_Jpsi;
+   Int_t        HLT_Mu0_TkMu0_OST_Jpsi_Tight_v1;
+   Int_t        HLT_Mu3_TkMu0_OST_Jpsi_Tight_v1;
+   Int_t        HLT_Mu5_TkMu0_OST_Jpsi_Tight_v1;
+   Int_t        HLT_Mu0_TkMu0_OST_Jpsi_Tight_v2;
+   Int_t        HLT_Mu3_TkMu0_OST_Jpsi_Tight_v2;
+   Int_t        HLT_Mu5_TkMu0_OST_Jpsi_Tight_v2;
+   Int_t        HLT_Mu0_TkMu0_OST_Jpsi_Tight_v3;
+   Int_t        HLT_Mu3_TkMu0_OST_Jpsi_Tight_v3;
+   Int_t        HLT_Mu5_TkMu0_OST_Jpsi_Tight_v3;
    Int_t        HLT_DoubleMu0;
+   Int_t        HLT_DoubleMu0_Quarkonium_v1;
+   Int_t        HLT_DoubleMu3;
+   Int_t        HLT_L1DoubleMuOpen;
+   Int_t        HLT_L1DoubleMuOpen_Tight;
    Int_t        HLT_Mu3;
    Int_t        HLT_Mu5;
    Int_t        HLT_Mu7;
@@ -104,10 +118,24 @@ public :
    TBranch        *b_HLT_Mu5_Track0_Jpsi;
    TBranch        *b_HLT_Mu0_TkMu0_Jpsi;   //!
    TBranch        *b_HLT_Mu3_TkMu0_Jpsi;   //!
+   TBranch        *b_HLT_Mu5_TkMu0_Jpsi;   //!
    TBranch        *b_HLT_Mu0_TkMu0_OST_Jpsi;
    TBranch        *b_HLT_Mu3_TkMu0_OST_Jpsi;
    TBranch        *b_HLT_Mu5_TkMu0_OST_Jpsi;
+   TBranch        *b_HLT_Mu0_TkMu0_OST_Jpsi_Tight_v1;
+   TBranch        *b_HLT_Mu3_TkMu0_OST_Jpsi_Tight_v1;
+   TBranch        *b_HLT_Mu5_TkMu0_OST_Jpsi_Tight_v1;
+   TBranch        *b_HLT_Mu0_TkMu0_OST_Jpsi_Tight_v2;
+   TBranch        *b_HLT_Mu3_TkMu0_OST_Jpsi_Tight_v2;
+   TBranch        *b_HLT_Mu5_TkMu0_OST_Jpsi_Tight_v2;
+   TBranch        *b_HLT_Mu0_TkMu0_OST_Jpsi_Tight_v3;
+   TBranch        *b_HLT_Mu3_TkMu0_OST_Jpsi_Tight_v3;
+   TBranch        *b_HLT_Mu5_TkMu0_OST_Jpsi_Tight_v3;
    TBranch        *b_HLT_DoubleMu0;   //!
+   TBranch        *b_HLT_DoubleMu0_Quarkonium_v1;   //!
+   TBranch        *b_HLT_DoubleMu3;   //!
+   TBranch        *b_HLT_L1DoubleMuOpen;   //!
+   TBranch        *b_HLT_L1DoubleMuOpen_Tight;   //!
    TBranch        *b_HLT_Mu3;   //!
    TBranch        *b_HLT_Mu5;   //!
    TBranch        *b_HLT_Mu7;   //!
@@ -231,7 +259,20 @@ void PolData::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_Mu0_TkMu0_OST_Jpsi", &HLT_Mu0_TkMu0_OST_Jpsi, &b_HLT_Mu0_TkMu0_OST_Jpsi);
    fChain->SetBranchAddress("HLT_Mu3_TkMu0_OST_Jpsi", &HLT_Mu3_TkMu0_OST_Jpsi, &b_HLT_Mu3_TkMu0_OST_Jpsi);
    fChain->SetBranchAddress("HLT_Mu5_TkMu0_OST_Jpsi", &HLT_Mu5_TkMu0_OST_Jpsi, &b_HLT_Mu5_TkMu0_OST_Jpsi);
+   fChain->SetBranchAddress("HLT_Mu0_TkMu0_OST_Jpsi_Tight_v1", &HLT_Mu0_TkMu0_OST_Jpsi_Tight_v1, &b_HLT_Mu0_TkMu0_OST_Jpsi_Tight_v1);
+   fChain->SetBranchAddress("HLT_Mu3_TkMu0_OST_Jpsi_Tight_v1", &HLT_Mu3_TkMu0_OST_Jpsi_Tight_v1, &b_HLT_Mu3_TkMu0_OST_Jpsi_Tight_v1);
+   fChain->SetBranchAddress("HLT_Mu5_TkMu0_OST_Jpsi_Tight_v1", &HLT_Mu5_TkMu0_OST_Jpsi_Tight_v1, &b_HLT_Mu5_TkMu0_OST_Jpsi_Tight_v1);
+   fChain->SetBranchAddress("HLT_Mu0_TkMu0_OST_Jpsi_Tight_v2", &HLT_Mu0_TkMu0_OST_Jpsi_Tight_v2, &b_HLT_Mu0_TkMu0_OST_Jpsi_Tight_v2);
+   fChain->SetBranchAddress("HLT_Mu3_TkMu0_OST_Jpsi_Tight_v2", &HLT_Mu3_TkMu0_OST_Jpsi_Tight_v2, &b_HLT_Mu3_TkMu0_OST_Jpsi_Tight_v2);
+   fChain->SetBranchAddress("HLT_Mu5_TkMu0_OST_Jpsi_Tight_v2", &HLT_Mu5_TkMu0_OST_Jpsi_Tight_v2, &b_HLT_Mu5_TkMu0_OST_Jpsi_Tight_v2);
+   fChain->SetBranchAddress("HLT_Mu0_TkMu0_OST_Jpsi_Tight_v3", &HLT_Mu0_TkMu0_OST_Jpsi_Tight_v3, &b_HLT_Mu0_TkMu0_OST_Jpsi_Tight_v3);
+   fChain->SetBranchAddress("HLT_Mu3_TkMu0_OST_Jpsi_Tight_v3", &HLT_Mu3_TkMu0_OST_Jpsi_Tight_v3, &b_HLT_Mu3_TkMu0_OST_Jpsi_Tight_v3);
+   fChain->SetBranchAddress("HLT_Mu5_TkMu0_OST_Jpsi_Tight_v3", &HLT_Mu5_TkMu0_OST_Jpsi_Tight_v3, &b_HLT_Mu5_TkMu0_OST_Jpsi_Tight_v3);
    fChain->SetBranchAddress("HLT_DoubleMu0", &HLT_DoubleMu0, &b_HLT_DoubleMu0);
+   fChain->SetBranchAddress("HLT_DoubleMu0_Quarkonium_v1", &HLT_DoubleMu0_Quarkonium_v1, &b_HLT_DoubleMu0_Quarkonium_v1);
+   fChain->SetBranchAddress("HLT_DoubleMu3", &HLT_DoubleMu3, &b_HLT_DoubleMu3);
+   fChain->SetBranchAddress("HLT_L1DoubleMuOpen", &HLT_L1DoubleMuOpen, &b_HLT_L1DoubleMuOpen);
+   fChain->SetBranchAddress("HLT_L1DoubleMuOpen_Tight", &HLT_L1DoubleMuOpen_Tight, &b_HLT_L1DoubleMuOpen_Tight);
    fChain->SetBranchAddress("HLT_Mu3", &HLT_Mu3, &b_HLT_Mu3);
    fChain->SetBranchAddress("HLT_Mu5", &HLT_Mu5, &b_HLT_Mu5);
    fChain->SetBranchAddress("HLT_Mu7", &HLT_Mu7, &b_HLT_Mu7);
