@@ -67,12 +67,12 @@ namespace jpsi{
   Double_t JpsiCtauMax = 1000.; //effectively no cut on lifetime
   Double_t nSigMass = 1000.;
   Double_t polMassJpsi[kNbRapForPTBins+1] = {3.092, 3.094, 3.094, 3.092, 3.092, 3.090};//[all rap, rap bin 1-3]
-  Double_t sigmaMassJpsi[kNbRapForPTBins+1] = {0.042, 0.024, 0.035, 0.040, 0.045, 0.56};//[all rap, rap bin 1-3]
+  Double_t sigmaMassJpsi[kNbRapForPTBins+1] = {0.042, 0.024, 0.035, 0.040, 0.045, 0.056};//[all rap, rap bin 1-3]
 
   //some make up to use the same colour and marker for each pT and rapidity bin
   //in every plotting macro:
-  /* Int_t colour_pT[kNbPTBins+1] = {1, 2, 3, 4, 6, 7, 8}; */
-  /* Int_t marker_pT[kNbPTBins+1] = {20, 21, 22, 23, 20, 21, 29}; */
+  Int_t colour_pT[kNbPTMaxBins+1] = {1, 2, 3, 4, 6, 7, 8, 49, 38, 46, 12, 40};
+  Int_t marker_pT[kNbPTMaxBins+1] = {20, 21, 25, 22, 23, 26, 27, 28, 29, 30, 20, 20};
   /* Int_t colour_rap[2*kNbRapBins+1] = {1, 2, 3, 4, 6, 7, 7, 6, 4, 3, 2}; */
   /* Int_t marker_rap[2*kNbRapBins+1] = {20, 20, 21, 22, 29, 20, 24, 30, 23, 25, 24}; */
   /* Int_t colour_rap[2*kNbRapBins+1] = {1, 2, 3, 4, 4, 3, 2}; */
