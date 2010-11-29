@@ -60,8 +60,10 @@ namespace jpsi{
   Double_t rapRange[2*kNbRapBins+1] = {-2.4, -2.1, -1.6, -1.2, -0.9, 0., 0.9, 1.2, 1.6, 2.1, 2.4};
   
   //phase space limiting cuts:
-  Double_t etaPS = 2.4; //pseudo-rap cuts for muons
-  Double_t pTMuMin = 0.;
+  Int_t const kNbEtaRegions = 3;
+  Double_t etaPS[kNbEtaRegions] = {1.3, 2.2, 2.4}; //pseudo-rap cuts for muons
+  Double_t pTMuMin[kNbEtaRegions] = {3.3, 0., 0.8};
+  Double_t pMuMin[kNbEtaRegions] = {0., 2.9, 0.};
   Double_t rapYPS = 2.4;
   /* Double_t JpsiCtauMax = 0.100; //100 micron */
   Double_t JpsiCtauMax = 1000.; //effectively no cut on lifetime
