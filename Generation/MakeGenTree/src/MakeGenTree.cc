@@ -13,7 +13,7 @@
 //
 // Original Author:  Hermine Woehri,40 1-A32,+41227679747,
 //         Created:  Thu Nov 25 15:20:12 CET 2010
-// $Id: MakeGenTree.cc,v 1.1 2010/11/25 14:34:56 hwoehri Exp $
+// $Id: MakeGenTree.cc,v 1.2 2010/11/29 13:56:49 hwoehri Exp $
 //
 //
 
@@ -61,7 +61,7 @@ private:
   string outputFileName_;
   TFile *fOut_;
   TTree *tree_;
-  Double_t jPsi_Px, jPsi_Py, jPsi_Pz;
+  Double_t onia_Px, onia_Py, onia_Pz;
   Double_t muPos_Px, muPos_Py, muPos_Pz;
   Double_t muNeg_Px, muNeg_Py, muNeg_Pz;
 
@@ -136,9 +136,9 @@ MakeGenTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
      else if ((*it)->pdg_id() == QQbarPDG_){//quarkonium
 
-       jPsi_Px = momP.px();
-       jPsi_Py = momP.py();
-       jPsi_Pz = momP.pz();
+       onia_Px = momP.px();
+       onia_Py = momP.py();
+       onia_Pz = momP.pz();
 
 //        jPsi_4mom_->SetPxPyPzE(momP.px(), momP.py(), momP.pz(), momP.e());
 
@@ -163,7 +163,7 @@ MakeGenTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //    muPos_4mom_->SetPxPyPzE(-9999, -9999, -9999, -9999);
 //    muNeg_4mom_->SetPxPyPzE(-9999, -9999, -9999, -9999);
 
-   jPsi_Px = -9999; jPsi_Py = -9999; jPsi_Pz = -9999; 
+   onia_Px = -9999; onia_Py = -9999; onia_Pz = -9999; 
    muPos_Px = -9999; muPos_Py = -9999; muPos_Pz = -9999; 
    muNeg_Px = -9999; muNeg_Py = -9999; muNeg_Pz = -9999; 
 }
@@ -191,9 +191,9 @@ MakeGenTree::beginJob()
 //    muNeg_4mom_->SetPxPyPzE(-9999, -9999, -9999, -9999);
 
   //jPsi:
-  tree_->Branch("jPsi_Px", &jPsi_Px, "jPsi_Px/D");
-  tree_->Branch("jPsi_Py", &jPsi_Py, "jPsi_Py/D");
-  tree_->Branch("jPsi_Pz", &jPsi_Pz, "jPsi_Pz/D");
+  tree_->Branch("onia_Px", &onia_Px, "onia_Px/D");
+  tree_->Branch("onia_Py", &onia_Py, "onia_Py/D");
+  tree_->Branch("onia_Pz", &onia_Pz, "onia_Pz/D");
   //muPos
   tree_->Branch("muPos_Px", &muPos_Px, "muPos_Px/D");
   tree_->Branch("muPos_Py", &muPos_Py, "muPos_Py/D");
