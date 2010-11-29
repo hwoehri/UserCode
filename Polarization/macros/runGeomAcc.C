@@ -1,0 +1,102 @@
+#include "../interface/rootIncludes.inc"
+#include "GeomAcc.C"
+
+void BookHistos(Char_t *oniaLabel);
+void WriteHistos();
+//======================================
+void runGeomAcc(Char_t *fileNameOut = "geomAcc.root",
+		Char_t *fileNameIn = "jpsiGun_Tree.root",
+		Char_t *oniaLabel = "J/#psi" //"J/#psi", "#psi'", "Ups(1S)", "Ups(2S)", "Ups(3S)"
+		){
+
+  TFile *fIn = new TFile(fileNameIn);
+  TTree *treeData = (TTree*)fIn->Get("QQbarGenTree");
+
+  TFile *fOut = new TFile(fileNameOut, "RECREATE");
+
+  printf("initializing tree\n");
+  GeomAcc tree(treeData);
+  printf("...done\n");
+  BookHistos(oniaLabel);
+
+  tree.Loop();
+  WriteHistos();
+  fOut->Close();
+}
+
+//==========================================
+void BookHistos(Char_t *oniaLabel){
+
+  //initialise the "massMuOnia" variable
+  std::map<std::string, double> fOniaToMass;
+  fOniaToMass["J/#psi"] = 3.0969;
+  fOniaToMass["#psi'"] = 3.686;
+  fOniaToMass["Ups(1S)"] = 9.460;
+  fOniaToMass["Ups(2S)"] = 10.023;
+  fOniaToMass["Ups(3S)"] = 10.355;
+
+  std::map<std::string, double>::iterator iter = fOniaToMass.find(oniaLabel);
+  if(iter != fOniaToMass.end())
+    massMuOnia = iter->second;
+  printf("will use a mass of %1.3f GeV for the %s\n", massMuOnia, oniaLabel);
+  //===================================
+
+  //mass
+  Int_t nBinsMass = 80;
+  Double_t massMin = 8.0, massMax = 12.0;
+  if(strncmp(oniaLabel, "J/#psi", 6) == 0){
+    nBinsMass = 160;
+    massMin = 2.5;
+    massMax = 4.1;
+  }
+
+
+  Char_t name[100], title[100];
+  for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
+    for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+      for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+	//all events
+	sprintf(name, "hGen_%s_pT%d_rap%d", jpsi::frameLabel[iFrame], iPTBin, iRapBin);
+	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", jpsi::frameLabel[iFrame], jpsi::frameLabel[iFrame]);
+	hGen_pT_rap[iFrame][iPTBin][iRapBin] = new TH2D(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax,
+								 jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
+	hGen_pT_rap[iFrame][iPTBin][iRapBin]->Sumw2();
+	//accepted events
+	sprintf(name, "hGenCut_%s_pT%d_rap%d", jpsi::frameLabel[iFrame], iPTBin, iRapBin);
+	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", jpsi::frameLabel[iFrame], jpsi::frameLabel[iFrame]);
+	hGenCut_pT_rap[iFrame][iPTBin][iRapBin] = new TH2D(name, title, jpsi::kNbBinsCosT, jpsi::cosTMin, jpsi::cosTMax,
+								 jpsi::kNbBinsPhiPol, jpsi::phiPolMin, jpsi::phiPolMax);
+	hGenCut_pT_rap[iFrame][iPTBin][iRapBin]->Sumw2();
+      }
+    }
+  }
+  for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+	//
+	sprintf(name, "hMass_Smeared_pT%d_rap%d", iPTBin, iRapBin);
+	sprintf(title, ";Mass [GeV]");
+	hMass_Smeared[iPTBin][iRapBin] = new TH1D(name, title, nBinsMass, massMin, massMax);
+	hMass_Smeared[iPTBin][iRapBin]->Sumw2();
+    }
+  }
+}
+
+//==========================================
+void WriteHistos(){
+
+  for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+	//
+      hMass_Smeared[iPTBin][iRapBin]->Write();
+    }
+  }
+  for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
+    for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+      for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+	hGen_pT_rap[iFrame][iPTBin][iRapBin]->Write();
+	hGenCut_pT_rap[iFrame][iPTBin][iRapBin]->Write();
+      }
+    }
+  }
+
+}
