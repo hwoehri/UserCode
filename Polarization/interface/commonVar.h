@@ -49,7 +49,8 @@ namespace jpsi{
   Double_t cosTMin = -1., cosTMax = 1.;
   //phi for pol. 
   Int_t const kNbBinsPhiPol = 36;
-  Double_t phiPolMin = 0., phiPolMax = 360.;
+  //  Double_t phiPolMin = 0., phiPolMax = 360.;
+  Double_t phiPolMin = -180., phiPolMax = 180.;
   //cos2Phi
   Int_t const kNbBinsCos2Phi = 40;
   Double_t cos2PhiMin = -1., cos2PhiMax = 1.;
