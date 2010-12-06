@@ -14,7 +14,7 @@ TH2D *hGenCut_pT_rap[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBin
 TH2D *hAcc2D_pT_rap[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TGraphAsymmErrors *gAcc2D_pT_rap[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 
-void ReadInHistos(Char_t *fileNameIn, Int_t rebinCosTh, Int_t rebinPhi);
+void ReadInHistos(Char_t *fileNameIn, Char_t *histoName, Int_t rebinCosTh, Int_t rebinPhi);
 void CalcAcceptance();
 void Plot2DAcceptance(Int_t iFrame);
 void Plot2DAccOneByOne(Int_t iFrame, Int_t iRap, Int_t iPT);
@@ -22,7 +22,9 @@ void WriteAccHistos(Char_t *fileNameOut);
 void CopyHistGraph(TH1D *hist, TGraphAsymmErrors*);
 void CalcAcc(TH2D *hhGenCut, TH2D *hGen, TGraphAsymmErrors *graph);
 //================================================================
-void calcGeomAcc(Char_t *tag = "29Nov2010",
+void calcGeomAcc(Char_t *tag = "WithFSR_6Dec2010",
+		 Char_t *histoName = "phiFolded_",
+		 //Char_t *tag = "29Nov2010",
 		 Int_t rebinCosTh = 1,
 		 Int_t rebinPhi = 1){
 
@@ -32,7 +34,7 @@ void calcGeomAcc(Char_t *tag = "29Nov2010",
   sprintf(fileNameIn,  "geomAcc_%s.root", tag);
   sprintf(fileNameOut, "geomAccHistos_%s.root", tag);
 
-  ReadInHistos(fileNameIn, rebinCosTh, rebinPhi);
+  ReadInHistos(fileNameIn, histoName, rebinCosTh, rebinPhi);
 
   CalcAcceptance();
 
@@ -232,7 +234,7 @@ void CalcAcceptance(){
 }
 
 //===============================
-void ReadInHistos(Char_t *fileNameIn, Int_t rebinCosTh, Int_t rebinPhi){
+void ReadInHistos(Char_t *fileNameIn, Char_t *histoName, Int_t rebinCosTh, Int_t rebinPhi){
 
   TFile *fIn = new TFile(fileNameIn);
   Char_t name[100];
@@ -242,7 +244,7 @@ void ReadInHistos(Char_t *fileNameIn, Int_t rebinCosTh, Int_t rebinPhi){
     totEntries[iFrame] = 0;
     for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
       for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
-	sprintf(name, "hGen_%s_pT%d_rap%d", jpsi::frameLabel[iFrame], iPTBin, iRapBin);
+	sprintf(name, "hGen_%s%s_pT%d_rap%d", histoName, jpsi::frameLabel[iFrame], iPTBin, iRapBin);
 	hGen_pT_rap[iFrame][iPTBin][iRapBin] = (TH2D *) gDirectory->Get(name);
 	// hGen_pT_rap[iFrame][iPTBin][iRapBin]->SetLineColor(jpsi::colour_pT[iPTBin]);   
 	// hGen_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerColor(jpsi::colour_pT[iPTBin]); 
@@ -255,7 +257,7 @@ void ReadInHistos(Char_t *fileNameIn, Int_t rebinCosTh, Int_t rebinPhi){
 	       hGen_pT_rap[iFrame][iPTBin][iRapBin]->GetEntries());
 
 	//reconstructed
-	sprintf(name, "hGenCut_%s_pT%d_rap%d", jpsi::frameLabel[iFrame], iPTBin, iRapBin);
+	sprintf(name, "hGenCut_%s%s_pT%d_rap%d", histoName, jpsi::frameLabel[iFrame], iPTBin, iRapBin);
 	hGenCut_pT_rap[iFrame][iPTBin][iRapBin] = (TH2D *) gDirectory->Get(name);
 	// hGenCut_pT_rap[iFrame][iPTBin][iRapBin]->SetLineColor(jpsi::colour_pT[iPTBin]);   
 	// hGenCut_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerColor(jpsi::colour_pT[iPTBin]); 
