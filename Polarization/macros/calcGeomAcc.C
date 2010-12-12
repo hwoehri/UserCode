@@ -17,16 +17,21 @@ TGraphAsymmErrors *gAcc2D_pT_rap[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kN
 void ReadInHistos(Char_t *fileNameIn, Char_t *histoName, Int_t rebinCosTh, Int_t rebinPhi);
 void CalcAcceptance();
 void Plot2DAcceptance(Int_t iFrame);
-void Plot2DAccOneByOne(Int_t iFrame, Int_t iRap, Int_t iPT);
+void Plot2DAccOneByOne(Int_t iFrame, Int_t iRap, Int_t iPT, Char_t *drawOption);
 void WriteAccHistos(Char_t *fileNameOut);
 void CopyHistGraph(TH1D *hist, TGraphAsymmErrors*);
 void CalcAcc(TH2D *hhGenCut, TH2D *hGen, TGraphAsymmErrors *graph);
 //================================================================
 void calcGeomAcc(Char_t *tag = "WithFSR_6Dec2010",
-		 Char_t *histoName = "phiFolded_",
+ 		 Char_t *histoName = "phiFolded_",
+		 Char_t *drawOption = "colz",
+//  		 Char_t *histoName = "",
 		 //Char_t *tag = "29Nov2010",
 		 Int_t rebinCosTh = 1,
 		 Int_t rebinPhi = 1){
+
+  gStyle->SetPadRightMargin(0.1);
+  gStyle->SetOptStat(0);
 
   Char_t name[200];
   Char_t fileNameIn[200], fileNameOut[200];
@@ -44,7 +49,7 @@ void calcGeomAcc(Char_t *tag = "WithFSR_6Dec2010",
   for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++)
     for(int iRap = 1; iRap <= jpsi::kNbRapForPTBins; iRap++)
       for(int iPT = 1; iPT <= jpsi::kNbPTBins[iRap]; iPT++)
-	Plot2DAccOneByOne(iFrame, iRap, iPT);
+	Plot2DAccOneByOne(iFrame, iRap, iPT, drawOption);
 
   WriteAccHistos(fileNameOut);
 }
@@ -134,7 +139,7 @@ void Plot2DAcceptance(Int_t iFrame){
 }
 
 //===============================
-void Plot2DAccOneByOne(Int_t iFrame, Int_t iRap, Int_t iPT){
+void Plot2DAccOneByOne(Int_t iFrame, Int_t iRap, Int_t iPT, Char_t *drawOption){
 
   gStyle->SetTitleW(1);
 
@@ -161,8 +166,7 @@ void Plot2DAccOneByOne(Int_t iFrame, Int_t iRap, Int_t iPT){
   else 
     sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, %1.1f < p_{T} < %1.1f GeV/c", jpsi::rapForPTRange[iRap-1], jpsi::rapForPTRange[iRap], jpsi::pTRange[iRap][iPT-1], jpsi::pTRange[iRap][iPT]);
   hAcc2D_pT_rap[iFrame][iPT][iRap]->SetTitle(name);
-  hAcc2D_pT_rap[iFrame][iPT][iRap]->Draw("colz");//"colz" or "cont"
-  //       hAcc2D_pT_rap[iFrame][iPT][iRap]->Draw("lego2");//"colz" or "cont"
+  hAcc2D_pT_rap[iFrame][iPT][iRap]->Draw(drawOption);//"colz" or "cont"
 
   sprintf(name, "Figures/geomAcc2D_%s_rap%d_pT%d.eps", jpsi::frameLabel[iFrame], iRap, iPT); 
   c30_2D->Print(name);
