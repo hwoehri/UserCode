@@ -58,7 +58,19 @@ void GeomAcc::Loop(Bool_t smearing)
 
    Long64_t nbytes = 0, nb = 0;
 
-   TF1 *fGaus = new TF1("fGaus", "gaus", 0., 100.);
+   //assign a weight according to a given pT and y distribution (taken from PYTHIA)
+   //PYTHIA distributions fit with the macro "projectPTRap_Pythia.C(kTRUE)"
+   //pT distribtuions do NOT show any rapidity dependence, while for pT > 10 GeV/c
+   //there seems to be some rapidity dependence which is neglected in this parameterization
+   TF1 *fPT = new TF1("fPT", "[0]*x*pow(1.+(1./([1]-2.))*x*x/[2],-[1])", 5., 50.);
+   fPT->FixParameter(0, 0.61554); fPT->SetParName(0, "norm");
+   fPT->FixParameter(1, 4.05847); fPT->SetParName(1, "beta");
+   fPT->FixParameter(2, 19.93); fPT->SetParName(2, "<pT2> [GeV2]");
+   TF1 *fRap = new TF1("fRap", "pol2", -2.5, 2.5);
+   fRap->FixParameter(0, 0.8632);
+   fRap->FixParameter(1, -7.311e-4);
+   fRap->FixParameter(2, -3.041e-2);
+
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
 //      for (Long64_t jentry=0; jentry<10;jentry++) {
 
@@ -130,18 +142,26 @@ void GeomAcc::Loop(Bool_t smearing)
 	  break;
 	}
       }
-
+      //assign a weight according to a given pT and y distribution (taken from PYTHIA)
+      //PYTHIA distributions fit with the macro "projectPTRap_Pythia.C(kTRUE)"
+      //pT distribtuions do NOT show any rapidity dependence, while for pT > 10 GeV/c
+      //there seems to be some rapidity dependence which is neglected in this parameterization
+      Double_t pTweight = fPT->Eval(pTOniaFSR);
+      Double_t rapweight = fRap->Eval(rapOniaFSR);
+      Double_t kinWeight = pTweight*rapweight;
+      
       if(pTIndex >= 0 && rapForPTIndex >= 0)
-	hMass[pTIndex][rapForPTIndex]->Fill(massOniaFSR);
+	hMass[pTIndex][rapForPTIndex]->Fill(massOniaFSR, kinWeight);
       if(rapForPTIndex > 0)
-	hMass[0][rapForPTIndex]->Fill(massOniaFSR);
+	hMass[0][rapForPTIndex]->Fill(massOniaFSR, kinWeight);
       if(pTIndex >= 0)
-	hMass[pTIndex][0]->Fill(massOniaFSR);
-      hMass[0][0]->Fill(massOniaFSR);
+	hMass[pTIndex][0]->Fill(massOniaFSR, kinWeight);
+      hMass[0][0]->Fill(massOniaFSR, kinWeight);
 
       for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
 
 	Double_t weight = CalcPolWeight(thisCosTh[iFrame]);
+	weight *= kinWeight;
 
 	//histos for neg. and pos. rapidity separately:
 	if(rapIndex >= 0)
@@ -212,7 +232,15 @@ void GeomAcc::Loop(Bool_t smearing)
       Double_t oniaSim_phi = oniaSim->Phi();
       Double_t oniaSim_mT = sqrt(oniaSim_mass*oniaSim_mass + oniaSim_pt*oniaSim_pt);
 
-      hMass_Smeared[0][0]->Fill(oniaSim_mass); //others will be filled after all indices are set
+      //assign a weight according to a given pT and y distribution (taken from PYTHIA)
+      //PYTHIA distributions fit with the macro "projectPTRap_Pythia.C(kTRUE)"
+      //pT distribtuions do NOT show any rapidity dependence, while for pT > 10 GeV/c
+      //there seems to be some rapidity dependence which is neglected in this parameterization
+      pTweight = fPT->Eval(oniaSim_pt);
+      rapweight = fRap->Eval(oniaSim_rap);
+      kinWeight = pTweight*rapweight;
+
+      hMass_Smeared[0][0]->Fill(oniaSim_mass, kinWeight); //others will be filled after all indices are set
 
       rapIndex = -1;
       for(int iRap = 0; iRap < 2*jpsi::kNbRapBins; iRap++){
@@ -256,9 +284,9 @@ void GeomAcc::Loop(Bool_t smearing)
 	continue;
       }
 
-      hMass_Smeared[pTIndex][rapForPTIndex]->Fill(oniaSim_mass);
-      hMass_Smeared[0][rapForPTIndex]->Fill(oniaSim_mass);
-      hMass_Smeared[pTIndex][0]->Fill(oniaSim_mass);
+      hMass_Smeared[pTIndex][rapForPTIndex]->Fill(oniaSim_mass, kinWeight);
+      hMass_Smeared[0][rapForPTIndex]->Fill(oniaSim_mass, kinWeight);
+      hMass_Smeared[pTIndex][0]->Fill(oniaSim_mass, kinWeight);
 
       //apply the kinematical phase space cut:
       //(a) on the positive muon
@@ -286,6 +314,7 @@ void GeomAcc::Loop(Bool_t smearing)
       for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
 
 	Double_t weight = CalcPolWeight(thisCosTh[iFrame]);
+	weight *= kinWeight;
 
 	//histos for neg. and pos. rapidity separately:
 	if(rapIndex >= 0)
@@ -333,7 +362,8 @@ void GeomAcc::Loop(Bool_t smearing)
       delete oniaFSR;
       delete oniaSim;
    }
-   delete fGaus;
+   delete fRap;
+   delete fPT;
 }
 
 //==========================================================

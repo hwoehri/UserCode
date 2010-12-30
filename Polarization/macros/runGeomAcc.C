@@ -4,7 +4,7 @@
 void BookHistos(Char_t *oniaLabel);
 void WriteHistos();
 //======================================
-void runGeomAcc(Char_t *fileNameOut = "geomAcc_WithFSR.root",
+void runGeomAcc(Char_t *fileNameOut = "geomAcc_WithFSR_kinWeighted.root",
 		Char_t *fileNameIn = "jpsiGun_WithFSR_Tree.root",
 		Bool_t applySmearing = kTRUE,
 		//Char_t *fileNameOut = "geomAcc.root",
