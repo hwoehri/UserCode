@@ -149,55 +149,59 @@ void GeomAcc::Loop(Bool_t smearing)
       Double_t pTweight = fPT->Eval(pTOniaFSR);
       Double_t rapweight = fRap->Eval(rapOniaFSR);
       Double_t kinWeight = pTweight*rapweight;
+//       printf("pT weight %1.3f, y weight %1.3f\n", pTweight, rapweight);
       
-      if(pTIndex >= 0 && rapForPTIndex >= 0)
-	hMass[pTIndex][rapForPTIndex]->Fill(massOniaFSR, kinWeight);
-      if(rapForPTIndex > 0)
-	hMass[0][rapForPTIndex]->Fill(massOniaFSR, kinWeight);
-      if(pTIndex >= 0)
-	hMass[pTIndex][0]->Fill(massOniaFSR, kinWeight);
-      hMass[0][0]->Fill(massOniaFSR, kinWeight);
+      //fill the generator histos only if both muons are within |eta| < 2.4
+      if(fabs(etaMuPos) < jpsi::etaPS[2] && fabs(etaMuNeg) < jpsi::etaPS[2]){ 
+	if(pTIndex >= 0 && rapForPTIndex >= 0)
+	  hMass[pTIndex][rapForPTIndex]->Fill(massOniaFSR, kinWeight);
+	if(rapForPTIndex > 0)
+	  hMass[0][rapForPTIndex]->Fill(massOniaFSR, kinWeight);
+	if(pTIndex >= 0)
+	  hMass[pTIndex][0]->Fill(massOniaFSR, kinWeight);
+	hMass[0][0]->Fill(massOniaFSR, kinWeight);
 
-      for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
+	for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
 
-	Double_t weight = CalcPolWeight(thisCosTh[iFrame]);
-	weight *= kinWeight;
+	  Double_t weight = CalcPolWeight(thisCosTh[iFrame]);
+	  weight *= kinWeight;
 
-	//histos for neg. and pos. rapidity separately:
-	if(rapIndex >= 0)
-	  hGen_pT_rapNP[iFrame][0][rapIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
-	if(pTIndex > 0 && rapIndex >= 0)
-	  hGen_pT_rapNP[iFrame][pTIndex][rapIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+	  //histos for neg. and pos. rapidity separately:
+	  if(rapIndex >= 0)
+	    hGen_pT_rapNP[iFrame][0][rapIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+	  if(pTIndex > 0 && rapIndex >= 0)
+	    hGen_pT_rapNP[iFrame][pTIndex][rapIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
 	
-	//histos taking together +y and -y
-	hGen_pT_rap[iFrame][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
-	if(rapIntegratedPTIndex > 0)
-	  hGen_pT_rap[iFrame][rapIntegratedPTIndex][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
-	if(rapForPTIndex > 0)
-	  hGen_pT_rap[iFrame][0][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
-	if(pTIndex > 0 && rapForPTIndex > 0)
-	  hGen_pT_rap[iFrame][pTIndex][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
-
-	//histos taking together +y and -y and phi-4-folding
-	Double_t phiFolded = thisPhi[iFrame];
-	Double_t thetaAdjusted = thisCosTh[iFrame];
-	if(thisPhi[iFrame] > -90. && thisPhi[iFrame] < 0.)
-	  phiFolded *= -1;
-	else if(thisPhi[iFrame] > 90 && thisPhi[iFrame] < 180){
-	  phiFolded = 180. - thisPhi[iFrame];
-	  thetaAdjusted *= -1;
+	  //histos taking together +y and -y
+	  hGen_pT_rap[iFrame][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+	  if(rapIntegratedPTIndex > 0)
+	    hGen_pT_rap[iFrame][rapIntegratedPTIndex][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+	  if(rapForPTIndex > 0)
+	    hGen_pT_rap[iFrame][0][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+	  if(pTIndex > 0 && rapForPTIndex > 0)
+	    hGen_pT_rap[iFrame][pTIndex][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+	  
+	  //histos taking together +y and -y and phi-4-folding
+	  Double_t phiFolded = thisPhi[iFrame];
+	  Double_t thetaAdjusted = thisCosTh[iFrame];
+	  if(thisPhi[iFrame] > -90. && thisPhi[iFrame] < 0.)
+	    phiFolded *= -1;
+	  else if(thisPhi[iFrame] > 90 && thisPhi[iFrame] < 180){
+	    phiFolded = 180. - thisPhi[iFrame];
+	    thetaAdjusted *= -1;
+	  }
+	  else if(thisPhi[iFrame] > -180. && thisPhi[iFrame] < -90.){
+	    phiFolded = 180. + thisPhi[iFrame];
+	    thetaAdjusted *= -1;
+	  }
+	  hGen_pT_rap_phiFolded[iFrame][0][0]->Fill(thetaAdjusted, phiFolded, weight);
+	  if(rapIntegratedPTIndex > 0)
+	    hGen_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex][0]->Fill(thetaAdjusted, phiFolded, weight);
+	  if(rapForPTIndex > 0)
+	    hGen_pT_rap_phiFolded[iFrame][0][rapForPTIndex]->Fill(thetaAdjusted, phiFolded, weight);
+	  if(pTIndex > 0 && rapForPTIndex > 0)
+	    hGen_pT_rap_phiFolded[iFrame][pTIndex][rapForPTIndex]->Fill(thetaAdjusted, phiFolded, weight);
 	}
-	else if(thisPhi[iFrame] > -180. && thisPhi[iFrame] < -90.){
-	  phiFolded = 180. + thisPhi[iFrame];
-	  thetaAdjusted *= -1;
-	}
-	hGen_pT_rap_phiFolded[iFrame][0][0]->Fill(thetaAdjusted, phiFolded, weight);
-	if(rapIntegratedPTIndex > 0)
-	  hGen_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex][0]->Fill(thetaAdjusted, phiFolded, weight);
-	if(rapForPTIndex > 0)
-	  hGen_pT_rap_phiFolded[iFrame][0][rapForPTIndex]->Fill(thetaAdjusted, phiFolded, weight);
-	if(pTIndex > 0 && rapForPTIndex > 0)
-	  hGen_pT_rap_phiFolded[iFrame][pTIndex][rapForPTIndex]->Fill(thetaAdjusted, phiFolded, weight);
       }
 
       //now, smear the two muons with the detector resolution
@@ -218,6 +222,10 @@ void GeomAcc::Loop(Bool_t smearing)
       Double_t pTMuNegSmeared = muNegSmeared->Pt();
       Double_t pMuPosSmeared = muPosSmeared->P();
       Double_t pMuNegSmeared = muNegSmeared->P();
+
+      //continue only if both muons are within |eta| < 2.4:
+      if(fabs(etaMuPosSmeared) > jpsi::etaPS[2] || fabs(etaMuNegSmeared) > jpsi::etaPS[2])
+	continue;
 
       //build the invariant mass, pt, ... of the two muons
       //includes FSR and smearing (if switched on)
@@ -292,12 +300,12 @@ void GeomAcc::Loop(Bool_t smearing)
       //(a) on the positive muon
       if((fabs(etaMuPosSmeared) < jpsi::etaPS[0] && pTMuPosSmeared < jpsi::pTMuMin[0]) || //mid-rapidity cut
 	 (fabs(etaMuPosSmeared) > jpsi::etaPS[0] && fabs(etaMuPosSmeared) < jpsi::etaPS[1] && pMuPosSmeared < jpsi::pMuMin[1]) ||
-	 (fabs(etaMuPosSmeared) > jpsi::etaPS[1] && fabs(etaMuPosSmeared) < jpsi::etaPS[2] && pTMuPosSmeared < jpsi::pTMuMin[1]))
+	 (fabs(etaMuPosSmeared) > jpsi::etaPS[1] && fabs(etaMuPosSmeared) < jpsi::etaPS[2] && pTMuPosSmeared < jpsi::pTMuMin[2]))
 	continue;
       //(b) on the negative muon
       if((fabs(etaMuNegSmeared) < jpsi::etaPS[0] && pTMuNegSmeared < jpsi::pTMuMin[0]) || //mid-rapidity cut
 	 (fabs(etaMuNegSmeared) > jpsi::etaPS[0] && fabs(etaMuNegSmeared) < jpsi::etaPS[1] && pMuNegSmeared < jpsi::pMuMin[1]) ||
-	 (fabs(etaMuNegSmeared) > jpsi::etaPS[1] && fabs(etaMuNegSmeared) < jpsi::etaPS[2] && pTMuNegSmeared < jpsi::pTMuMin[1]))
+	 (fabs(etaMuNegSmeared) > jpsi::etaPS[1] && fabs(etaMuNegSmeared) < jpsi::etaPS[2] && pTMuNegSmeared < jpsi::pTMuMin[2]))
 	continue;
 
       //select events within a narrow mass window around the J/psi
