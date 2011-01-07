@@ -14,6 +14,12 @@ Double_t massMuOnia;
 
 TH1D *hMass[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH1D *hMass_Smeared[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+
+TH2D *hGenPtRap, *hGenCutPtRap;
+
+//================================================
+//2D polarization histos, differential in pT and y
+//================================================
 //histos for neg. and pos. rapidity separately:
 TH2D *hGen_pT_rapNP[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH2D *hGenCut_pT_rapNP[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
@@ -23,7 +29,7 @@ TH2D *hGenCut_pT_rap[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBin
 //histos taking together +y and -y and 4-folding in phi
 TH2D *hGen_pT_rap_phiFolded[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH2D *hGenCut_pT_rap_phiFolded[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
-
+//================================================
 Double_t smearValues[27] = {1.27851,
 			    0.00679612,
 			    0.,
@@ -153,6 +159,9 @@ void GeomAcc::Loop(Bool_t smearing)
       
       //fill the generator histos only if both muons are within |eta| < 2.4
       if(fabs(etaMuPos) < jpsi::etaPS[2] && fabs(etaMuNeg) < jpsi::etaPS[2]){ 
+
+	hGenPtRap->Fill(rapOniaFSR, pTOniaFSR, kinWeight);
+
 	if(pTIndex >= 0 && rapForPTIndex >= 0)
 	  hMass[pTIndex][rapForPTIndex]->Fill(massOniaFSR, kinWeight);
 	if(rapForPTIndex > 0)
@@ -227,6 +236,18 @@ void GeomAcc::Loop(Bool_t smearing)
       if(fabs(etaMuPosSmeared) > jpsi::etaPS[2] || fabs(etaMuNegSmeared) > jpsi::etaPS[2])
 	continue;
 
+      //apply the kinematical phase space cut:
+      //(a) on the positive muon
+      if((fabs(etaMuPosSmeared) < jpsi::etaPS[0] && pTMuPosSmeared < jpsi::pTMuMin[0]) || //mid-rapidity cut
+	 (fabs(etaMuPosSmeared) > jpsi::etaPS[0] && fabs(etaMuPosSmeared) < jpsi::etaPS[1] && pMuPosSmeared < jpsi::pMuMin[1]) ||
+	 (fabs(etaMuPosSmeared) > jpsi::etaPS[1] && fabs(etaMuPosSmeared) < jpsi::etaPS[2] && pTMuPosSmeared < jpsi::pTMuMin[2]))
+	continue;
+      //(b) on the negative muon
+      if((fabs(etaMuNegSmeared) < jpsi::etaPS[0] && pTMuNegSmeared < jpsi::pTMuMin[0]) || //mid-rapidity cut
+	 (fabs(etaMuNegSmeared) > jpsi::etaPS[0] && fabs(etaMuNegSmeared) < jpsi::etaPS[1] && pMuNegSmeared < jpsi::pMuMin[1]) ||
+	 (fabs(etaMuNegSmeared) > jpsi::etaPS[1] && fabs(etaMuNegSmeared) < jpsi::etaPS[2] && pTMuNegSmeared < jpsi::pTMuMin[2]))
+	continue;
+
       //build the invariant mass, pt, ... of the two muons
       //includes FSR and smearing (if switched on)
       TLorentzVector *oniaSim = new TLorentzVector();
@@ -244,9 +265,9 @@ void GeomAcc::Loop(Bool_t smearing)
       //PYTHIA distributions fit with the macro "projectPTRap_Pythia.C(kTRUE)"
       //pT distribtuions do NOT show any rapidity dependence, while for pT > 10 GeV/c
       //there seems to be some rapidity dependence which is neglected in this parameterization
-      pTweight = fPT->Eval(oniaSim_pt);
-      rapweight = fRap->Eval(oniaSim_rap);
-      kinWeight = pTweight*rapweight;
+//       pTweight = fPT->Eval(oniaSim_pt);
+//       rapweight = fRap->Eval(oniaSim_rap);
+//       kinWeight = pTweight*rapweight;
 
       hMass_Smeared[0][0]->Fill(oniaSim_mass, kinWeight); //others will be filled after all indices are set
 
@@ -292,21 +313,11 @@ void GeomAcc::Loop(Bool_t smearing)
 	continue;
       }
 
+      hGenCutPtRap->Fill(oniaSim_rap, oniaSim_pt, kinWeight);
+
       hMass_Smeared[pTIndex][rapForPTIndex]->Fill(oniaSim_mass, kinWeight);
       hMass_Smeared[0][rapForPTIndex]->Fill(oniaSim_mass, kinWeight);
       hMass_Smeared[pTIndex][0]->Fill(oniaSim_mass, kinWeight);
-
-      //apply the kinematical phase space cut:
-      //(a) on the positive muon
-      if((fabs(etaMuPosSmeared) < jpsi::etaPS[0] && pTMuPosSmeared < jpsi::pTMuMin[0]) || //mid-rapidity cut
-	 (fabs(etaMuPosSmeared) > jpsi::etaPS[0] && fabs(etaMuPosSmeared) < jpsi::etaPS[1] && pMuPosSmeared < jpsi::pMuMin[1]) ||
-	 (fabs(etaMuPosSmeared) > jpsi::etaPS[1] && fabs(etaMuPosSmeared) < jpsi::etaPS[2] && pTMuPosSmeared < jpsi::pTMuMin[2]))
-	continue;
-      //(b) on the negative muon
-      if((fabs(etaMuNegSmeared) < jpsi::etaPS[0] && pTMuNegSmeared < jpsi::pTMuMin[0]) || //mid-rapidity cut
-	 (fabs(etaMuNegSmeared) > jpsi::etaPS[0] && fabs(etaMuNegSmeared) < jpsi::etaPS[1] && pMuNegSmeared < jpsi::pMuMin[1]) ||
-	 (fabs(etaMuNegSmeared) > jpsi::etaPS[1] && fabs(etaMuNegSmeared) < jpsi::etaPS[2] && pTMuNegSmeared < jpsi::pTMuMin[2]))
-	continue;
 
       //select events within a narrow mass window around the J/psi
       //(rapidity dependence of the resolution --> different mass windows)
@@ -319,6 +330,7 @@ void GeomAcc::Loop(Bool_t smearing)
       //=====================
       calcPol(*muPos, *muNeg);
       //=====================
+
       for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
 
 	Double_t weight = CalcPolWeight(thisCosTh[iFrame]);

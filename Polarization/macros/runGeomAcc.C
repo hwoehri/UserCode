@@ -53,13 +53,16 @@ void BookHistos(Char_t *oniaLabel){
     massMax = 4.1;
   }
 
+  hGenPtRap = new TH2D("hGenPtRap", "", 50, -2.5, 2.5, 500, 0., 50.);
+  hGenCutPtRap = new TH2D("hGenCutPtRap", "", 50, -2.5, 2.5, 500, 0., 50.);
+
   Char_t name[100], title[100];
   //histos for neg. and pos. rapidity separately:
   for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
     for(int iRapBin = 0; iRapBin < 2*jpsi::kNbRapBins; iRapBin++){
       Int_t rapIndex = jpsi::kNbRapBins - iRapBin;
       if(iRapBin >= jpsi::kNbRapBins) rapIndex = iRapBin - jpsi::kNbRapBins + 1;
-      printf("iRapBin %d uses definitions of rapID %d\n", iRapBin, rapIndex);
+//       printf("iRapBin %d uses definitions of rapID %d\n", iRapBin, rapIndex);
 
       for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[rapIndex]+1; iPTBin++){
 
@@ -130,6 +133,9 @@ void BookHistos(Char_t *oniaLabel){
 
 //==========================================
 void WriteHistos(){
+
+  hGenPtRap->Write();
+  hGenCutPtRap->Write();
 
   for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
     for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
