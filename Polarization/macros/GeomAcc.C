@@ -158,7 +158,8 @@ void GeomAcc::Loop(Bool_t smearing)
 //       printf("pT weight %1.3f, y weight %1.3f\n", pTweight, rapweight);
       
       //fill the generator histos only if both muons are within |eta| < 2.4
-      if(fabs(etaMuPos) < jpsi::etaPS[2] && fabs(etaMuNeg) < jpsi::etaPS[2]){ 
+//       if(fabs(etaMuPos) < jpsi::etaPS[2] && fabs(etaMuNeg) < jpsi::etaPS[2]){ //H: 5March2011 we should only limit the J/psi's kinematics!
+      if(fabs(rapOniaFSR) < jpsi::rapYPS){
 
 	hGenPtRap->Fill(rapOniaFSR, pTOniaFSR, kinWeight);
 
@@ -327,9 +328,9 @@ void GeomAcc::Loop(Bool_t smearing)
       if(oniaSim_mass < jPsiMassMin || oniaSim_mass > jPsiMassMax)
 	continue;
 
-      //=====================
-      calcPol(*muPos, *muNeg);
-      //=====================
+      //=====================================
+      calcPol(*muPosSmeared, *muNegSmeared);
+      //=====================================
 
       for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
 
@@ -387,11 +388,11 @@ void GeomAcc::Loop(Bool_t smearing)
 }
 
 //==========================================================
-Double_t CalcPolWeight(Double_t thisCosTh){
+Double_t CalcPolWeight(Double_t cosTh){
 
 //   Double_t lambdaTh = -1.;
   Double_t lambdaTh = 0.;
-  Double_t weight = 1. + lambdaTh * TMath::Power(thisCosTh, 2.);
+  Double_t weight = 1. + lambdaTh * TMath::Power(cosTh, 2.);
   return weight;
 }
 
