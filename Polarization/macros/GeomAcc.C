@@ -222,10 +222,10 @@ void GeomAcc::Loop(Bool_t smearing)
 	muNegSmeared  = ApplySmearing(muNeg, smearValues);
       }
       else{
-	muPosSmeared = muPos;
-	muNegSmeared = muNeg;
-
+	muPosSmeared = new TLorentzVector(*muPos);
+	muNegSmeared = new TLorentzVector(*muNeg);
       }
+      
       Double_t etaMuPosSmeared = muPosSmeared->Eta();
       Double_t etaMuNegSmeared = muNegSmeared->Eta();
       Double_t pTMuPosSmeared = muPosSmeared->Pt();
