@@ -431,7 +431,7 @@ TLorentzVector* ApplySmearing(TLorentzVector *vec, const double *parval){
 // //   printf("eta %1.3f --> smeared eta %1.3f\n", eta, etaSmeared);
 
   vecSmeared = new TLorentzVector();
-  vecSmeared->SetPtEtaPhiM(pTSmeared, eta, phi, jpsi::muMass);
+  vecSmeared->SetPtEtaPhiM(pTSmeared, etaSmeared, phi, jpsi::muMass);
   return vecSmeared;
 }
 
