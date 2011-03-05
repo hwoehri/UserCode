@@ -78,7 +78,7 @@ void GeomAcc::Loop(Bool_t smearing)
    fRap->FixParameter(2, -3.041e-2);
 
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
-//      for (Long64_t jentry=0; jentry<10;jentry++) {
+//    for (Long64_t jentry=0; jentry<100;jentry++) {
 
      if(jentry%10000 == 0) printf("event %d / %d\n", (Int_t) jentry, (Int_t) nentries);
       Long64_t ientry = LoadTree(jentry);
@@ -407,8 +407,8 @@ TLorentzVector* ApplySmearing(TLorentzVector *vec, const double *parval){
   Double_t theta = vec->Theta();
   Double_t pTRes = sigmaPt(pT,  eta, parval);
   Double_t pTSmeared = gRandom->Gaus(pT, pTRes);
-  //       printf("pT %1.3f, eta %1.3f --> pT resolution: %1.3f --> smeared pT: %1.3f\n", 
-  // 	     pT, eta, pTRes, pTSmeared);
+//         printf("pT %1.3f, eta %1.3f --> pT resolution: %1.3f --> smeared pT: %1.3f\n", 
+//   	     pT, eta, pTRes, pTSmeared);
 
   Double_t resCotgTh = sigmaCotgTh(pT,  eta, parval);
   Double_t CotgThSmeared = gRandom->Gaus(1./TMath::Tan(theta), resCotgTh);
@@ -418,6 +418,11 @@ TLorentzVector* ApplySmearing(TLorentzVector *vec, const double *parval){
 //   printf("pT %1.3f, eta %1.3f --> res in CotgTh %1.3f --> cotgThSmeared: %1.3f --> theta %1.3f --> thetaSmeared %1.3f --> Eta smeared of %1.3f\n",
 // 	 pT, eta, resCotgTh, CotgThSmeared, theta, ThetaSmeared, etaSmeared);
 
+
+//   printf("pT %1.3f GeV/c, eta = %1.3f: pT changed by %1.3f %%, eta by %1.3f%%\n", 
+// 	 pT, eta, 100.* pTSmeared / pT, 100.*etaSmeared / eta);
+
+	 
 //   Double_t pLSmeared = sqrt(pTot*pTot - pow(pTSmeared,2));
 //   Double_t thetaSmeared = TMath::ATan(pTSmeared / pLSmeared);
 //   Double_t etaSmeared = -TMath::Log(TMath::Tan(thetaSmeared / 2.));
