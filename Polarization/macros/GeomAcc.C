@@ -68,7 +68,7 @@ void GeomAcc::Loop(Bool_t smearing)
    //PYTHIA distributions fit with the macro "projectPTRap_Pythia.C(kTRUE)"
    //pT distribtuions do NOT show any rapidity dependence, while for pT > 10 GeV/c
    //there seems to be some rapidity dependence which is neglected in this parameterization
-   TF1 *fPT = new TF1("fPT", "[0]*x*pow(1.+(1./([1]-2.))*x*x/[2],-[1])", 5., 50.);
+   TF1 *fPT = new TF1("fPT", "[0]*x*pow(1.+(1./([1]-2.))*x*x/[2],-[1])", 0., 50.);
    fPT->FixParameter(0, 0.61554); fPT->SetParName(0, "norm");
    fPT->FixParameter(1, 4.05847); fPT->SetParName(1, "beta");
    fPT->FixParameter(2, 19.93); fPT->SetParName(2, "<pT2> [GeV2]");
