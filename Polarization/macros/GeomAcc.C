@@ -77,6 +77,12 @@ void GeomAcc::Loop(Bool_t smearing)
    fRap->FixParameter(1, -7.311e-4);
    fRap->FixParameter(2, -3.041e-2);
 
+   //alternatively, the pT distribution can be taken from CASCADE:
+//    TF1 *fPT = new TF1("fPT", "[0]*x*pow(1.+(1./([1]-2.))*x*x/[2],-[1])", 0., 50.);
+//    fPT->FixParameter(0, 1.18390); fPT->SetParName(0, "norm");
+//    fPT->FixParameter(1, 2.70764); fPT->SetParName(1, "beta");
+//    fPT->FixParameter(2, 12.0053); fPT->SetParName(2, "<pT2> [GeV2]");
+
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
 //    for (Long64_t jentry=0; jentry<100;jentry++) {
 
