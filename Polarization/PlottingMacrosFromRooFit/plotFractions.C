@@ -1,7 +1,9 @@
 #include "rootIncludes.inc"
 #include "commonVar.h"
 
+Int_t const nBinsPT[2] = {2, 4}; //needs manual adjustment!
 TGraphErrors *gFrac[kNbSpecies][kNbComp-1][kNbRap];
+Float_t NEv[kNbSpecies][kNbRap][kNbPTMaxBins];
 
 void FillGraphs();
 void PlotGraphs(Int_t iRegion, Int_t iRap);
@@ -20,13 +22,22 @@ void PlotGraphs(Int_t iRegion, Int_t iRap){
   Char_t name[100];
   sprintf(name, "fractions_%s_rap%d", compName[iRegion], iRap);
   TCanvas *c1 = new TCanvas(name, name);
-  TH1F *hFrame1 = gPad->DrawFrame(0., -0.05, 30.5, 1.05);
+  TH1F *hFrame1 = gPad->DrawFrame(0., -0.1, 30.5, 1.1);
   hFrame1->SetXTitle("p_{T} [GeV]");
   hFrame1->SetYTitle("fraction");
   gFrac[iRegion][P][iRap]->Draw("p same");
   gFrac[iRegion][NP][iRap]->Draw("p same");
   gFrac[iRegion][BKG][iRap]->Draw("p same");
 
+  //print the total statistics in [k]
+  TLatex *tex1a = new TLatex(0., 0., "");
+  tex1a->SetTextSize(0.04); tex1a->Draw();
+  for(int iPT = 0; iPT < nBinsPT[iRap]; iPT++){
+    sprintf(name, "%1.1f k", NEv[iRegion][iRap][iPT] / 1000.);
+    Double_t pT, frac;
+    gFrac[iRegion][P][iRap]->GetPoint(iPT, pT, frac);
+    tex1a->DrawLatex(0.9*pT, 1.03, name);
+  }
 
   if(iRap == 0)
     sprintf(name, "|y| < %1.1f", rapForPTRange[iRap+1]);
@@ -55,7 +66,6 @@ void PlotGraphs(Int_t iRegion, Int_t iRap){
   leg1->SetBorderSize(0);
   leg1->Draw();
 
-
   TLine *line1 = new TLine(0., 0., 30.5, 0.);
   line1->SetLineStyle(3); line1->Draw();
   line1->DrawLine(0.,1.,30.5,1.);
@@ -68,16 +78,22 @@ void PlotGraphs(Int_t iRegion, Int_t iRap){
 void FillGraphs(){
 
   FILE *fIn = fopen("fractions.txt", "read");
-  Int_t const nBinsPT[2] = {2, 4};
-  Char_t line[1000];
 
+  Char_t line[1000];
   Float_t fraction[kNbSpecies][kNbComp-1][kNbRap][kNbPTMaxBins];
   Float_t eFraction[kNbSpecies][kNbComp-1][kNbRap][kNbPTMaxBins];
+
   Float_t pT[kNbPTMaxBins], errPT[kNbPTMaxBins];
   for(int iRap = 0; iRap < kNbRap; iRap++){
     for(int iPT = 0; iPT < nBinsPT[iRap]; iPT++){
       fgets(line, sizeof(line), fIn); //comment
 
+      //get the total number of events:
+      fgets(line, sizeof(line), fIn);
+      sscanf(line, "%*s %*s %*s %*f %*s %f", &NEv[0][iRap][iPT]);
+      fgets(line, sizeof(line), fIn);
+      sscanf(line, "%*s %*s %*s %*f %*s %f", &NEv[1][iRap][iPT]);
+      
       //first the components in the P dominated region
       fgets(line, sizeof(line), fIn);
       sscanf(line, "%*s %*s %f %*s %f", &fraction[0][P][iRap][iPT], &eFraction[0][P][iRap][iPT]);
