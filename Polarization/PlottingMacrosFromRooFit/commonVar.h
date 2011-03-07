@@ -15,6 +15,9 @@ enum {FIT,PONE,ZERO,MONE};
 Int_t const kNbSigBG = 2;
 Char_t *sigBGName[kNbSigBG] = {"S", "BG"};
 enum {S, BG};
+Int_t const kNbBG = 2;
+Char_t *BGName[kNbBG] = {"L", "R"};
+enum {L, R};
 //
 Int_t const kNbVarComb = 3;
 enum {TH_PHI, TH_THETAPHI, THETAPHI_PHI};
