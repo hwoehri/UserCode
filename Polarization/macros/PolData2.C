@@ -6,12 +6,6 @@
 #include <TH2.h>
 #include <TCanvas.h>
 
-// Int_t eventNb, runNb, lumiBlock;
-// Int_t nPriVtx;
-// Int_t JpsiType, JpsiCharge, Jpsict, JpsictErr, JpsiVprob;
-// Int_t HLT_Mu0_Track0_Jpsi, HLT_Mu3_Track0_Jpsi, HLT_Mu5_Track0_Jpsi;
-// Int_t HLT_Mu0_TkMu0_Jpsi, HLT_Mu3_TkMu0_Jpsi, HLT_Mu5_TkMu0_Jpsi;
-// Int_t HLT_Mu0_TkMu0_OST_Jpsi, HLT_Mu3_TkMu0_OST_Jpsi
 //some statistics
 TH1F *Reco_StatEv;
 
@@ -86,10 +80,10 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
       if(HLT_Mu0_TkMu0_OST_Jpsi_Tight_v3 != 1) continue;    
     }
     else{
-      printf("rejecting events in run %d\n", runNb);
+//       printf("rejecting events in run %d\n", runNb);
       continue;
     }
-    //for usage of the HLT_DoubleMu0* paths:
+//     //for usage of the HLT_DoubleMu0* paths:
 //     if(runNb >= 133446 && runNb <= 147116){
 //       if(HLT_DoubleMu0 != 1)
 // 	continue;
@@ -100,8 +94,8 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 //     }
 //     else{
 //       printf("rejecting events in run %d\n", runNb);
-//     continue;
-//   }
+//       continue;
+//     }
 
     Reco_StatEv->Fill(1.5);
 
@@ -124,12 +118,12 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     //take muons only within a certain eta range
     if((fabs(etaMuPos) < jpsi::etaPS[0] && pTMuPos < jpsi::pTMuMin[0]) || //mid-rapidity cut
        (fabs(etaMuPos) > jpsi::etaPS[0] && fabs(etaMuPos) < jpsi::etaPS[1] && pMuPos < jpsi::pMuMin[1]) ||
-       (fabs(etaMuPos) > jpsi::etaPS[1] && fabs(etaMuPos) < jpsi::etaPS[2] && pTMuPos < jpsi::pTMuMin[1]))
+       (fabs(etaMuPos) > jpsi::etaPS[1] && fabs(etaMuPos) < jpsi::etaPS[2] && pTMuPos < jpsi::pTMuMin[2]))
       continue;
     //(b) on the negative muon
     if((fabs(etaMuNeg) < jpsi::etaPS[0] && pTMuNeg < jpsi::pTMuMin[0]) || //mid-rapidity cut
        (fabs(etaMuNeg) > jpsi::etaPS[0] && fabs(etaMuNeg) < jpsi::etaPS[1] && pMuNeg < jpsi::pMuMin[1]) ||
-       (fabs(etaMuNeg) > jpsi::etaPS[1] && fabs(etaMuNeg) < jpsi::etaPS[2] && pTMuNeg < jpsi::pTMuMin[1]))
+       (fabs(etaMuNeg) > jpsi::etaPS[1] && fabs(etaMuNeg) < jpsi::etaPS[2] && pTMuNeg < jpsi::pTMuMin[2]))
       continue;
 
     Reco_StatEv->Fill(4.5);
@@ -286,15 +280,27 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
       //3) polariztion histos - pT and rap Bin
       //all pT and rapidities
       Reco2D_Onia_pol_pT_rap[iFrame][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
-      if(rapIntegratedPTIndex > 0)
+      Reco_Onia_pol_pT_rap[iFrame][0][0][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
+      Reco_Onia_pol_pT_rap[iFrame][0][0][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
+      Reco_Onia_pol_pT_rap[iFrame][0][0][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
+
+      if(rapIntegratedPTIndex > 0){
 	Reco2D_Onia_pol_pT_rap[iFrame][rapIntegratedPTIndex][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
-      if(rapForPTIndex > 0)
+	Reco_Onia_pol_pT_rap[iFrame][rapIntegratedPTIndex][0][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
+	Reco_Onia_pol_pT_rap[iFrame][rapIntegratedPTIndex][0][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
+	Reco_Onia_pol_pT_rap[iFrame][rapIntegratedPTIndex][0][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
+      }
+      if(rapForPTIndex > 0){
 	Reco2D_Onia_pol_pT_rap[iFrame][0][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
+	Reco_Onia_pol_pT_rap[iFrame][0][rapForPTIndex][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
+	Reco_Onia_pol_pT_rap[iFrame][0][rapForPTIndex][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
+	Reco_Onia_pol_pT_rap[iFrame][0][rapForPTIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
+      }
       if(pTIndex > 0 && rapForPTIndex > 0){
+	Reco2D_Onia_pol_pT_rap[iFrame][pTIndex][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
 	Reco_Onia_pol_pT_rap[iFrame][pTIndex][rapForPTIndex][jpsi::cosThPol]->Fill(thisCosTh[iFrame], weight);
 	Reco_Onia_pol_pT_rap[iFrame][pTIndex][rapForPTIndex][jpsi::phiPol]->Fill(thisPhi[iFrame], weight);
 	Reco_Onia_pol_pT_rap[iFrame][pTIndex][rapForPTIndex][jpsi::cos2PhiPol]->Fill(thisCosPhi[iFrame], weight);
-	Reco2D_Onia_pol_pT_rap[iFrame][pTIndex][rapForPTIndex]->Fill(thisCosTh[iFrame], thisPhi[iFrame], weight);
       }
       //4) polarization histos - pT and rap Bin for FWD and BWD rapidities, separately 
       if(pTIndex > 0 && rapIndex >= 0){
