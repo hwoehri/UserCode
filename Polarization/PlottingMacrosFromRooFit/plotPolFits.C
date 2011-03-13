@@ -35,6 +35,9 @@ TLine *gContour_line1[kNbVarComb][kNbSpecies][kNbFrames][kNbRap][kNbPTMaxBins];
 TLine *gContour_line2[kNbVarComb][kNbSpecies][kNbFrames][kNbRap][kNbPTMaxBins];
 TLine *gContour_marker[kNbVarComb][kNbSpecies][kNbFrames][kNbRap][kNbPTMaxBins];
 
+//posterior probabilities
+TH1F *hPostProb[kNbSpecies][kNbVars][kNbFrames][kNbRap][kNbPTMaxBins];
+
 Int_t const kNbVar = 2;
 Double_t maximumPol[kNbVar][kNbSpecies][kNbFrames][kNbRap][kNbPTMaxBins];
 Double_t chi2[kNbVar][kNbSpecies][kNbFrames][kNbRap][kNbPTMaxBins];
@@ -46,6 +49,8 @@ void GetMassLifetime(Int_t iFrame, Int_t iRap, Int_t iPT);
 void PlotMassLifetime(Int_t iFrame, Int_t iRap, Int_t iPT);
 void GetContour(Int_t iFrame, Int_t iRap, Int_t iPT);
 void PlotContour(Int_t iFrame, Int_t iRap, Int_t iPT, Int_t iSpecies);
+void GetPostProb(Int_t iFrame, Int_t iRap, Int_t iPT);
+void PlotPostProb(Int_t iFrame, Int_t iRap, Int_t iPT, Int_t iSpecies, Int_t iVar);
 void GetPolGraphsLRSidebands(Int_t iFrame, Int_t iRap, Int_t iPT);
 void PlotPolGraphsLRSidebands(Int_t iFrame, Int_t iRap, Int_t iPT, Int_t iSideband);
 //=======================
@@ -56,8 +61,9 @@ void plotPolFits(){
     for(int iFrame = CS; iFrame <= HX; iFrame++){
       for(int iPT = 5; iPT <= 8; iPT++){
 
-	if(iRap == 1 && (iPT == 5 || iPT == 8)) continue;
-	if(iRap == 2 && iPT == 8 && iFrame == HX) continue;
+  	if(iRap == 1 && (iPT == 5 || iPT == 8)) continue;
+// // 	if(iRap == 2 && iPT == 8 && iFrame == HX) continue;
+
 
 	//a) mass and lifetime distributions
 	GetMassLifetime(iFrame, iRap, iPT);
@@ -68,6 +74,11 @@ void plotPolFits(){
 	//c) 68% C.L. contour plots for phi vs. cosTheta
 	GetContour(iFrame, iRap, iPT);
 	PlotContour(iFrame, iRap, iPT, P);  PlotContour(iFrame, iRap, iPT, NP);
+	//d) posterior probabilities
+ 	GetPostProb(iFrame, iRap, iPT);
+	for(int iVar = 0; iVar < kNbVars; iVar++){
+	  PlotPostProb(iFrame, iRap, iPT, P, iVar);  PlotPostProb(iFrame, iRap, iPT, NP, iVar);
+	}
       }
     }
   }
@@ -77,14 +88,51 @@ void plotPolFits(){
     for(int iFrame = CS; iFrame <= HX; iFrame++){
       for(int iPT = 5; iPT <= 8; iPT++){
 
-	if(iRap == 1 && (iPT == 5 || iPT == 8)) continue;
-	if(iRap == 2 && iPT == 8 && iFrame == HX) continue;
+ 	if(iRap == 1 && (iPT == 5 || iPT == 8)) continue;
+// 	if(iRap == 2 && iPT == 8 && iFrame == HX) continue;
 
 	GetPolGraphsLRSidebands(iFrame, iRap, iPT);
 	PlotPolGraphsLRSidebands(iFrame, iRap, iPT, L); PlotPolGraphsLRSidebands(iFrame, iRap, iPT, R); 
       }
     }
   }
+}
+//=======================
+void PlotPostProb(Int_t iFrame, Int_t iRap, Int_t iPT, Int_t iSpecies, Int_t iVar){
+
+  Char_t name[100];
+  sprintf(name, "c_postProb_%s_rap%d_pT%d_%s_%s", frameLabel[iFrame], iRap, iPT, speciesLabel[iSpecies], varName[iVar]);
+  TCanvas *c1 = new TCanvas(name, name, 700, 500);
+  gPad->SetLogy();
+  Double_t xMin = -1., xMax = 1.;
+  if(iVar == LTHPHI){xMin = -0.71; xMax = 0.71;}
+  TH1F *hFrame1 = gPad->DrawFrame(xMin, 1e-3, xMax, 1.2*hPostProb[iSpecies][iVar][iFrame][iRap][iPT]->GetMaximum());
+  if(iVar == 0)
+    sprintf(name, "#lambda_{#theta}^{%s}", speciesLabel[iSpecies]);
+  else if(iVar == 1)
+    sprintf(name, "#lambda_{#phi}^{%s}", speciesLabel[iSpecies]);
+  else if(iVar == 2)
+    sprintf(name, "#lambda_{#theta#phi}^{%s}", speciesLabel[iSpecies]);
+  else if(iVar == 3)
+    sprintf(name, "#tilde{#lambda}^{%s}", speciesLabel[iSpecies]);
+
+  hFrame1->SetXTitle(name);
+
+  hPostProb[iSpecies][iVar][iFrame][iRap][iPT]->Draw("same");
+
+  if(iRap == 1)
+    sprintf(name, "|y| < %1.1f", rapForPTRange[iRap]);
+  else 
+    sprintf(name, "%1.1f < |y| < %1.1f", rapForPTRange[iRap-1], rapForPTRange[iRap]);
+  TLatex *tex1 = new TLatex(xMin*0.95, 0.4*hPostProb[iSpecies][iVar][iFrame][iRap][iPT]->GetMaximum(), name);
+  tex1->SetTextSize(0.04); tex1->Draw();
+  sprintf(name, "%1.1f < p_{T} < %1.1f GeV", pTRange[iRap][iPT-1], pTRange[iRap][iPT]);
+  tex1->DrawLatex(xMin*0.95, 0.6*hPostProb[iSpecies][iVar][iFrame][iRap][iPT]->GetMaximum(), name);
+  tex1->DrawLatex(xMin*0.95, 0.26*hPostProb[iSpecies][iVar][iFrame][iRap][iPT]->GetMaximum(), frameLabel[iFrame]);
+
+  sprintf(name, "Figures/%s_%s_%s_rap%d_pT%d.pdf", varName[iVar], speciesLabel[iSpecies], frameLabel[iFrame], iRap, iPT);
+  c1->Print(name);
+
 }
 
 //=======================
@@ -284,10 +332,10 @@ void PlotPolGraphs(Int_t iFrame, Int_t iRap, Int_t iPT, Int_t iSpecies){
   hFrame1->SetXTitle(name);
 
   gCosTh[iSpecies][iFrame][iRap][iPT]->Draw("p same");
-  gCosTh_Fit[iSpecies][FIT][iFrame][iRap][iPT]->Draw("l same");
   gCosTh_Fit[iSpecies][PONE][iFrame][iRap][iPT]->Draw("l same");
   gCosTh_Fit[iSpecies][ZERO][iFrame][iRap][iPT]->Draw("l same");
   gCosTh_Fit[iSpecies][MONE][iFrame][iRap][iPT]->Draw("l same");
+  gCosTh_Fit[iSpecies][FIT][iFrame][iRap][iPT]->Draw("l same");
 
   if(iRap == 1)
     sprintf(name, "|y| < %1.1f", rapForPTRange[iRap]);
@@ -319,10 +367,10 @@ void PlotPolGraphs(Int_t iFrame, Int_t iRap, Int_t iPT, Int_t iSpecies){
   hFrame2->SetXTitle(name);
 
   gPhi[iSpecies][iFrame][iRap][iPT]->Draw("p same");
-  gPhi_Fit[iSpecies][FIT][iFrame][iRap][iPT]->Draw("l same");
   gPhi_Fit[iSpecies][PONE][iFrame][iRap][iPT]->Draw("l same");
   gPhi_Fit[iSpecies][ZERO][iFrame][iRap][iPT]->Draw("l same");
   gPhi_Fit[iSpecies][MONE][iFrame][iRap][iPT]->Draw("l same");
+  gPhi_Fit[iSpecies][FIT][iFrame][iRap][iPT]->Draw("l same");
 
   if(iRap == 1)
     sprintf(name, "|y| < %1.1f", rapForPTRange[iRap]);
@@ -446,7 +494,8 @@ void PlotPolGraphsLRSidebands(Int_t iFrame, Int_t iRap, Int_t iPT, Int_t iSideBa
 void GetPolGraphs(Int_t iFrame, Int_t iRap, Int_t iPT){
 
   Char_t name[100];
-  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/pedagogical/fitFrame%s_%d_%d-smoothed.root", frameLabel[iFrame], iRap, iPT, frameLabel[iFrame]);
+//   sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/pedagogical/fitFrame%s_%d_%d.root", frameLabel[iFrame], iRap, iPT, frameLabel[iFrame]);
+  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/13March2011/fitFrame%s_%d_%d-aIntNew.root", frameLabel[iFrame], iRap, iPT);
   TFile *f = new TFile(name);
 
   RooPlot *tempCosTh[2], *tempPhi[2];
@@ -523,7 +572,8 @@ void GetPolGraphs(Int_t iFrame, Int_t iRap, Int_t iPT){
 void GetPolGraphsLRSidebands(Int_t iFrame, Int_t iRap, Int_t iPT){
 
   Char_t name[100];
-  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/pedagogical/fitFrame%s_%d_%d-smoothed.root", frameLabel[iFrame], iRap, iPT);
+//   sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/pedagogical/fitFrame%s_%d_%d.root", frameLabel[iFrame], iRap, iPT);
+  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/13March2011/fitFrame%s_%d_%d-aIntNew.root", frameLabel[iFrame], iRap, iPT);
   TFile *f = new TFile(name);
 
   RooPlot *tempCosTh[2], *tempPhi[2];
@@ -592,7 +642,8 @@ void GetPolGraphsLRSidebands(Int_t iFrame, Int_t iRap, Int_t iPT){
 void GetMassLifetime(Int_t iFrame, Int_t iRap, Int_t iPT){
 
   Char_t name[100];
-  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/species/fitFrame%s_%d_%d-%s.root", frameLabel[iFrame], iRap, iPT, frameLabel[iFrame]);
+//   sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/species/fitFrame%s_%d_%d-%s.root", frameLabel[iFrame], iRap, iPT, frameLabel[iFrame]);
+  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/13March2011/fitFrame%s_%d_%d-aIntNew.root", frameLabel[iFrame], iRap, iPT);
   TFile *f = new TFile(name);
 
   RooPlot *tempMass, *tempLifetime;
@@ -636,7 +687,8 @@ void GetMassLifetime(Int_t iFrame, Int_t iRap, Int_t iPT){
 void GetContour(Int_t iFrame, Int_t iRap, Int_t iPT){
 
   Char_t name[100];
-  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/species/fitFrame%s_%d_%d-%s.root", frameLabel[iFrame], iRap, iPT, frameLabel[iFrame]);
+//   sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/species/fitFrame%s_%d_%d-%s.root", frameLabel[iFrame], iRap, iPT, frameLabel[iFrame]);
+  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/13March2011/fitFrame%s_%d_%d-aIntNew.root", frameLabel[iFrame], iRap, iPT);
   TFile *f = new TFile(name);
 
   RooPlot *contour[kNbVarComb][kNbSpecies];
@@ -686,4 +738,46 @@ void GetContour(Int_t iFrame, Int_t iRap, Int_t iPT){
   gContour_line1[THETAPHI_PHI][NP][iFrame][iRap][iPT] = (TLine *) contour[THETAPHI_PHI][NP]->getObject(1); //line
   gContour_line2[THETAPHI_PHI][NP][iFrame][iRap][iPT] = (TLine *) contour[THETAPHI_PHI][NP]->getObject(2); //line
   gContour_marker[THETAPHI_PHI][NP][iFrame][iRap][iPT] = (TLine *) contour[THETAPHI_PHI][NP]->getObject(3); //marker
+}
+
+//===================================================
+void GetPostProb(Int_t iFrame, Int_t iRap, Int_t iPT){
+
+  Char_t name[100];
+  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/13March2011/fitFrame%s_%d_%d-aIntNew.root", frameLabel[iFrame], iRap, iPT);
+  TFile *f = new TFile(name);
+
+  //lambda_theta
+  sprintf(name, "%spostprob_lth_p_rap%d_pT%d", frameLabel[iFrame], iRap, iPT);
+  hPostProb[P][LTH][iFrame][iRap][iPT] = (TH1F *) gDirectory->Get(name);
+  sprintf(name, "%spostprob_lth_np_rap%d_pT%d", frameLabel[iFrame], iRap, iPT);
+  hPostProb[NP][LTH][iFrame][iRap][iPT] = (TH1F *) gDirectory->Get(name);
+  //lambda_phi
+  sprintf(name, "%spostprob_lphi_p_rap%d_pT%d", frameLabel[iFrame], iRap, iPT);
+  hPostProb[P][LPHI][iFrame][iRap][iPT] = (TH1F *) gDirectory->Get(name);
+  sprintf(name, "%spostprob_lphi_np_rap%d_pT%d", frameLabel[iFrame], iRap, iPT);
+  hPostProb[NP][LPHI][iFrame][iRap][iPT] = (TH1F *) gDirectory->Get(name);
+  //lambda_thetaPhi
+  sprintf(name, "%spostprob_lthphi_p_rap%d_pT%d", frameLabel[iFrame], iRap, iPT);
+  hPostProb[P][LTHPHI][iFrame][iRap][iPT] = (TH1F *) gDirectory->Get(name);
+  sprintf(name, "%spostprob_lthphi_np_rap%d_pT%d", frameLabel[iFrame], iRap, iPT);
+  hPostProb[NP][LTHPHI][iFrame][iRap][iPT] = (TH1F *) gDirectory->Get(name);
+  //lambda_tilde
+  sprintf(name, "%spostprob_ltilde_p_rap%d_pT%d", frameLabel[iFrame], iRap, iPT);
+  hPostProb[P][LTILDE][iFrame][iRap][iPT] = (TH1F *) gDirectory->Get(name);
+  sprintf(name, "%spostprob_ltilde_np_rap%d_pT%d", frameLabel[iFrame], iRap, iPT);
+  hPostProb[NP][LTILDE][iFrame][iRap][iPT] = (TH1F *) gDirectory->Get(name);
+
+
+//   hPostProb[P][LTH][iFrame][iRap][iPT]->Rebin(4);
+//   hPostProb[NP][LTH][iFrame][iRap][iPT]->Rebin(4);
+//   //
+//   hPostProb[P][LPHI][iFrame][iRap][iPT]->Rebin(4);
+//   hPostProb[NP][LPHI][iFrame][iRap][iPT]->Rebin(4);
+//   //
+//   hPostProb[P][LTHPHI][iFrame][iRap][iPT]->Rebin(4);
+//   hPostProb[NP][LTHPHI][iFrame][iRap][iPT]->Rebin(4);
+//   //
+//   hPostProb[P][LTILDE][iFrame][iRap][iPT]->Rebin(4);
+//   hPostProb[NP][LTILDE][iFrame][iRap][iPT]->Rebin(4);
 }

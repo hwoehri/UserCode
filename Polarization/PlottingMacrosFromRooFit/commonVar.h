@@ -19,8 +19,13 @@ Int_t const kNbBG = 2;
 Char_t *BGName[kNbBG] = {"L", "R"};
 enum {L, R};
 //
+Int_t const kNbVars = 4;
+enum {LTH, LPHI, LTHPHI, LTILDE};
+Char_t *varName[kNbVars] = {"lambdaTheta", "lambdaPhi", "lambdaThetaPhi", "lambdaTilde"};
+//
 Int_t const kNbVarComb = 3;
 enum {TH_PHI, TH_THETAPHI, THETAPHI_PHI};
+
 
 Int_t const kNbRapForPTBins = 5;
 Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 0.9, 1.2, 1.6, 2.1, 2.4};

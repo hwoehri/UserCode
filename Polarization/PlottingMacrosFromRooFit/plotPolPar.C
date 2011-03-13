@@ -12,12 +12,14 @@ TGraphAsymmErrors *gLTilde[kNbSpecies][kNbFrames][kNbRap];
 
 TGraphAsymmErrors *gLTh_CDF_P;
 
+Double_t errCorrFactors[kNbFrames][kNbRap][kNbPTMaxBins];
 void ReadGraphs(Int_t iFrame, Int_t iRap);
 void PlotGraphsPandNP(Int_t iFrame, Int_t iRap);
 void PlotGraphsRap(Int_t iFrame, Int_t iSpecies);
 void PlotLambdaTilde(Int_t iRap, Int_t iSpecies);
 void LoadCDF();
 void PlotTogetherWithCDF();
+void LoadErrorCorrFactors();
 void PrintPars();
 //====================================
 void plotPolPar(){
@@ -28,33 +30,33 @@ void plotPolPar(){
   }
   //remove a faulty bin (might not be needed in the future...)
   //|y| < 0.9, 10-15 GeV/c
-  for(int iSpecies = 0; iSpecies < kNbSpecies; iSpecies++){
-    for(int iFrame = CS; iFrame <= CS; iFrame++){
-      gLTh[iSpecies][iFrame][0]->RemovePoint(0);
-      gLPhi[iSpecies][iFrame][0]->RemovePoint(0);
-      gLThPhi[iSpecies][iFrame][0]->RemovePoint(0);
-      gLTilde[iSpecies][iFrame][0]->RemovePoint(0);
-    }
-  }
-  //remove many more points:
-  for(int iSpecies = 0; iSpecies < kNbSpecies; iSpecies++){
-    for(int iFrame = CS; iFrame < kNbFrames; iFrame++){
-      gLTh[iSpecies][iFrame][1]->RemovePoint(0);
-      gLPhi[iSpecies][iFrame][1]->RemovePoint(0);
-      gLThPhi[iSpecies][iFrame][1]->RemovePoint(0);
-      gLTilde[iSpecies][iFrame][1]->RemovePoint(0);
-
+//   for(int iSpecies = 0; iSpecies < kNbSpecies; iSpecies++){
+//     for(int iFrame = CS; iFrame <= CS; iFrame++){
+//       gLTh[iSpecies][iFrame][0]->RemovePoint(0);
+//       gLPhi[iSpecies][iFrame][0]->RemovePoint(0);
+//       gLThPhi[iSpecies][iFrame][0]->RemovePoint(0);
+//       gLTilde[iSpecies][iFrame][0]->RemovePoint(0);
+//     }
+//   }
+//   //remove many more points:
+//   for(int iSpecies = 0; iSpecies < kNbSpecies; iSpecies++){
+//     for(int iFrame = CS; iFrame < kNbFrames; iFrame++){
 //       gLTh[iSpecies][iFrame][1]->RemovePoint(0);
 //       gLPhi[iSpecies][iFrame][1]->RemovePoint(0);
 //       gLThPhi[iSpecies][iFrame][1]->RemovePoint(0);
 //       gLTilde[iSpecies][iFrame][1]->RemovePoint(0);
 
-      gLTh[iSpecies][iFrame][1]->RemovePoint(2);
-      gLPhi[iSpecies][iFrame][1]->RemovePoint(2);
-      gLThPhi[iSpecies][iFrame][1]->RemovePoint(2);
-      gLTilde[iSpecies][iFrame][1]->RemovePoint(2);
-    }
-  }
+// //       gLTh[iSpecies][iFrame][1]->RemovePoint(0);
+// //       gLPhi[iSpecies][iFrame][1]->RemovePoint(0);
+// //       gLThPhi[iSpecies][iFrame][1]->RemovePoint(0);
+// //       gLTilde[iSpecies][iFrame][1]->RemovePoint(0);
+
+//       gLTh[iSpecies][iFrame][1]->RemovePoint(2);
+//       gLPhi[iSpecies][iFrame][1]->RemovePoint(2);
+//       gLThPhi[iSpecies][iFrame][1]->RemovePoint(2);
+//       gLTilde[iSpecies][iFrame][1]->RemovePoint(2);
+//     }
+//   }
 
 
   PrintPars();
@@ -374,7 +376,8 @@ void PlotGraphsPandNP(Int_t iFrame, Int_t iRap){
 void ReadGraphs(Int_t iFrame, Int_t iRap){
 
   Char_t name[100];
-  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/PolVsPt%s_rap%d.root", frameLabel[iFrame], iRap+1);
+//   sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/PolVsPt%s_rap%d.root", frameLabel[iFrame], iRap+1);
+  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/13March2011/PolVsPt%s_rap%d.root", frameLabel[iFrame], iRap+1);
   TFile *fIn = new TFile(name);
   //1.) get the parameters for P J/psi:
   //a.) lambda_theta
@@ -447,7 +450,11 @@ void LoadCDF(){
  gLTh_CDF_P->SetMarkerStyle(24);
 
 }
+//==============================
+void LoadErrorCorrFactors(){
 
+  
+}
 //=============================
 void PrintPars(){
   
@@ -477,14 +484,19 @@ void PrintPars(){
 	  gLThPhi[iSpecies][iFrame][iRap]->GetPoint(iP,x,y[2]);
 	  errYlow[2] = gLThPhi[iSpecies][iFrame][iRap]->GetErrorYlow(iP);
 	  errYhigh[2] = gLThPhi[iSpecies][iFrame][iRap]->GetErrorYhigh(iP);
+	  //lambda_thetaTilde
+	  gLTilde[iSpecies][iFrame][iRap]->GetPoint(iP,x,y[3]);
+	  errYlow[3] = gLTilde[iSpecies][iFrame][iRap]->GetErrorYlow(iP);
+	  errYhigh[3] = gLTilde[iSpecies][iFrame][iRap]->GetErrorYhigh(iP);
 
-	  printf("%1.1f--%1.1f & %1.0f--%1.0f & $%1.1f^{+%1.1f}_{-%1.1f}$ & $%1.2f^{+%1.2f}_{-%1.2f}$ & $%1.2f^{+%1.2f}_{-%1.2f}$ & $%1.2f^{+%1.2f}_{-%1.2f}$\n",
+	  printf("%1.1f--%1.1f & %1.0f--%1.0f & $%1.1f^{+%1.1f}_{-%1.1f}$ & $%1.2f^{+%1.2f}_{-%1.2f}$ & $%1.2f^{+%1.2f}_{-%1.2f}$ & $%1.2f^{+%1.2f}_{-%1.2f}$ & $%1.2f^{+%1.2f}_{-%1.2f}$\n",
 		 rapForPTRange[iRap], rapForPTRange[iRap+1], 
 		 x-errXlow, x+errXhigh, //pTmin-pTmax
 		 x, errXhigh, errXlow,  //pTmean and +-
 		 y[0], errYhigh[0], errYlow[0], 
 		 y[1], errYhigh[1], errYlow[1], 
-		 y[2], errYhigh[2], errYlow[2]);
+		 y[2], errYhigh[2], errYlow[2],
+		 y[3], errYhigh[3], errYlow[3]);
 	}
       }
     }
