@@ -83,6 +83,13 @@ void GeomAcc::Loop(Bool_t smearing)
 //    fPT->FixParameter(1, 2.70764); fPT->SetParName(1, "beta");
 //    fPT->FixParameter(2, 12.0053); fPT->SetParName(2, "<pT2> [GeV2]");
 
+   //for NP J/psi's use the distribution taken from the 
+   //preliminary ATLAS data shown in Moriond, 17th April
+//    TF1 *fPT = new TF1("fPT", "[0]*x*pow(1.+(1./([1]-2.))*x*x/[2],-[1])", 0., 50.);
+//    fPT->FixParameter(0, 0.9); fPT->SetParName(0, "norm");
+//    fPT->FixParameter(1, 2.98180); fPT->SetParName(1, "beta");
+//    fPT->FixParameter(2, 28.8277); fPT->SetParName(2, "<pT2> [GeV2]");
+
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
 //    for (Long64_t jentry=0; jentry<100;jentry++) {
 
@@ -378,6 +385,16 @@ void GeomAcc::Loop(Bool_t smearing)
 	  hGenCut_pT_rap_phiFolded[iFrame][0][rapForPTIndex]->Fill(thetaAdjusted, phiFolded, weight);
 	if(pTIndex > 0 && rapForPTIndex > 0)
 	  hGenCut_pT_rap_phiFolded[iFrame][pTIndex][rapForPTIndex]->Fill(thetaAdjusted, phiFolded, weight);
+
+// 	//debugging:
+// 	if(rapForPTIndex == 1 && pTIndex == 4 && iFrame == jpsi::CS){
+// 	  if(thetaAdjusted > 0.6 && thetaAdjusted < 0.9 && phiFolded < 50.){
+// 	    printf("pT %1.2f, y %1.2f, M %1.3f, cosThetaCS %1.3f, phiCS %1.3f --> posMu: pT %1.3f, eta %1.3f, phi %1.3f, negMu: pT %1.3f, eta %1.3f, phi %1.3f\n",
+// 		   oniaSim_pt, oniaSim_rap, oniaSim_mass, thetaAdjusted, phiFolded,
+// 		   muPosSmeared->Pt(), muPosSmeared->Eta(), muPosSmeared->Phi(),
+// 		   muNegSmeared->Pt(), muNegSmeared->Eta(), muNegSmeared->Phi());
+// 	  }
+// 	}
       }
 
       //delete the created LorentzVectors:
