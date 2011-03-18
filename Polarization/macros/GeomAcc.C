@@ -68,14 +68,21 @@ void GeomAcc::Loop(Bool_t smearing)
    //PYTHIA distributions fit with the macro "projectPTRap_Pythia.C(kTRUE)"
    //pT distribtuions do NOT show any rapidity dependence, while for pT > 10 GeV/c
    //there seems to be some rapidity dependence which is neglected in this parameterization
-   TF1 *fPT = new TF1("fPT", "[0]*x*pow(1.+(1./([1]-2.))*x*x/[2],-[1])", 0., 50.);
-   fPT->FixParameter(0, 0.61554); fPT->SetParName(0, "norm");
-   fPT->FixParameter(1, 4.05847); fPT->SetParName(1, "beta");
-   fPT->FixParameter(2, 19.93); fPT->SetParName(2, "<pT2> [GeV2]");
+//    TF1 *fPT = new TF1("fPT", "[0]*x*pow(1.+(1./([1]-2.))*x*x/[2],-[1])", 0., 50.);
+//    fPT->FixParameter(0, 0.61554); fPT->SetParName(0, "norm");
+//    fPT->FixParameter(1, 4.05847); fPT->SetParName(1, "beta");
+//    fPT->FixParameter(2, 19.93); fPT->SetParName(2, "<pT2> [GeV2]");
    TF1 *fRap = new TF1("fRap", "pol2", -2.5, 2.5);
    fRap->FixParameter(0, 0.8632);
    fRap->FixParameter(1, -7.311e-4);
    fRap->FixParameter(2, -3.041e-2);
+
+   //alternatively, the pT distribution can be taken from the
+   //preliminary ATLAS data shown in Moriond, 17th April
+   TF1 *fPT = new TF1("fPT", "[0]*x*pow(1.+(1./([1]-2.))*x*x/[2],-[1])", 0., 50.);
+   fPT->FixParameter(0, 1.); fPT->SetParName(0, "norm");
+   fPT->FixParameter(1, 3.87004); fPT->SetParName(1, "beta");
+   fPT->FixParameter(2, 15.5821); fPT->SetParName(2, "<pT2> [GeV2]");
 
    //alternatively, the pT distribution can be taken from CASCADE:
 //    TF1 *fPT = new TF1("fPT", "[0]*x*pow(1.+(1./([1]-2.))*x*x/[2],-[1])", 0., 50.);
