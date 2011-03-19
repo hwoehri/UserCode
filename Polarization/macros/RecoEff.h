@@ -63,6 +63,7 @@ public :
    Int_t           HLT_Mu7;
    Int_t           HLT_Mu9;
    Int_t           HLT_Mu11;
+   Double_t        MCweight;
 
    // List of branches
    TBranch        *b_eventNb;   //!
@@ -107,6 +108,7 @@ public :
    TBranch        *b_HLT_Mu7;   //!
    TBranch        *b_HLT_Mu9;   //!
    TBranch        *b_HLT_Mu11;   //!
+   TBranch        *b_MCweight;   //!
 
    RecoEff(TTree *tree=0);
    virtual ~RecoEff();
@@ -114,7 +116,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop(Int_t selDimuType);
+   virtual void     Loop(Int_t selDimuType, Bool_t useMCWeight);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -236,6 +238,7 @@ void RecoEff::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_Mu7", &HLT_Mu7, &b_HLT_Mu7);
    fChain->SetBranchAddress("HLT_Mu9", &HLT_Mu9, &b_HLT_Mu9);
    fChain->SetBranchAddress("HLT_Mu11", &HLT_Mu11, &b_HLT_Mu11);
+   fChain->SetBranchAddress("MCweight", &MCweight, &b_MCweight);
    Notify();
 }
 

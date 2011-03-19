@@ -53,7 +53,7 @@ Double_t massMuOnia;
 
 Double_t CalcPolWeight(Double_t thisCosTh);
 //==============================================
-void RecoEff::Loop(Int_t selDimuType)
+void RecoEff::Loop(Int_t selDimuType, Bool_t useMCWeight)
 {
   if (fChain == 0) return;
 
@@ -61,7 +61,7 @@ void RecoEff::Loop(Int_t selDimuType)
   Long64_t cutAtRecEvent = nentries;
   Long64_t countRecEvent = 0;
   Long64_t nb = 0;
-  printf("number of entries = %d\n", (Int_t) nentries);
+  printf("<RecoEff> number of entries = %d\n", (Int_t) nentries);
 
   //apply a weight as the ratio of pT distributions:
   //1.) default Pythia (parametrization)
@@ -120,6 +120,8 @@ void RecoEff::Loop(Int_t selDimuType)
 //     continue;
 
     Double_t weight = 1.; //allows to weigh with different input distributions (pT, cosTheta, phi, ...)
+    if(useMCWeight)
+      weight *= MCweight;
 
     if(genMuonsInPS){ //fill the generator level info only if the muons are emitted in the PS
 
@@ -191,8 +193,8 @@ void RecoEff::Loop(Int_t selDimuType)
 	calcPol(*muPos_Gen, *muNeg_Gen);
 	//==============================
       
-// 	weight = fPTCASCADE->Eval(onia_Gen_pt) / fPT->Eval(onia_Gen_pt);
-// 	weight = fPTATLAS->Eval(onia_Gen_pt) / fPT->Eval(onia_Gen_pt);
+//   	weight *= fPTCASCADE->Eval(onia_Gen_pt) / fPT->Eval(onia_Gen_pt);
+  	weight *= fPTATLAS->Eval(onia_Gen_pt) / fPT->Eval(onia_Gen_pt);
 
 	//fill the generator level histograms
 	for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
@@ -413,7 +415,7 @@ void RecoEff::Loop(Int_t selDimuType)
     //fill the histos for all the different frames
     for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++){
 
-// 	weight = CalcPolWeight(thisCosTh[iFrame]);
+// 	weight *= CalcPolWeight(thisCosTh[iFrame]);
 
 	//histos for neg. and pos. rapidity separately:
 	if(rapIndex >= 0)

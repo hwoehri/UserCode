@@ -1,13 +1,16 @@
 #include "../interface/rootIncludes.inc"
-#include "RecoEff.C"
+//#include "RecoEff.C"
+#include "TrigEff.C"
 
 void BookHistos(Char_t *oniaLabel);
 void WriteHistos();
 //======================================
-void runRecoEff(Char_t *fileNameOut = "recoEff_17Jan2011.root",
+void runRecoEff(Char_t *fileNameOut = "recoEff_7Feb2011.root",
+		Bool_t useMCWeight = kFALSE, //used for NP sample which is composed of 4 simulations
 		Int_t selDimuType = 4, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT		
 		Char_t *nameDataSet = "data", //"data" or "recoData"
-		Char_t *fileNameIn = "JPsiToMuMu_Fall10-START38_V12-v1-Onia2MuMu-v6-WithAllMCEvents_merged.root",
+ 		Char_t *fileNameIn = "JPsiToMuMu_Fall10-START38_V12-v1-Onia2MuMu-v6-WithAllMCEvents_merged.root",
+//  		Char_t *fileNameIn = "TTree_NPmerged_Bx_toJpsi_toMuMu.root",
 		Char_t *oniaLabel = "J/#psi" //"J/#psi", "#psi'", "Ups(1S)", "Ups(2S)", "Ups(3S)"
 		){
 
@@ -21,7 +24,7 @@ void runRecoEff(Char_t *fileNameOut = "recoEff_17Jan2011.root",
   printf("...done\n");
   BookHistos(oniaLabel);
 
-  tree.Loop(selDimuType);
+  tree.Loop(selDimuType, useMCWeight);
   WriteHistos();
   fOut->Close();
 }
