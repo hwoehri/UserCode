@@ -18,17 +18,19 @@ Char_t histoNameGen[100], histoNameRec[100];
 void ReadInHistos(Char_t *fileNameIn, Char_t *histoName, Int_t rebinCosTh, Int_t rebinPhi);
 void CalcAcceptance(Bool_t correctZeroBins);
 void Plot2DAcceptance(Int_t iFrame, Char_t *effName );
-void Plot2DAccOneByOne(Int_t iFrame, Int_t iRap, Int_t iPT, Char_t *drawOption, Char_t *effName );
+void Plot2DAccOneByOne(Int_t iFrame, Int_t iRap, Int_t iPT, Char_t *drawOption, Char_t *effName, Char_t *histoName);
 void WriteAccHistos(Char_t *fileNameOut);
 void CopyHistGraph(TH1D *hist, TGraphAsymmErrors*);
 void CalcAcc(TH2D *hhGenCut, TH2D *hGen, TGraphAsymmErrors *graph);
 //================================================================
-void getRatiosForAccEff(Char_t *effName = "recoEff",
-			Char_t *tag = "17Jan2011",
+void getRatiosForAccEff(Char_t *effName = "trigEff",
+			Char_t *tag = "Mu0TkMu0_OST_7Feb2011",
 			Char_t *histoName = "",
-			//Char_t *effName = "geomAcc",
-			//Char_t *tag = "WithFSR_uniform_7Jan2011_merged",
- 			//Char_t *histoName = "phiFolded_",
+			//2)Char_t *effName = "recoEff",
+			//2)Char_t *tag = "7Feb2011",
+			//1)Char_t *effName = "geomAcc",
+			//1)Char_t *tag = "WithFSR_uniform_7Jan2011_merged",
+ 			//1)Char_t *histoName = "phiFolded_",
 			Bool_t correctZeroBins = kTRUE,
 			Char_t *drawOption = "colz",
 			//Char_t *histoName = "",
@@ -51,7 +53,7 @@ void getRatiosForAccEff(Char_t *effName = "recoEff",
     sprintf(histoNameRec, "hGenCut");
     printf("will look for histos starting with %s and %s\n", histoNameGen, histoNameRec);
   }
-  else if(strncmp(effName, "recoEff", 7) == 0){
+  else if(strncmp(effName, "recoEff", 7) == 0 || strncmp(effName, "trigEff", 7) == 0){
     sprintf(histoNameGen, "hGen2D_Onia");
     sprintf(histoNameRec, "Reco2D_Onia");
     printf("will look for histos starting with %s and %s\n", histoNameGen, histoNameRec);
@@ -70,7 +72,7 @@ void getRatiosForAccEff(Char_t *effName = "recoEff",
   for(int iFrame = 0; iFrame < jpsi::kNbFrames; iFrame++)
     for(int iRap = 1; iRap <= jpsi::kNbRapForPTBins; iRap++)
       for(int iPT = 1; iPT <= jpsi::kNbPTBins[iRap]; iPT++)
-	Plot2DAccOneByOne(iFrame, iRap, iPT, drawOption, effName);
+	Plot2DAccOneByOne(iFrame, iRap, iPT, drawOption, effName, histoName);
 
   WriteAccHistos(fileNameOut);
 }
@@ -144,7 +146,7 @@ void Plot2DAcceptance(Int_t iFrame, Char_t *effName){
       c3_2D[iRap]->cd(iPT);
       if(iPT == 0) 
 	sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, all p_{T}", jpsi::rapForPTRange[iRap-1], jpsi::rapForPTRange[iRap]);
-      else if(iPT == jpsi::kNbPTBins[iRap]) 
+      else if(iPT == jpsi::kNbPTBins[iRap]+1)//H: 
 	sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, p_{T} > %1.1f GeV/c\n", jpsi::rapForPTRange[iRap-1], jpsi::rapForPTRange[iRap], jpsi::pTRange[iRap][iPT-1]);
       else 
 	sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, %1.1f < p_{T} < %1.1f GeV/c", jpsi::rapForPTRange[iRap-1], jpsi::rapForPTRange[iRap], jpsi::pTRange[iRap][iPT-1], jpsi::pTRange[iRap][iPT]);
@@ -160,7 +162,7 @@ void Plot2DAcceptance(Int_t iFrame, Char_t *effName){
 }
 
 //===============================
-void Plot2DAccOneByOne(Int_t iFrame, Int_t iRap, Int_t iPT, Char_t *drawOption, Char_t *effName){
+void Plot2DAccOneByOne(Int_t iFrame, Int_t iRap, Int_t iPT, Char_t *drawOption, Char_t *effName, Char_t *histoName){
 
   gStyle->SetTitleW(1);
 
@@ -182,18 +184,19 @@ void Plot2DAccOneByOne(Int_t iFrame, Int_t iRap, Int_t iPT, Char_t *drawOption, 
 
   if(iPT == 0) 
     sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, all p_{T}", jpsi::rapForPTRange[iRap-1], jpsi::rapForPTRange[iRap]);
-  else if(iPT == jpsi::kNbPTBins[iRap]) 
+  else if(iPT == jpsi::kNbPTBins[iRap]+1)//H: 
     sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, p_{T} > %1.1f GeV/c\n", jpsi::rapForPTRange[iRap-1], jpsi::rapForPTRange[iRap], jpsi::pTRange[iRap][iPT-1]);
   else 
     sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, %1.1f < p_{T} < %1.1f GeV/c", jpsi::rapForPTRange[iRap-1], jpsi::rapForPTRange[iRap], jpsi::pTRange[iRap][iPT-1], jpsi::pTRange[iRap][iPT]);
+  hAcc2D_pT_rap[iFrame][iPT][iRap]->SetMaximum(1.);
   hAcc2D_pT_rap[iFrame][iPT][iRap]->SetTitle(name);
   hAcc2D_pT_rap[iFrame][iPT][iRap]->Draw(drawOption);//"colz" or "cont"
 
-  sprintf(name, "Figures/%s2D_%s_rap%d_pT%d.eps", effName, jpsi::frameLabel[iFrame], iRap, iPT); 
+  sprintf(name, "Figures/%s2D_%s%s_rap%d_pT%d.eps", effName, histoName, jpsi::frameLabel[iFrame], iRap, iPT); 
   c30_2D->Print(name);	 			  
-  sprintf(name, "Figures/%s2D_%s_rap%d_pT%d.pdf", effName, jpsi::frameLabel[iFrame], iRap, iPT); 
+  sprintf(name, "Figures/%s2D_%s%s_rap%d_pT%d.pdf", effName, histoName, jpsi::frameLabel[iFrame], iRap, iPT); 
   c30_2D->Print(name);	 			  
-  sprintf(name, "Figures/%s2D_%s_rap%d_pT%d.gif", effName, jpsi::frameLabel[iFrame], iRap, iPT); 
+  sprintf(name, "Figures/%s2D_%s%s_rap%d_pT%d.gif", effName, histoName, jpsi::frameLabel[iFrame], iRap, iPT); 
   c30_2D->Print(name);
 }
 
@@ -234,8 +237,10 @@ void CalcAcceptance(Bool_t correctZeroBins){
 // 	}
 
 // 	hAcc2D_pT_rap[iFrame][iPTBin][iRapBin]->Divide(hGen_pT_rap[iFrame][iPTBin][iRapBin]);
+// 	hAcc2D_pT_rap[iFrame][iPTBin][iRapBin]->Divide(hGenCut_pT_rap[iFrame][iPTBin][iRapBin], 
+// 						       hGen_pT_rap[iFrame][iPTBin][iRapBin], 1., 1., "B");
 	hAcc2D_pT_rap[iFrame][iPTBin][iRapBin]->Divide(hGenCut_pT_rap[iFrame][iPTBin][iRapBin], 
-						       hGen_pT_rap[iFrame][iPTBin][iRapBin], 1., 1., "B");
+						       hGen_pT_rap[iFrame][iPTBin][iRapBin]);
 	// hAcc2D_pT_rap[iFrame][iPTBin][iRapBin]->SetLineColor(jpsi::colour_pT[iPTBin]);
 	// hAcc2D_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerColor(jpsi::colour_pT[iPTBin]);
 	// hAcc2D_pT_rap[iFrame][iPTBin][iRapBin]->SetMarkerStyle(jpsi::marker_pT[iPTBin]);
