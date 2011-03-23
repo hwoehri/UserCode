@@ -1,87 +1,105 @@
 #include "../interface/rootIncludes.inc"
 #include "MCTnPEff.C"
 
+void LoadEfficiencies(Int_t iEff, Int_t iEffSample);
 void BookHistos(Char_t *oniaLabel);
 void WriteHistos();
 void DivideHistos();
-void OpenInputFiles();
 //======================================
-void runMCTnPEff(Char_t *fileNameOut = "MCTnPEff_17Feb2011.root",
-	    Char_t *nameDataSet = "data", //"data" or "recoData"
-	    Char_t *fileNameIn = "/home/hermine/CMS/CMSSW/hWoehri/Polarization/macros/JPsiToMuMu_Fall10-START38_V12-v1-Onia2MuMu-v6-WithAllMCEvents_merged.root",
-	    Char_t *trigLabel = "HLT_Mu0_TkMu0_OST_Jpsi", //"HLT_DoubleMu0", "HLT_Mu0_TkMu0_OST_Jpsi",
-	    Char_t *oniaLabel = "J/#psi" //"J/#psi", "#psi'", "Ups(1S)", "Ups(2S)", "Ups(3S)"
+void runMCTnPEff(Char_t *fileNameOut = "MCTnPEff_20March2011.root",
+		 Int_t effSample = MC, //DATA, MC, MCTRUTH
+		 Char_t *trigLabel = "HLT_DoubleMu0", //"HLT_DoubleMu0", "HLT_Mu0_TkMu0_OST_Jpsi",
+		 Char_t *fileNameIn = "/home/hermine/CMS/CMSSW/hWoehri/Polarization/macros/JPsiToMuMu_Fall10-START38_V12-v1-Onia2MuMu-v6-WithAllMCEvents_merged.root",
+		 Char_t *oniaLabel = "J/#psi" //"J/#psi", "#psi'", "Ups(1S)", "Ups(2S)", "Ups(3S)"
 	    ){
 
   TFile *fIn = new TFile(fileNameIn);
-  TTree *treeData = (TTree*)fIn->Get(nameDataSet);
+  TTree *treeData = (TTree*)fIn->Get("data");
 
   TFile *fOut = new TFile(fileNameOut, "RECREATE");
 
   printf("initializing tree\n");
-  MCTnPEff tree(treeData);
-  printf("...done\n");
+  MCTnPEff tree(treeData);  printf("...done\n");
+
+  for(int iEff = 0; iEff < kNbEff; iEff++)
+    LoadEfficiencies(iEff, effSample);
+  printf("efficiencies loaded\n");
+
   BookHistos(oniaLabel);
 
-  OpenInputFiles();
-  tree.Loop(trigLabel);
+  tree.Loop(effSample, trigLabel);
 
   DivideHistos();
+  fOut->cd();
   WriteHistos();
   fOut->Close();
+}
+
+//==============================================================
+void LoadEfficiencies(Int_t iEff, Int_t iEffSample){
+
+  TFile *fIn = new TFile(effFileNames[iEff]);
+  Char_t name[100];
+  //store the central value of the efficiencies
+  sprintf(name, "hEff_%s_central", effSampleName[iEffSample]);
+  hMuEff[iEff][iEffSample][CENTRAL] = (TH2D *) gDirectory->Get(name);
+  sprintf(name, "h%s_%s", effName[iEff], effSampleName[iEffSample]);
+  hMuEff[iEff][iEffSample][CENTRAL]->SetName(name);
+  printf("%s, histo %p\n", effName[iEff], hMuEff[iEff][iEffSample][CENTRAL]->GetName());
+
 }
 
 //==========================================
 void BookHistos(Char_t *oniaLabel){
 
-  //initialise the "massMuOnia" variable
-  std::map<std::string, double> fOniaToMass;
-  fOniaToMass["J/#psi"] = 3.0969;
-  fOniaToMass["#psi'"] = 3.686;
-  fOniaToMass["Ups(1S)"] = 9.460;
-  fOniaToMass["Ups(2S)"] = 10.023;
-  fOniaToMass["Ups(3S)"] = 10.355;
+//   //initialise the "massMuOnia" variable
+//   std::map<std::string, double> fOniaToMass;
+//   fOniaToMass["J/#psi"] = 3.0969;
+//   fOniaToMass["#psi'"] = 3.686;
+//   fOniaToMass["Ups(1S)"] = 9.460;
+//   fOniaToMass["Ups(2S)"] = 10.023;
+//   fOniaToMass["Ups(3S)"] = 10.355;
 
-  std::map<std::string, double>::iterator iter = fOniaToMass.find(oniaLabel);
-  if(iter != fOniaToMass.end())
-    massMuOnia = iter->second;
-  printf("will use a mass of %1.3f GeV for the %s\n", massMuOnia, oniaLabel);
-  //===================================
+//   std::map<std::string, double>::iterator iter = fOniaToMass.find(oniaLabel);
+//   if(iter != fOniaToMass.end())
+//     massMuOnia = iter->second;
+//   printf("will use a mass of %1.3f GeV for the %s\n", massMuOnia, oniaLabel);
+//   //===================================
 
   Char_t name[100], title[100];
 
   //======================================================
   //1D distributions: 
   //======================================================
-  hGen_pT = new TH1D("hGen_pT", ";p_{T} [GeV/c]", eff::nBinsPt1D, eff::pT1D); hGen_pT->Sumw2();
-  hGen_y = new TH1D("hGen_y", ";y", eff::nBinsRap1D_NP, eff::rap1D_NP); hGen_y->Sumw2();
+  hGen_pT = new TH1D("hGen_pT", ";p_{T} [GeV/c]", eff::kNbPTMaxBins, eff::pTRange[0]); hGen_pT->Sumw2();
+  hGen_y = new TH1D("hGen_y", ";y", 2*eff::kNbRapBins, eff::rapRange); hGen_y->Sumw2();
   hGen_phi = new TH1D("hGen_phi", ";#phi", eff::nBinsPhi1D, eff::phiMin, eff::phiMax); hGen_phi->Sumw2();
   //
-  recoEff_pT = new TH1D("recoEff_pT", ";p_{T} [GeV/c]", eff::nBinsPt1D, eff::pT1D); recoEff_pT->Sumw2();
-  recoEff_y = new TH1D("recoEff_y", ";y", eff::nBinsRap1D_NP, eff::rap1D_NP); recoEff_y->Sumw2();
+  recoEff_pT = new TH1D("recoEff_pT", ";p_{T} [GeV/c]", eff::kNbPTMaxBins, eff::pTRange[0]); recoEff_pT->Sumw2();
+  recoEff_y = new TH1D("recoEff_y", ";y", 2*eff::kNbRapForPTBins, eff::rapRange); recoEff_y->Sumw2();
   recoEff_phi = new TH1D("recoEff_phi", ";#phi", eff::nBinsPhi1D, eff::phiMin, eff::phiMax); recoEff_phi->Sumw2();
   //
-  trigEff_pT = new TH1D("trigEff_pT", ";p_{T} [GeV/c]", eff::nBinsPt1D, eff::pT1D); trigEff_pT->Sumw2();
-  trigEff_y = new TH1D("trigEff_y", ";y", eff::nBinsRap1D_NP, eff::rap1D_NP); trigEff_y->Sumw2();
+  trigEff_pT = new TH1D("trigEff_pT", ";p_{T} [GeV/c]", eff::kNbPTMaxBins, eff::pTRange[0]); trigEff_pT->Sumw2();
+  trigEff_y = new TH1D("trigEff_y", ";y", 2*eff::kNbRapForPTBins, eff::rapRange); trigEff_y->Sumw2();
   trigEff_phi = new TH1D("trigEff_phi", ";#phi", eff::nBinsPhi1D, eff::phiMin, eff::phiMax); trigEff_phi->Sumw2();
   //
-  totEff_pT = new TH1D("totEff_pT", ";p_{T} [GeV/c]", eff::nBinsPt1D, eff::pT1D); totEff_pT->Sumw2();
-  totEff_y = new TH1D("totEff_y", ";y", eff::nBinsRap1D_NP, eff::rap1D_NP); totEff_y->Sumw2();
+  totEff_pT = new TH1D("totEff_pT", ";p_{T} [GeV/c]", eff::kNbPTMaxBins, eff::pTRange[0]); totEff_pT->Sumw2();
+  totEff_y = new TH1D("totEff_y", ";y", 2*eff::kNbRapForPTBins, eff::rapRange); totEff_y->Sumw2();
   totEff_phi = new TH1D("totEff_phi", ";#phi", eff::nBinsPhi1D, eff::phiMin, eff::phiMax); totEff_phi->Sumw2();
 
   //======================================================
   //2D distributions: 
   //======================================================
-  hGen2D_pT_rapNP = new TH2D("hGen2D_pT_rapNP", ";y;p_{T} [GeV/c]", eff::nBinsRap2D_NP, eff::rap2D_NP, eff::nBinsPt2D, eff::pT2D);
-  hGen2D_pT_rap = new TH2D("hGen2D_pT_rap", ";|y|;p_{T} [GeV/c]", eff::nBinsRap2D, eff::rap2D, eff::nBinsPt2D, eff::pT2D);
+  hGen2D_pT_rapNP = new TH2D("hGen2D_pT_rapNP", ";y;p_{T} [GeV/c]", 2*eff::kNbRapForPTBins, eff::rapRange, eff::kNbPTMaxBins, eff::pTRange[0]);
+  hGen2D_pT_rap = new TH2D("hGen2D_pT_rap", ";|y|;p_{T} [GeV/c]", eff::kNbRapForPTBins, eff::rapForPTRange, eff::kNbPTMaxBins, eff::pTRange[0]);
   hGen2D_pT_rapNP->Sumw2(); hGen2D_pT_rap->Sumw2();
   //
-  recoEff2D_pT_rapNP = new TH2D("recoEff2D_pT_rapNP", ";y;p_{T} [GeV/c]", eff::nBinsRap2D_NP, eff::rap2D_NP, eff::nBinsPt2D, eff::pT2D);
-  recoEff2D_pT_rap = new TH2D("recoEff2D_pT_rap", ";|y|;p_{T} [GeV/c]", eff::nBinsRap2D, eff::rap2D, eff::nBinsPt2D, eff::pT2D);
-  trigEff2D_pT_rapNP = new TH2D("trigEff2D_pT_rapNP", ";y;p_{T} [GeV/c]", eff::nBinsRap2D_NP, eff::rap2D_NP, eff::nBinsPt2D, eff::pT2D);
-  trigEff2D_pT_rap = new TH2D("trigEff2D_pT_rap", ";|y|;p_{T} [GeV/c]", eff::nBinsRap2D, eff::rap2D, eff::nBinsPt2D, eff::pT2D);
-  totEff2D_pT_rapNP = new TH2D("totEff2D_pT_rapNP", ";y;p_{T} [GeV/c]", eff::nBinsRap2D_NP, eff::rap2D_NP, eff::nBinsPt2D, eff::pT2D);
-  totEff2D_pT_rap = new TH2D("totEff2D_pT_rap", ";|y|;p_{T} [GeV/c]", eff::nBinsRap2D, eff::rap2D, eff::nBinsPt2D, eff::pT2D);
+  recoEff2D_pT_rapNP = new TH2D("recoEff2D_pT_rapNP", ";y;p_{T} [GeV/c]", 2*eff::kNbRapForPTBins, eff::rapRange, eff::kNbPTMaxBins, eff::pTRange[0]);
+  recoEff2D_pT_rap = new TH2D("recoEff2D_pT_rap", ";|y|;p_{T} [GeV/c]", eff::kNbRapForPTBins, eff::rapForPTRange, eff::kNbPTMaxBins, eff::pTRange[0]);
+  trigEff2D_pT_rapNP = new TH2D("trigEff2D_pT_rapNP", ";y;p_{T} [GeV/c]", 2*eff::kNbRapForPTBins, eff::rapRange, eff::kNbPTMaxBins, eff::pTRange[0]);
+  trigEff2D_pT_rap = new TH2D("trigEff2D_pT_rap", ";|y|;p_{T} [GeV/c]", eff::kNbRapForPTBins, eff::rapForPTRange, eff::kNbPTMaxBins, eff::pTRange[0]);
+  totEff2D_pT_rapNP = new TH2D("totEff2D_pT_rapNP", ";y;p_{T} [GeV/c]", 2*eff::kNbRapForPTBins, eff::rapRange, eff::kNbPTMaxBins, eff::pTRange[0]);
+  totEff2D_pT_rap = new TH2D("totEff2D_pT_rap", ";|y|;p_{T} [GeV/c]", eff::kNbRapForPTBins, eff::rapForPTRange, eff::kNbPTMaxBins, eff::pTRange[0]);
   recoEff2D_pT_rapNP->Sumw2();  recoEff2D_pT_rap->Sumw2();  trigEff2D_pT_rapNP->Sumw2();
   trigEff2D_pT_rap->Sumw2();  totEff2D_pT_rap->Sumw2();
 
@@ -282,9 +300,5 @@ void WriteHistos(){
   recoEff2D_pT_rapNP->Write();  recoEff2D_pT_rap->Write();
   trigEff2D_pT_rapNP->Write();  trigEff2D_pT_rap->Write();
   totEff2D_pT_rapNP->Write();  totEff2D_pT_rap->Write();
-
-}
-//==============================
-void OpenInputFiles(){
 
 }

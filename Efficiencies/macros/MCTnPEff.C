@@ -6,6 +6,21 @@
 #include <TH2.h>
 #include <TCanvas.h>
 
+Int_t const kNbEff = 5;
+Char_t *effFileNames[kNbEff] = {"/home/hermine/CMS/Work/TnP/LucaPerrozzi/17March2011/MuonTrackingEff_17March2011.root",
+				"/home/hermine/CMS/Work/TnP/Zongchang/19March2011/MuonIDEff_19March2011.root",
+				"/home/hermine/CMS/Work/TnP/Xianyou/19March2011/MuonQualEff_19March2011.root",
+				"/home/hermine/CMS/Work/TnP/Francesco/18March2011/L1L2_DoubleMu0_TriggerEfficiencies_18March2011.root",
+				"/home/hermine/CMS/Work/TnP/Luigi/19March2011/L3_DoubleMu0_TriggerEfficiencies_19March2011.root"};
+enum {TrkEff, MuIDEff, MuQualEff, L1L2Eff, L3Eff};
+Char_t *effName[kNbEff] = {"TrkEff", "MuIDEff", "MuQualEff", "L1L2Eff", "L3Eff"};
+Int_t const kNbEffSample = 3;
+enum {DATA, MC, MCTRUTH};
+Char_t *effSampleName[kNbEffSample] = {"DATA", "MC", "MCTRUTH"};
+//
+enum {CENTRAL, UPPER, LOWER};
+TH2D *hMuEff[kNbEff][kNbEffSample][3];
+
 //=================================================
 //1D histos versus J/psi pT, phi and y
 //=================================================
@@ -42,24 +57,25 @@ TH2D *recoEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::k
 TH2D *trigEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TH2D *totEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
-Double_t massMuOnia;
+// Double_t massMuOnia;
 
-Double_t GetTrackingEffPos(Double_t etaMuPos, Double_t pTMuPos);
-Double_t GetMuonIDEffPos(Double_t etaMuPos, Double_t pTMuPos);
-Double_t GetMuQualEffPos(Double_t etaMuPos, Double_t pTMuPos);
-Double_t GetTrackingEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-Double_t GetMuonIDEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-Double_t GetMuQualEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-Double_t GetL1L2TrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-Double_t GetL3TrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-Double_t GetTrackTrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-Double_t GetTkMuTrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-Double_t GetL1L2TrigEffPos(Double_t etaMuPos, Double_t pTMuPos);
-Double_t GetL3TrigEffPos(Double_t etaMuPos, Double_t pTMuPos);
-Double_t GetTrackTrigEffPos(Double_t etaMuPos, Double_t pTMuPos);
-Double_t GetTkMuTrigEffPos(Double_t etaMuPos, Double_t pTMuPos);
+Double_t GetEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt);
+// Double_t GetTrackingEffPos(Double_t etaMuPos, Double_t pTMuPos);
+// Double_t GetMuonIDEffPos(Double_t etaMuPos, Double_t pTMuPos);
+// Double_t GetMuQualEffPos(Double_t etaMuPos, Double_t pTMuPos);
+// Double_t GetTrackingEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
+// Double_t GetMuonIDEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
+// Double_t GetMuQualEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
+// Double_t GetL1L2TrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
+// Double_t GetL3TrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
+// Double_t GetTrackTrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
+// Double_t GetTkMuTrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
+// Double_t GetL1L2TrigEffPos(Double_t etaMuPos, Double_t pTMuPos);
+// Double_t GetL3TrigEffPos(Double_t etaMuPos, Double_t pTMuPos);
+// Double_t GetTrackTrigEffPos(Double_t etaMuPos, Double_t pTMuPos);
+// Double_t GetTkMuTrigEffPos(Double_t etaMuPos, Double_t pTMuPos);
 //==============================================
-void MCTnPEff::Loop(Char_t *trigLabel)
+void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel)
 {
   if (fChain == 0) return;
 
@@ -70,6 +86,7 @@ void MCTnPEff::Loop(Char_t *trigLabel)
 
   //loop over the events
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
+//     for (Long64_t jentry=0; jentry<10000;jentry++) {
 
     if(jentry % 100000 == 0) printf("event %d\n", (Int_t) jentry);
 
@@ -154,32 +171,44 @@ void MCTnPEff::Loop(Char_t *trigLabel)
     calcPol(*muPos_Gen, *muNeg_Gen);
     //==============================
 
-    Double_t epsTrack_Pos  = GetTrackingEffPos(etaMuPos_Gen, pTMuPos_Gen);
-    Double_t epsMuonID_Pos = GetMuonIDEffPos(etaMuPos_Gen, pTMuPos_Gen);
-    Double_t epsQual_Pos   = GetMuQualEffPos(etaMuPos_Gen, pTMuPos_Gen);
-    Double_t epsTrack_Neg  = GetTrackingEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-    Double_t epsMuonID_Neg = GetMuonIDEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-    Double_t epsQual_Neg   = GetMuQualEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-    //check which muon is matched to the HLT-muon:
-    Double_t epsL1L2Trig, epsL3Trig, epsTrackTrig, epsTkMuTrig;
-    if(1){//dummy requirement; needs fixing
-      epsL1L2Trig  = GetL1L2TrigEffPos(etaMuPos_Gen, pTMuPos_Gen);
-      epsL3Trig    = GetL3TrigEffPos(etaMuPos_Gen, pTMuPos_Gen);
-      epsTrackTrig = GetTrackTrigEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-      epsTkMuTrig  = GetTkMuTrigEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-    }
-    else{
-      epsL1L2Trig = GetL1L2TrigEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-      epsL3Trig   = GetL3TrigEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-      epsTrackTrig = GetTrackTrigEffPos(etaMuPos_Gen, pTMuPos_Gen);
-      epsTkMuTrig  = GetTkMuTrigEffPos(etaMuPos_Gen, pTMuPos_Gen);
-    }
+//     Double_t epsTrack_Pos  = GetTrackingEffPos(etaMuPos_Gen, pTMuPos_Gen);
+//     Double_t epsMuonID_Pos = GetMuonIDEffPos(etaMuPos_Gen, pTMuPos_Gen);
+//     Double_t epsQual_Pos   = GetMuQualEffPos(etaMuPos_Gen, pTMuPos_Gen);
+//     Double_t epsTrack_Neg  = GetTrackingEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
+//     Double_t epsMuonID_Neg = GetMuonIDEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
+//     Double_t epsQual_Neg   = GetMuQualEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
+//     //check which muon is matched to the HLT-muon:
+//     Double_t epsL1L2Trig, epsL3Trig, epsTrackTrig, epsTkMuTrig;
+//     if(1){//dummy requirement; needs fixing
+//       epsL1L2Trig  = GetL1L2TrigEffPos(etaMuPos_Gen, pTMuPos_Gen);
+//       epsL3Trig    = GetL3TrigEffPos(etaMuPos_Gen, pTMuPos_Gen);
+//       epsTrackTrig = GetTrackTrigEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
+//       epsTkMuTrig  = GetTkMuTrigEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
+//     }
+//     else{
+//       epsL1L2Trig = GetL1L2TrigEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
+//       epsL3Trig   = GetL3TrigEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
+//       epsTrackTrig = GetTrackTrigEffPos(etaMuPos_Gen, pTMuPos_Gen);
+//       epsTkMuTrig  = GetTkMuTrigEffPos(etaMuPos_Gen, pTMuPos_Gen);
+//     }
 
+    Double_t epsTrack_Pos  = GetEfficiency(TrkEff, effSample, etaMuPos_Gen, pTMuPos_Gen); 
+    Double_t epsMuonID_Pos = GetEfficiency(MuIDEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+    Double_t epsQual_Pos   = GetEfficiency(MuQualEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+    Double_t epsTrack_Neg  = GetEfficiency(TrkEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+    Double_t epsMuonID_Neg = GetEfficiency(MuIDEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+    Double_t epsQual_Neg   = GetEfficiency(MuQualEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+    Double_t epsL1L2Trig_Pos, epsL3Trig_Pos, epsL1L2Trig_Neg, epsL3Trig_Neg;
+    epsL1L2Trig_Pos = GetEfficiency(L1L2Eff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+    epsL3Trig_Pos   = GetEfficiency(L3Eff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+    epsL1L2Trig_Neg = GetEfficiency(L1L2Eff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+    epsL3Trig_Neg   = GetEfficiency(L3Eff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
 
     Double_t recoEff_Pos = epsTrack_Pos * epsMuonID_Pos * epsQual_Pos;
     Double_t recoEff_Neg = epsTrack_Neg * epsMuonID_Neg * epsQual_Neg;
     Double_t recoEff = recoEff_Pos * recoEff_Neg;
-    Double_t trigEff = epsL1L2Trig * epsL3Trig * epsTrackTrig * epsTkMuTrig;
+//     Double_t trigEff = epsL1L2Trig * epsL3Trig * epsTrackTrig * epsTkMuTrig;
+     Double_t trigEff = epsL1L2Trig_Pos * epsL3Trig_Pos * epsL1L2Trig_Neg * epsL3Trig_Neg;
     Double_t totEff = trigEff * recoEff;
     
     hGen_pT->Fill(onia_Gen_pt);
@@ -289,62 +318,80 @@ void MCTnPEff::Loop(Char_t *trigLabel)
   printf("nb. of rec. events is %d of a total of %d events\n", (Int_t) countRecEvent, (Int_t) nentries);
 }
 
-//==============================================================
-Double_t GetTrackingEffPos(Double_t etaMuPos, Double_t pTMuPos){
-  return 1.;
-}
-//==============================================================
-Double_t GetMuonIDEffPos(Double_t etaMuPos, Double_t pTMuPos){
-  return 1.;
-}
-//==============================================================
-Double_t GetMuQualEffPos(Double_t etaMuPos, Double_t pTMuPos){
-  return 1.;
-}
-//==============================================================
-Double_t GetTrackingEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-  return 1.;
-}
-//==============================================================
-Double_t GetMuonIDEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-  return 1.;
-}
-//==============================================================
-Double_t GetMuQualEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-  return 1.;
-}
-//==============================================================
-Double_t GetL1L2TrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-  return 1.;
-}
-//==============================================================
-Double_t GetL3TrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-  return 1.;
-}
-//==============================================================
-Double_t GetTrackTrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-  return 1.;
-}
-//==============================================================
-Double_t GetTkMuTrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-  return 1.;
-}
-//==============================================================
-Double_t GetL1L2TrigEffPos(Double_t etaMuPos, Double_t pTMuPos){
-  return 1.;
-}
-//==============================================================
-Double_t GetL3TrigEffPos(Double_t etaMuPos, Double_t pTMuPos){
-  return 1.;
-}
-//==============================================================
-Double_t GetTrackTrigEffPos(Double_t etaMuPos, Double_t pTMuPos){
-  return 1.;
-}
-//==============================================================
-Double_t GetTkMuTrigEffPos(Double_t etaMuPos, Double_t pTMuPos){
-  return 1.;
-}
+// //==============================================================
+// Double_t GetTrackingEffPos(Double_t etaMuPos, Double_t pTMuPos){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetMuonIDEffPos(Double_t etaMuPos, Double_t pTMuPos){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetMuQualEffPos(Double_t etaMuPos, Double_t pTMuPos){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetTrackingEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetMuonIDEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetMuQualEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetL1L2TrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetL3TrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetTrackTrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetTkMuTrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetL1L2TrigEffPos(Double_t etaMuPos, Double_t pTMuPos){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetL3TrigEffPos(Double_t etaMuPos, Double_t pTMuPos){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetTrackTrigEffPos(Double_t etaMuPos, Double_t pTMuPos){
+//   return 1.;
+// }
+// //==============================================================
+// Double_t GetTkMuTrigEffPos(Double_t etaMuPos, Double_t pTMuPos){
+//   return 1.;
+// }
 
 
+//==============================================================
+Double_t GetEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt){
 
+  if(fabs(eta) > 2.4) return 0.; //no acceptance beyond 2.4
+  if(pt > 20.) return 1.; //efficiencies beyond 20 GeV/c not reliable from T&P, but are always 100%
+
+  if(iEff >= kNbEff)
+    printf("%d not a valid efficiency!!!\n", iEff);
+  if(iEffSample >= kNbEffSample)
+    printf("%d not a valide efficiency sample!!!\n", iEffSample);
+
+  Int_t binX = hMuEff[iEff][iEffSample][CENTRAL]->GetXaxis()->FindBin(fabs(eta));
+  Int_t binY = hMuEff[iEff][iEffSample][CENTRAL]->GetYaxis()->FindBin(pt);
+  Double_t eff = hMuEff[iEff][iEffSample][CENTRAL]->GetBinContent(binX, binY);
+
+//   printf("%s, efficiency for |eta|=%1.3f and pT=%1.2f GeV/c is %1.3f\n",
+// 	 effName[iEff], fabs(eta), pt, eff);
+  return eff;
+}

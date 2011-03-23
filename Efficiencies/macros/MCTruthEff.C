@@ -37,7 +37,7 @@ TEfficiency *recoEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1]
 TEfficiency *trigEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *totEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
-Double_t massMuOnia;
+// Double_t massMuOnia;
 //==============================================
 void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
 {
@@ -50,6 +50,7 @@ void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
 
   //loop over the events
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
+//   for (Long64_t jentry=0; jentry<10000;jentry++) {
 
     if(jentry % 100000 == 0) printf("event %d\n", (Int_t) jentry);
 
@@ -137,7 +138,7 @@ void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
     Int_t trigValue;
     //process events further that pass the trigger under study
     if(strncmp("HLT_Mu0_TkMu0_OST_Jpsi", trigLabel, 22) == 0)
-      trigValue = HLT_Mu0_TkMu0_OST_Jpsi;
+      trigValue = HLT_Mu0_TkMu0_OST_Jpsi; //0... not matched, 1... fired+matched, 2... only fired --> needs changing in the future
     else if(strncmp("HLT_DoubleMu0", trigLabel, 13) == 0)
       trigValue = HLT_DoubleMu0;
     else{
