@@ -1,0 +1,151 @@
+\NeedsTeXFormat{LaTeX2e}[1994/02/01]
+\documentclass[12pt]{article}
+\usepackage{graphicx,rotating,epsfig}
+\addtolength{\textheight}{2.8cm}\addtolength{\textwidth}{1.5cm}
+\addtolength{\hoffset}{-1.cm}\addtolength{\voffset}{-1.6cm} 
+\newlength{\digitwidth} \settowidth{\digitwidth}{\rm 0}
+\newcommand{\cinst}[2]{$^{\mathrm{#1)}}$~#2\par}
+\newcommand{\crefi}[1]{$^{\mathrm{#1)}}$}
+\newcommand{\HRule}{\rule{0.4\linewidth}{0.3mm}}
+\newcommand{\mlab}[1]%
+    {\mbox{}\marginpar{\raggedright\hspace{0pt}\footnotesize #1}}
+\newcommand{\pt}{$p_{\mathrm{T}}$}
+\newcommand{\mt}{$m_{\mathrm{T}}$}
+\newcommand{\DDbar}{$D\bar{D}$}
+\newcommand{\ccbar}{$c\bar{c}$}
+\newcommand{\qqbar}{$q\bar{q}$}
+\newcommand{\et}{$E_{\rm T}$}
+\newcommand{\jpsi}{J/$\psi$}
+\newcommand{\psip}{$\psi^\prime$}
+\newcommand{\cost}{$|\cos \theta|$}
+\begin{document}
+
+%%%% comparison of the 1D efficiencies %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_recoEff_pT.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_recoEff_y.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_recoEff_phi.pdf}}
+\caption{Comparison of the MC based \jpsi\ reconstruction
+  efficiencies: T\&P versus ``MC truth''.}
+%\label{fig:}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_trigEff_pT.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_trigEff_y.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_trigEff_phi.pdf}}
+\caption{Comparison of the MC based \jpsi\ trigger efficiencies: T\&P
+  versus ``MC truth''.}
+%\label{fig:}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_totEff_pT.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_totEff_y.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_totEff_phi.pdf}}
+\caption{Comparison of the MC based \jpsi\ efficiencies (reco and
+  trigger): T\&P versus ``MC truth''.}
+%\label{fig:}
+\end{figure}
+
+%%%% ratio of the 1D efficiencies %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_recoEff_pT.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_recoEff_y.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_recoEff_phi.pdf}}
+\caption{Ratio ``MC T\&P over MC truth'' efficiencies for the reconstruction
+  efficiencies.}
+%\label{fig:}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_trigEff_pT.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_trigEff_y.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_trigEff_phi.pdf}}
+\caption{Ratio ``MC T\&P over MC truth'' efficiencies for the
+  HLT\_DoubleMu0 trigger efficiencies.}
+%\label{fig:}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_totEff_pT.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_totEff_y.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_totEff_phi.pdf}}
+\caption{Ratio ``MC T\&P over MC truth'' efficiencies for the reco
+  plus HLT\_DoubleMu0 trigger efficiencies.}
+%\label{fig:}
+\end{figure}
+
+%%%% 2D efficiencies: |y| %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff2D_TnPMC_recoEff_rap0.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff2D_MCTruth_recoEff_rap0.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio2D_recoEff_rap0.pdf}}
+\caption{\pt\ versus y differential reconstruction efficiencies from
+  MC. Top: T\&P applied to MC, Middle: MC truth; Bottom: ratio T\&P
+  MC efficiencies over MC truth efficiencies.}
+%\label{fig:}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff2D_TnPMC_trigEff_rap0.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff2D_MCTruth_trigEff_rap0.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio2D_trigEff_rap0.pdf}}
+\caption{\pt\ versus y differential HLT\_DoubleMu0 trigger efficiencies
+  from MC. Top: T\&P applied to MC, Middle: MC truth; Bottom: ratio
+  T\&P MC efficiencies over MC truth efficiencies.}
+%\label{fig:}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff2D_TnPMC_totEff_rap0.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff2D_MCTruth_totEff_rap0.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio2D_totEff_rap0.pdf}}
+\caption{\pt\ versus y differential reconstruction and HLT\_DoubleMu0
+  trigger efficiencies from
+  MC. Top: T\&P applied to MC, Middle: MC truth; Bottom: ratio T\&P
+  MC efficiencies over MC truth efficiencies.}
+%\label{fig:}
+\end{figure}
+
+
+\end{document}
