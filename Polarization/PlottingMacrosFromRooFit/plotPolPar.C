@@ -4,11 +4,12 @@
 Int_t myColour[kNbRap] = {2,4};
 Int_t myMarkerStyle[kNbRap] = {20, 25};
 Int_t myStars[kNbFrames] = {29, 30};
-
+Int_t mySymF[kNbFrames] = {22, 23};
 TGraphAsymmErrors *gLTh[kNbSpecies][kNbFrames][kNbRap];
 TGraphAsymmErrors *gLPhi[kNbSpecies][kNbFrames][kNbRap];
 TGraphAsymmErrors *gLThPhi[kNbSpecies][kNbFrames][kNbRap];
 TGraphAsymmErrors *gLTilde[kNbSpecies][kNbFrames][kNbRap];
+TGraphAsymmErrors *gF[kNbSpecies][kNbFrames][kNbRap];
 
 TGraphAsymmErrors *gLTh_CDF_P;
 
@@ -17,6 +18,7 @@ void ReadGraphs(Int_t iFrame, Int_t iRap);
 void PlotGraphsPandNP(Int_t iFrame, Int_t iRap);
 void PlotGraphsRap(Int_t iFrame, Int_t iSpecies);
 void PlotLambdaTilde(Int_t iRap, Int_t iSpecies);
+void PlotF(Int_t iRap, Int_t iSpecies);
 void LoadCDF();
 void PlotTogetherWithCDF();
 void LoadErrorCorrFactors();
@@ -73,10 +75,12 @@ void plotPolPar(){
   PlotGraphsRap(CS, NP);
   PlotGraphsRap(HX, NP);
 
-
   for(int iRap = 0; iRap < kNbRap; iRap++){
     PlotLambdaTilde(iRap, P);
     PlotLambdaTilde(iRap, NP);
+
+    PlotF(iRap, P);
+    PlotF(iRap, NP);
   }
   
   PlotTogetherWithCDF();
@@ -88,7 +92,7 @@ void PlotTogetherWithCDF(){
   Char_t name[100];
   gStyle->SetTitleOffset(0.9, "y");
 
-  TCanvas *cCDF = new TCanvas("cCDF");
+  TCanvas *cCDF = new TCanvas("cCDF", "cCDF");
   TH1F *hFrame4 = gPad->DrawFrame(0., -1., 30.5, 1.);
   hFrame4->SetXTitle("p_{T} [GeV]");
   hFrame4->GetYaxis()->SetTitleSize(0.06);
@@ -101,8 +105,8 @@ void PlotTogetherWithCDF(){
   TLine *line4 = new TLine(0., 0., 30.5, 0.);
   line4->SetLineStyle(3);  line4->Draw();
 
-  TLegend *leg5 = new TLegend(0.1408046,0.1334746,0.33,0.28);
-  leg5->AddEntry(gLTh[P][HX][0], "CMS Preliminary,  #sqrt{s} = 7 TeV,  L = 15.8 pb^{-1},  |y| < 0.9", "p");
+  TLegend *leg5 = new TLegend(0.1479885,0.7838983,0.3362069,0.9322034);
+  leg5->AddEntry(gLTh[P][HX][0], "CMS Preliminary,  #sqrt{s} = 7 TeV,  L = 39.6 pb^{-1},  |y| < 0.9", "p");
   leg5->AddEntry(gLTh_CDF_P, "CDF,  #sqrt{s} = 1.96 TeV,  L = 800 pb^{-1},  |y| < 0.6", "p");
   leg5->SetFillColor(0);  leg5->SetTextSize(0.04);
   leg5->SetBorderSize(0);
@@ -110,7 +114,7 @@ void PlotTogetherWithCDF(){
 
 //   TLatex *tex5 = new TLatex(21.6, -0.76, "CMS preliminary");
 //   tex5->SetTextSize(0.045);  tex5->Draw();
-//   tex5->DrawLatex(18.6, -0.9, "#sqrt{s} = 7 TeV, L = 15.8 pb^{-1}");
+//   tex5->DrawLatex(18.6, -0.9, "#sqrt{s} = 7 TeV, L = 39.6 pb^{-1}");
 
   sprintf(name, "Figures/lambdaTheta_CDF.gif");
   cCDF->Print(name);
@@ -124,9 +128,9 @@ void PlotLambdaTilde(Int_t iRap, Int_t iSpecies){
 
   Char_t name[100];
   //===============================================
-  //lambda_thTilde
+  //lambda_Tilde
   //===============================================
-  sprintf(name, "LambdaThTilde_%s_%d", speciesLabel[iSpecies], iRap);
+  sprintf(name, "LambdaTilde_%s_%d", speciesLabel[iSpecies], iRap);
   TCanvas *c4 = new TCanvas(name, name);
   TH1F *hFrame4 = gPad->DrawFrame(0., -1., 30.5, 1.);
   hFrame4->SetXTitle("p_{T} [GeV]");
@@ -144,20 +148,63 @@ void PlotLambdaTilde(Int_t iRap, Int_t iSpecies){
     sprintf(name, "prompt J/#psi, %s", rapLabel[iRap]);
   else if(iSpecies == 1)
     sprintf(name, "non-prompt J/#psi, %s", rapLabel[iRap]);
-  TLegend *leg4 = new TLegend(0.1408046,0.1334746,0.375,0.3241525, name);
+  TLegend *leg4 = new TLegend(0.1422414,0.75,0.3764368,0.940678, name);
   for(int iFrame = 0; iFrame < kNbFrames; iFrame++)
     leg4->AddEntry(gLTilde[iSpecies][iFrame][iRap], frameLabel[iFrame], "p");
   leg4->SetFillColor(0);  leg4->SetTextSize(0.04);
   leg4->SetBorderSize(0);
   leg4->Draw();
 
-  TLatex *tex4 = new TLatex(21.6, -0.76, "CMS preliminary");
+  TLatex *tex4 = new TLatex(21.6, 0.85, "CMS preliminary");
   tex4->SetTextSize(0.045);  tex4->Draw();
-  tex4->DrawLatex(18.6, -0.9, "#sqrt{s} = 7 TeV, L = 15.8 pb^{-1}");
+  tex4->DrawLatex(18.6, 0.7, "#sqrt{s} = 7 TeV, L = 39.6 pb^{-1}");
 
   sprintf(name, "Figures/lambdaTilde_%s_rap%d.gif", speciesLabel[iSpecies], iRap+1);
   c4->Print(name);
   sprintf(name, "Figures/lambdaTilde_%s_rap%d.pdf", speciesLabel[iSpecies], iRap+1);
+  c4->Print(name);
+
+}
+
+//====================================
+void PlotF(Int_t iRap, Int_t iSpecies){
+
+  Char_t name[100];
+  //===============================================
+  //F
+  //===============================================
+  sprintf(name, "F_%s_%d", speciesLabel[iSpecies], iRap);
+  TCanvas *c4 = new TCanvas(name, name);
+  TH1F *hFrame4 = gPad->DrawFrame(0., -1., 30.5, 1.);
+  hFrame4->SetXTitle("p_{T} [GeV]");
+  hFrame4->GetYaxis()->SetTitleSize(0.06);
+  sprintf(name, "F");
+  hFrame4->SetYTitle(name);
+
+  gF[iSpecies][CS][iRap]->Draw("p same");
+  gF[iSpecies][HX][iRap]->Draw("p same");
+
+  TLine *line4 = new TLine(0., 0., 30.5, 0.);
+  line4->SetLineStyle(3);  line4->Draw();
+
+  if(iSpecies == 0)
+    sprintf(name, "prompt J/#psi, %s", rapLabel[iRap]);
+  else if(iSpecies == 1)
+    sprintf(name, "non-prompt J/#psi, %s", rapLabel[iRap]);
+  TLegend *leg4 = new TLegend(0.1422414,0.75,0.3764368,0.940678, name);
+  for(int iFrame = 0; iFrame < kNbFrames; iFrame++)
+    leg4->AddEntry(gF[iSpecies][iFrame][iRap], frameLabel[iFrame], "p");
+  leg4->SetFillColor(0);  leg4->SetTextSize(0.04);
+  leg4->SetBorderSize(0);
+  leg4->Draw();
+
+  TLatex *tex4 = new TLatex(21.6, 0.85, "CMS preliminary");
+  tex4->SetTextSize(0.045);  tex4->Draw();
+  tex4->DrawLatex(18.6, 0.7, "#sqrt{s} = 7 TeV, L = 39.6 pb^{-1}");
+
+  sprintf(name, "Figures/F_%s_rap%d.gif", speciesLabel[iSpecies], iRap+1);
+  c4->Print(name);
+  sprintf(name, "Figures/F_%s_rap%d.pdf", speciesLabel[iSpecies], iRap+1);
   c4->Print(name);
 
 }
@@ -200,7 +247,7 @@ void PlotGraphsRap(Int_t iFrame, Int_t iSpecies){
 
   TLatex *tex1 = new TLatex(21.6, 0.8, "CMS preliminary");
   tex1->SetTextSize(0.045);  tex1->Draw();
-  tex1->DrawLatex(18.6, 0.62, "#sqrt{s} = 7 TeV, L = 15.8 pb^{-1}");
+  tex1->DrawLatex(18.6, 0.62, "#sqrt{s} = 7 TeV, L = 39.6 pb^{-1}");
 
   sprintf(name, "Figures/lambdaTh_%s_%s.gif", speciesLabel[iSpecies], frameLabel[iFrame]);
   c1->Print(name);
@@ -238,7 +285,7 @@ void PlotGraphsRap(Int_t iFrame, Int_t iSpecies){
 
   TLatex *tex2 = new TLatex(21.6, 0.8, "CMS preliminary");
   tex2->SetTextSize(0.045);  tex2->Draw();
-  tex2->DrawLatex(18.6, 0.62, "#sqrt{s} = 7 TeV, L = 15.8 pb^{-1}");
+  tex2->DrawLatex(18.6, 0.62, "#sqrt{s} = 7 TeV, L = 39.6 pb^{-1}");
 
   sprintf(name, "Figures/lambdaPhi_%s_%s.gif", speciesLabel[iSpecies], frameLabel[iFrame]);
   c2->Print(name);
@@ -277,7 +324,7 @@ void PlotGraphsRap(Int_t iFrame, Int_t iSpecies){
 
   TLatex *tex3 = new TLatex(21.6, 0.55, "CMS preliminary");
   tex3->SetTextSize(0.045);  tex3->Draw();
-  tex3->DrawLatex(18.6, 0.42, "#sqrt{s} = 7 TeV, L = 15.8 pb^{-1}");
+  tex3->DrawLatex(18.6, 0.42, "#sqrt{s} = 7 TeV, L = 39.6 pb^{-1}");
 
   sprintf(name, "Figures/lambdaThPhi_%s_%s.gif", speciesLabel[iSpecies], frameLabel[iFrame]);
   c3->Print(name);
@@ -325,7 +372,7 @@ void PlotGraphsPandNP(Int_t iFrame, Int_t iRap){
 
   TLatex *tex1 = new TLatex(21.6, 0.8, "CMS preliminary");
   tex1->SetTextSize(0.045);  tex1->Draw();
-  tex1->DrawLatex(18.6, 0.62, "#sqrt{s} = 7 TeV, L = 15.8 pb^{-1}");
+  tex1->DrawLatex(18.6, 0.62, "#sqrt{s} = 7 TeV, L = 39.6 pb^{-1}");
 
   sprintf(name, "Figures/lambdaTh_PandNP_%s_rap%d.gif", frameLabel[iFrame], iRap);
   c1->Print(name);
@@ -355,7 +402,7 @@ void PlotGraphsPandNP(Int_t iFrame, Int_t iRap){
     sprintf(name, "  |y| < 0.9");
   else if(iRap == 2)
     sprintf(name, "  0.9 < |y| < 1.2");
-  TLegend *leg2 = new TLegend(0.1408046,0.1334746,0.375,0.3241525, name);
+  TLegend *leg2 = new TLegend(0.14,0.7,0.375,0.96, name);
   leg2->AddEntry(gLTilde[P][iFrame][iRap], "prompt J/#psi", "p");
   leg2->AddEntry(gLTilde[NP][iFrame][iRap], "non-prompt J/#psi", "p");
   leg2->SetFillColor(0);  leg2->SetTextSize(0.04);
@@ -364,7 +411,7 @@ void PlotGraphsPandNP(Int_t iFrame, Int_t iRap){
 
   TLatex *tex2 = new TLatex(21.6, -0.6, "CMS preliminary");
   tex2->SetTextSize(0.045);  tex2->Draw();
-  tex2->DrawLatex(18.6, -0.78, "#sqrt{s} = 7 TeV, L = 15.8 pb^{-1}");
+  tex2->DrawLatex(18.6, -0.78, "#sqrt{s} = 7 TeV, L = 39.6 pb^{-1}");
 
   sprintf(name, "Figures/lambdaThTilde_PandNP_rap%d.gif", iRap);
   c2->Print(name);
@@ -377,7 +424,10 @@ void ReadGraphs(Int_t iFrame, Int_t iRap){
 
   Char_t name[100];
 //   sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/PolVsPt%s_rap%d.root", frameLabel[iFrame], iRap+1);
-  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/13March2011/PolVsPt%s_rap%d.root", frameLabel[iFrame], iRap+1);
+//   sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/13March2011/PolVsPt%s_rap%d.root", frameLabel[iFrame], iRap+1);
+//   sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/24March2011/lphi_PolVsPt%s_rap%d.root", frameLabel[iFrame], iRap+1);
+  sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/24March2011/tilde_PolVsPt%s_rap%d.root", frameLabel[iFrame], iRap+1);
+//   sprintf(name, "/home/hermine/CMS/Work/Polarization/PlotsForPaper/RootFiles/24March2011/F_PolVsPt%s_rap%d.root", frameLabel[iFrame], iRap+1);
   TFile *fIn = new TFile(name);
   //1.) get the parameters for P J/psi:
   //a.) lambda_theta
@@ -405,7 +455,19 @@ void ReadGraphs(Int_t iFrame, Int_t iRap){
   sprintf(name, "lthtilde_P_%s_rap%d", frameLabel[iFrame], iRap);
   gLTilde[P][iFrame][iRap]->SetName(name);
   gLTilde[P][iFrame][iRap]->SetMarkerStyle(myStars[iFrame]);
+  gLTilde[P][iFrame][iRap]->SetMarkerColor(myColour[iFrame]);
+  gLTilde[P][iFrame][iRap]->SetLineColor(myColour[iFrame]);
+  gLTilde[P][iFrame][iRap]->SetLineWidth(2.);
   gLTilde[P][iFrame][iRap]->SetMarkerSize(1.4);
+  //e.) F
+  gF[P][iFrame][iRap] = (TGraphAsymmErrors *) gDirectory->Get("f_pt_p");
+  sprintf(name, "f_P_%s_rap%d", frameLabel[iFrame], iRap);
+  gF[P][iFrame][iRap]->SetName(name);
+  gF[P][iFrame][iRap]->SetMarkerStyle(mySymF[iFrame]);
+  gF[P][iFrame][iRap]->SetMarkerColor(myColour[iFrame]);
+  gF[P][iFrame][iRap]->SetLineColor(myColour[iFrame]);
+  gF[P][iFrame][iRap]->SetLineWidth(2.);
+  gF[P][iFrame][iRap]->SetMarkerSize(1.4);
 
   //2.) get the parameters for NP J/psi:
   //a.) lambda_theta
@@ -431,7 +493,19 @@ void ReadGraphs(Int_t iFrame, Int_t iRap){
   sprintf(name, "lthtilde_NP_%s_rap%d", frameLabel[iFrame], iRap);
   gLTilde[NP][iFrame][iRap]->SetName(name);
   gLTilde[NP][iFrame][iRap]->SetMarkerStyle(myStars[iFrame]);
+  gLTilde[NP][iFrame][iRap]->SetMarkerColor(myColour[iFrame]);
+  gLTilde[NP][iFrame][iRap]->SetLineColor(myColour[iFrame]);
+  gLTilde[NP][iFrame][iRap]->SetLineWidth(2.);
   gLTilde[NP][iFrame][iRap]->SetMarkerSize(1.4);
+  //d.) F
+  gF[NP][iFrame][iRap] = (TGraphAsymmErrors *) gDirectory->Get("f_pt_np");
+  sprintf(name, "f_NP_%s_rap%d", frameLabel[iFrame], iRap);
+  gF[NP][iFrame][iRap]->SetName(name);
+  gF[NP][iFrame][iRap]->SetMarkerStyle(mySymF[iFrame]);
+  gF[NP][iFrame][iRap]->SetMarkerColor(myColour[iFrame]);
+  gF[NP][iFrame][iRap]->SetLineColor(myColour[iFrame]);
+  gF[NP][iFrame][iRap]->SetLineWidth(2.);
+  gF[NP][iFrame][iRap]->SetMarkerSize(1.4);
 
   fIn->Close();
 }
@@ -458,6 +532,7 @@ void LoadErrorCorrFactors(){
 //=============================
 void PrintPars(){
   
+  //first round prints (potential) asymmetric error bars:
   for(int iSpecies = 0; iSpecies < kNbSpecies; iSpecies++){
     printf("%s\n", speciesLabel[iSpecies]);
     for(int iFrame = kNbFrames-1; iFrame >= 0; iFrame--){
@@ -497,6 +572,59 @@ void PrintPars(){
 		 y[1], errYhigh[1], errYlow[1], 
 		 y[2], errYhigh[2], errYlow[2],
 		 y[3], errYhigh[3], errYlow[3]);
+	}
+      }
+    }
+  }
+
+  printf("\n\n\n PRINTING NOW SYMMETRIC ERROR BARS\n\n\n");
+
+  //second round prints only positive error bars 
+  //(given that they are symmetric up to now...):
+  for(int iSpecies = 0; iSpecies < kNbSpecies; iSpecies++){
+    printf("%s\n", speciesLabel[iSpecies]);
+    for(int iFrame = kNbFrames-1; iFrame >= 0; iFrame--){
+      printf("%s\n", frameLabel[iFrame]);
+      for(int iRap = 0; iRap < kNbRap; iRap++){
+
+	Int_t nPoints = gLTh[iSpecies][iFrame][iRap]->GetN();
+	Double_t x, y[4];
+	Double_t errXlow, errXhigh;
+	Double_t errYlow[4], errYhigh[4];
+	for(int iP = 0; iP < nPoints; iP++){
+
+	  //lambda_theta
+	  gLTh[iSpecies][iFrame][iRap]->GetPoint(iP,x,y[0]);
+	  errXlow = gLTh[iSpecies][iFrame][iRap]->GetErrorXlow(iP);
+	  errXhigh = gLTh[iSpecies][iFrame][iRap]->GetErrorXhigh(iP);
+	  errYlow[0] = gLTh[iSpecies][iFrame][iRap]->GetErrorYlow(iP);
+	  errYhigh[0] = gLTh[iSpecies][iFrame][iRap]->GetErrorYhigh(iP);
+	  //lambda_phi
+	  gLPhi[iSpecies][iFrame][iRap]->GetPoint(iP,x,y[1]);
+	  errYlow[1] = gLPhi[iSpecies][iFrame][iRap]->GetErrorYlow(iP);
+	  errYhigh[1] = gLPhi[iSpecies][iFrame][iRap]->GetErrorYhigh(iP);
+	  //lambda_thetaPhi
+	  gLThPhi[iSpecies][iFrame][iRap]->GetPoint(iP,x,y[2]);
+	  errYlow[2] = gLThPhi[iSpecies][iFrame][iRap]->GetErrorYlow(iP);
+	  errYhigh[2] = gLThPhi[iSpecies][iFrame][iRap]->GetErrorYhigh(iP);
+	  //lambda_thetaTilde
+	  gLTilde[iSpecies][iFrame][iRap]->GetPoint(iP,x,y[3]);
+	  errYlow[3] = gLTilde[iSpecies][iFrame][iRap]->GetErrorYlow(iP);
+	  errYhigh[3] = gLTilde[iSpecies][iFrame][iRap]->GetErrorYhigh(iP);
+
+	  for(int iPar = 0; iPar < 4; iPar++){
+	    if(fabs(errYlow[iPar] - errYhigh[iPar]) > 0.00001)
+	      printf("\n\n\n positive and negative errors are not the same anymore!!! %1.3e vs %1.3e\n", errYlow[3], errYhigh[3]);
+	  }
+
+	  printf("%1.1f--%1.1f & %1.0f--%1.0f & $%1.2f \\pm %1.2f$ & $%1.2f \\pm %1.2f$ & $%1.2f \\pm %1.2f$ & $%1.2f \\pm %1.2f$ \\\\ \n",
+		 rapForPTRange[iRap], rapForPTRange[iRap+1], 
+		 x-errXlow, x+errXhigh, //pTmin-pTmax
+// 		 x, errXhigh, errXlow,  //pTmean and +-
+		 y[0], errYhigh[0], 
+		 y[1], errYhigh[1], 
+		 y[2], errYhigh[2],
+		 y[3], errYhigh[3]);
 	}
       }
     }
