@@ -153,8 +153,8 @@ void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
       dimuTypeFlag = kFALSE;
 
     Bool_t recoPassed = kFALSE, totPassed = kFALSE;
-    if(onia->Pt() < 990. && dimuTypeFlag) recoPassed = kTRUE;
-    if(onia->Pt() < 990. && dimuTypeFlag && trigValue == 1) totPassed = kTRUE;
+    if(onia->Pt() < 990. && dimuTypeFlag && JpsiVprob > 0.01) recoPassed = kTRUE;
+    if(onia->Pt() < 990. && dimuTypeFlag && JpsiVprob > 0.01 && trigValue == 1) totPassed = kTRUE;
     
     recoEff_pT->Fill(recoPassed, onia_Gen_pt);
     recoEff_y->Fill(recoPassed, onia_Gen_rap);
@@ -233,6 +233,8 @@ void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
     if(selDimuType < 3 && JpsiType != selDimuType)
       continue;
     else if(selDimuType == 3 && JpsiType > 1) //only GG or GT
+      continue;
+    if(JpsiVprob < 0.01) //vertex probability cut not applied anylonger
       continue;
 
     Bool_t trigPassed = kFALSE;
