@@ -6,21 +6,33 @@
 #include <TH2.h>
 #include <TCanvas.h>
 
-Int_t const kNbEff = 5;
-Char_t *effFileNames[kNbEff] = {"/home/hermine/CMS/Work/TnP/LucaPerrozzi/17March2011/MuonTrackingEff_17March2011.root",
-				"/home/hermine/CMS/Work/TnP/Zongchang/19March2011/MuonIDEff_19March2011.root",
-				"/home/hermine/CMS/Work/TnP/Xianyou/19March2011/MuonQualEff_19March2011.root",
-				"/home/hermine/CMS/Work/TnP/Francesco/18March2011/L1L2_DoubleMu0_TriggerEfficiencies_18March2011.root",
-				"/home/hermine/CMS/Work/TnP/Luigi/19March2011/L3_DoubleMu0_TriggerEfficiencies_19March2011.root"};
-enum {TrkEff, MuIDEff, MuQualEff, L1L2Eff, L3Eff};
-Char_t *effName[kNbEff] = {"TrkEff", "MuIDEff", "MuQualEff", "L1L2Eff", "L3Eff"};
+Int_t const kNbEff = 7;
+Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/LucaPerrozzi/28March2011/MuonTrackingEff_28March2011.root",
+				"/Users/hwoehri/CMS/Work/TnP/Zongchang/29March2011/MuonIDEff_29March2011_fitted.root",
+				"/Users/hwoehri/CMS/Work/TnP/Xianyou/25March2011/MuonQualEff_25March2011_fitted.root",
+				"/Users/hwoehri/CMS/Work/TnP/Francesco/2April2011/L1L2_DMu0_TriggerEfficiencies_RUNA_distM2gt120_7April2011_fitted.root",
+				"/Users/hwoehri/CMS/Work/TnP/Luigi/5April2011/L3_DoubleMu0_TriggerEfficiencies_Run2010B_distM1gt150_7April2011_fitted.root",
+				"/Users/hwoehri/CMS/Work/TnP/Herbert/28March2011/HLT_Track_Mu0TkMu0_Run1.root",
+				"/Users/hwoehri/CMS/Work/TnP/Ilse/24March2011/HLTMuonTrack_Mu0_TkMu0_TM.root"};
+//old versions:
+//"/Users/hwoehri/CMS/Work/TnP/Zongchang/19March2011/MuonIDEff_19March2011.root",
+//"/Users/hwoehri/CMS/Work/TnP/Francesco/23March2011/L1L2_DMu0_TriggerEfficiencies_23March2011.root", //mix of RunA and B
+//"/Users/hwoehri/CMS/Work/TnP/Luigi/25March2011/L3_DoubleMu0_TriggerEfficiencies_Run2010B_25March2011.root",
+//"/Users/hwoehri/CMS/Work/TnP/LucaPerrozzi/17March2011/MuonTrackingEff_17March2011.root",
+//"/Users/hwoehri/CMS/Work/TnP/Xianyou/19March2011/MuonQualEff_19March2011.root",
+//"/Users/hwoehri/CMS/Work/TnP/Francesco/18March2011/L1L2_DoubleMu0_TriggerEfficiencies_18March2011.root",
+//"/Users/hwoehri/CMS/Work/TnP/Luigi/19March2011/L3_DoubleMu0_TriggerEfficiencies_19March2011.root"};
+enum {TrkEff, MuIDEff, MuQualEff, L1L2Eff, L3Eff, Trk_TkMu0, Mu_TkMu0};
+Char_t *effName[kNbEff] = {"TrkEff", "MuIDEff", "MuQualEff", "L1L2Eff", "L3Eff", "Trk_TkMu0Eff", "Mu_TkMu0Eff"};
 Int_t const kNbEffSample = 3;
 enum {DATA, MC, MCTRUTH};
 Char_t *effSampleName[kNbEffSample] = {"DATA", "MC", "MCTRUTH"};
 //
 enum {CENTRAL, UPPER, LOWER};
 TH2D *hMuEff[kNbEff][kNbEffSample][3];
-
+Int_t const kNbEtaBins = 8;
+Float_t binsEta[kNbEtaBins] = {0.2, 0.3, 0.6, 0.8, 1.2, 1.5, 2.1, 2.4}; //needs manual adjustment!!!
+TF1 *fMuEff_pT[kNbEff][kNbEffSample][kNbEtaBins];
 //=================================================
 //1D histos versus J/psi pT, phi and y
 //=================================================
@@ -56,24 +68,22 @@ TH2D *totEff2D_pol_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTB
 TH2D *recoEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TH2D *trigEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TH2D *totEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+//=================================================
+//deltaR, deltaPhi vs deltaEta for various J/psi pT and y
+//=================================================
+TH1D *hGen_deltaR_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TH1D *recoEff_deltaR_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TH1D *trigEff_deltaR_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TH1D *totEff_deltaR_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
-// Double_t massMuOnia;
+TH2D *hGen2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TH2D *recoEff2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TH2D *trigEff2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TH2D *totEff2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+
 
 Double_t GetEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt);
-// Double_t GetTrackingEffPos(Double_t etaMuPos, Double_t pTMuPos);
-// Double_t GetMuonIDEffPos(Double_t etaMuPos, Double_t pTMuPos);
-// Double_t GetMuQualEffPos(Double_t etaMuPos, Double_t pTMuPos);
-// Double_t GetTrackingEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-// Double_t GetMuonIDEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-// Double_t GetMuQualEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-// Double_t GetL1L2TrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-// Double_t GetL3TrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-// Double_t GetTrackTrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-// Double_t GetTkMuTrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg);
-// Double_t GetL1L2TrigEffPos(Double_t etaMuPos, Double_t pTMuPos);
-// Double_t GetL3TrigEffPos(Double_t etaMuPos, Double_t pTMuPos);
-// Double_t GetTrackTrigEffPos(Double_t etaMuPos, Double_t pTMuPos);
-// Double_t GetTkMuTrigEffPos(Double_t etaMuPos, Double_t pTMuPos);
+Double_t GetEfficiency_FromParametrization(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt);
 //==============================================
 void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel)
 {
@@ -105,6 +115,8 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel)
     Double_t pTMuNeg_Gen = muNeg_Gen->Pt();
     Double_t pMuPos_Gen = muPos_Gen->P();
     Double_t pMuNeg_Gen = muNeg_Gen->P();
+    Double_t phiMuPos_Gen = muPos_Gen->Phi();
+    Double_t phiMuNeg_Gen = muNeg_Gen->Phi();
 
     //take muons only within a certain eta range
     if((fabs(etaMuPos_Gen) < eff::etaPS[0] && pTMuPos_Gen < eff::pTMuMin[0]) || //mid-rapidity cut
@@ -115,6 +127,9 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel)
     if((fabs(etaMuNeg_Gen) < eff::etaPS[0] && pTMuNeg_Gen < eff::pTMuMin[0]) || //mid-rapidity cut
        (fabs(etaMuNeg_Gen) > eff::etaPS[0] && fabs(etaMuNeg_Gen) < eff::etaPS[1] && pMuNeg_Gen < eff::pMuMin[1]) ||
        (fabs(etaMuNeg_Gen) > eff::etaPS[1] && fabs(etaMuNeg_Gen) < eff::etaPS[2] && pTMuNeg_Gen < eff::pTMuMin[2]))
+      continue;
+
+    if(JpsiVprob < 0.01)
       continue;
 
     Double_t onia_Gen_mass = onia_Gen->M();
@@ -171,44 +186,51 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel)
     calcPol(*muPos_Gen, *muNeg_Gen);
     //==============================
 
-//     Double_t epsTrack_Pos  = GetTrackingEffPos(etaMuPos_Gen, pTMuPos_Gen);
-//     Double_t epsMuonID_Pos = GetMuonIDEffPos(etaMuPos_Gen, pTMuPos_Gen);
-//     Double_t epsQual_Pos   = GetMuQualEffPos(etaMuPos_Gen, pTMuPos_Gen);
-//     Double_t epsTrack_Neg  = GetTrackingEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-//     Double_t epsMuonID_Neg = GetMuonIDEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-//     Double_t epsQual_Neg   = GetMuQualEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-//     //check which muon is matched to the HLT-muon:
-//     Double_t epsL1L2Trig, epsL3Trig, epsTrackTrig, epsTkMuTrig;
-//     if(1){//dummy requirement; needs fixing
-//       epsL1L2Trig  = GetL1L2TrigEffPos(etaMuPos_Gen, pTMuPos_Gen);
-//       epsL3Trig    = GetL3TrigEffPos(etaMuPos_Gen, pTMuPos_Gen);
-//       epsTrackTrig = GetTrackTrigEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-//       epsTkMuTrig  = GetTkMuTrigEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-//     }
-//     else{
-//       epsL1L2Trig = GetL1L2TrigEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-//       epsL3Trig   = GetL3TrigEffNeg(etaMuNeg_Gen, pTMuNeg_Gen);
-//       epsTrackTrig = GetTrackTrigEffPos(etaMuPos_Gen, pTMuPos_Gen);
-//       epsTkMuTrig  = GetTkMuTrigEffPos(etaMuPos_Gen, pTMuPos_Gen);
-//     }
+    // Double_t epsTrack_Pos  = GetEfficiency(TrkEff, effSample, etaMuPos_Gen, pTMuPos_Gen); 
+    // Double_t epsMuonID_Pos = GetEfficiency(MuIDEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+    // Double_t epsQual_Pos   = GetEfficiency(MuQualEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+    // Double_t epsTrack_Neg  = GetEfficiency(TrkEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+    // Double_t epsMuonID_Neg = GetEfficiency(MuIDEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+    // Double_t epsQual_Neg   = GetEfficiency(MuQualEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
 
     Double_t epsTrack_Pos  = GetEfficiency(TrkEff, effSample, etaMuPos_Gen, pTMuPos_Gen); 
-    Double_t epsMuonID_Pos = GetEfficiency(MuIDEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
-    Double_t epsQual_Pos   = GetEfficiency(MuQualEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
     Double_t epsTrack_Neg  = GetEfficiency(TrkEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
-    Double_t epsMuonID_Neg = GetEfficiency(MuIDEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
-    Double_t epsQual_Neg   = GetEfficiency(MuQualEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+    //
+    Double_t epsMuonID_Pos = GetEfficiency_FromParametrization(MuIDEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+    Double_t epsQual_Pos   = GetEfficiency_FromParametrization(MuQualEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+    Double_t epsMuonID_Neg = GetEfficiency_FromParametrization(MuIDEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+    Double_t epsQual_Neg   = GetEfficiency_FromParametrization(MuQualEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+    //
     Double_t epsL1L2Trig_Pos, epsL3Trig_Pos, epsL1L2Trig_Neg, epsL3Trig_Neg;
-    epsL1L2Trig_Pos = GetEfficiency(L1L2Eff, effSample, etaMuPos_Gen, pTMuPos_Gen);
-    epsL3Trig_Pos   = GetEfficiency(L3Eff, effSample, etaMuPos_Gen, pTMuPos_Gen);
-    epsL1L2Trig_Neg = GetEfficiency(L1L2Eff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
-    epsL3Trig_Neg   = GetEfficiency(L3Eff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+    if(strncmp("HLT_DoubleMu0", trigLabel, 13) == 0){
+//       epsL1L2Trig_Pos = GetEfficiency(L1L2Eff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+//       epsL3Trig_Pos   = GetEfficiency(L3Eff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+//       epsL1L2Trig_Neg = GetEfficiency(L1L2Eff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+//       epsL3Trig_Neg   = GetEfficiency(L3Eff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+      epsL1L2Trig_Pos = GetEfficiency_FromParametrization(L1L2Eff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+      epsL3Trig_Pos   = GetEfficiency_FromParametrization(L3Eff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+      epsL1L2Trig_Neg = GetEfficiency_FromParametrization(L1L2Eff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+      epsL3Trig_Neg   = GetEfficiency_FromParametrization(L3Eff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+    }
+    else if(strncmp("HLT_Mu0_TkMu0_OST_Jpsi", trigLabel, 22) == 0){
+      if(pTMuPos_Gen > pTMuNeg_Gen){//approximate requirement; needs fixing
+	epsL1L2Trig_Pos  = GetEfficiency(L1L2Eff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+	epsL3Trig_Pos    = GetEfficiency(L3Eff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+	epsL1L2Trig_Neg  = GetEfficiency(Mu_TkMu0, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	epsL3Trig_Neg    = GetEfficiency(Trk_TkMu0, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+      }
+      else{
+	epsL1L2Trig_Neg  = GetEfficiency(L1L2Eff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	epsL3Trig_Neg    = GetEfficiency(L3Eff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	epsL1L2Trig_Pos  = GetEfficiency(Mu_TkMu0, effSample, etaMuPos_Gen, pTMuPos_Gen);
+	epsL3Trig_Pos    = GetEfficiency(Trk_TkMu0, effSample, etaMuPos_Gen, pTMuPos_Gen);
+      }
+    }
 
     Double_t recoEff_Pos = epsTrack_Pos * epsMuonID_Pos * epsQual_Pos;
     Double_t recoEff_Neg = epsTrack_Neg * epsMuonID_Neg * epsQual_Neg;
     Double_t recoEff = recoEff_Pos * recoEff_Neg;
-//     Double_t trigEff = epsL1L2Trig * epsL3Trig * epsTrackTrig * epsTkMuTrig;
-     Double_t trigEff = epsL1L2Trig_Pos * epsL3Trig_Pos * epsL1L2Trig_Neg * epsL3Trig_Neg;
+    Double_t trigEff = epsL1L2Trig_Pos * epsL3Trig_Pos * epsL1L2Trig_Neg * epsL3Trig_Neg;
     Double_t totEff = trigEff * recoEff;
     
     hGen_pT->Fill(onia_Gen_pt);
@@ -313,74 +335,69 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel)
       }
     }
 
+    //fill the series of correlation histos for lab-frame
+    Double_t deltaEta = fabs(etaMuPos_Gen - etaMuNeg_Gen);
+    Double_t deltaPhi = phiMuPos_Gen - phiMuNeg_Gen;
+    if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
+    else if(deltaPhi > TMath::Pi()) deltaPhi -= 2.*TMath::Pi();
+    Double_t deltaPhiDeg = deltaPhi * 180./TMath::Pi();
+    Double_t deltaR = sqrt(pow(deltaEta,2) + pow(deltaPhi,2));
+
+    hGen_deltaR_pT_rap[0][0]->Fill(deltaR);
+    recoEff_deltaR_pT_rap[0][0]->Fill(deltaR, recoEff);
+    trigEff_deltaR_pT_rap[0][0]->Fill(deltaR, trigEff);
+    totEff_deltaR_pT_rap[0][0]->Fill(deltaR, totEff);
+
+    hGen2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(deltaEta, deltaPhiDeg);
+    recoEff2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(deltaEta, deltaPhiDeg, recoEff);
+    trigEff2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(deltaEta, deltaPhiDeg, trigEff);
+    totEff2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(deltaEta, deltaPhiDeg, totEff);
+
+    if(rapIntegratedPTIndex_Gen > 0){
+      hGen_deltaR_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaR);
+      recoEff_deltaR_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaR, recoEff);
+      trigEff_deltaR_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaR, trigEff);
+      totEff_deltaR_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaR, totEff);
+
+      hGen2D_deltaPhiVsDeltaEta_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaEta, deltaPhiDeg);
+      recoEff2D_deltaPhiVsDeltaEta_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaEta, deltaPhiDeg, recoEff);
+      trigEff2D_deltaPhiVsDeltaEta_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaEta, deltaPhiDeg, trigEff);
+      totEff2D_deltaPhiVsDeltaEta_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaEta, deltaPhiDeg, totEff);
+    }
+    if(rapForPTIndex_Gen > 0){
+      hGen_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaR);
+      recoEff_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaR, recoEff);
+      trigEff_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaR, trigEff);
+      totEff_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaR, totEff);
+
+      hGen2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg);
+      recoEff2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg, recoEff);
+      trigEff2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg, trigEff);
+      totEff2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg, totEff);
+    }
+    if(pTIndex_Gen > 0 && rapForPTIndex_Gen > 0){
+      hGen_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaR);
+      recoEff_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaR, recoEff);
+      trigEff_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaR, trigEff);
+      totEff_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaR, totEff);
+
+      hGen2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg);
+      recoEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg, recoEff);
+      trigEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg, trigEff);
+      totEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg, totEff);
+    }
+
   }//loop over entries
 
   printf("nb. of rec. events is %d of a total of %d events\n", (Int_t) countRecEvent, (Int_t) nentries);
 }
 
-// //==============================================================
-// Double_t GetTrackingEffPos(Double_t etaMuPos, Double_t pTMuPos){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetMuonIDEffPos(Double_t etaMuPos, Double_t pTMuPos){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetMuQualEffPos(Double_t etaMuPos, Double_t pTMuPos){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetTrackingEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetMuonIDEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetMuQualEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetL1L2TrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetL3TrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetTrackTrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetTkMuTrigEffNeg(Double_t etaMuNeg, Double_t pTMuNeg){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetL1L2TrigEffPos(Double_t etaMuPos, Double_t pTMuPos){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetL3TrigEffPos(Double_t etaMuPos, Double_t pTMuPos){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetTrackTrigEffPos(Double_t etaMuPos, Double_t pTMuPos){
-//   return 1.;
-// }
-// //==============================================================
-// Double_t GetTkMuTrigEffPos(Double_t etaMuPos, Double_t pTMuPos){
-//   return 1.;
-// }
-
-
 //==============================================================
 Double_t GetEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt){
 
   if(fabs(eta) > 2.4) return 0.; //no acceptance beyond 2.4
-  if(pt > 20.) return 1.; //efficiencies beyond 20 GeV/c not reliable from T&P, but are always 100%
+//   if(pt > 20.) return 1.; //efficiencies beyond 20 GeV/c not reliable from T&P, but are always 100%
+  if(iEff == TrkEff && fabs(eta) > 2.1 && pt > 10.) return 1.; //Data contains no value
 
   if(iEff >= kNbEff)
     printf("%d not a valid efficiency!!!\n", iEff);
@@ -394,4 +411,32 @@ Double_t GetEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt){
 //   printf("%s, efficiency for |eta|=%1.3f and pT=%1.2f GeV/c is %1.3f\n",
 // 	 effName[iEff], fabs(eta), pt, eff);
   return eff;
+}
+
+//==============================================================
+Double_t GetEfficiency_FromParametrization(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt){
+
+  if(fabs(eta) > 2.4) return 0.; //no acceptance beyond 2.4
+
+  if(iEff >= kNbEff)
+    printf("%d not a valid efficiency!!!\n", iEff);
+  if(iEffSample >= kNbEffSample)
+    printf("%d not a valide efficiency sample!!!\n", iEffSample);
+
+  Int_t etaBin = -1;
+  for(int iEta = 0; iEta < kNbEtaBins; iEta++){
+    if(fabs(eta) < binsEta[iEta]){
+      etaBin = iEta;
+      break;
+    }
+  }
+
+  Double_t eff = fMuEff_pT[iEff][iEffSample][etaBin]->Eval(pt);
+  if(eff > 1.) eff = 1.;
+  else if(eff < 0.) eff = 0.;
+
+//   printf("%s: eta %f --> mapped into bin %d... efficiency for pt = %f GeV/c is %f\n", effName[iEff], eta, etaBin, pt, eff);
+
+  return eff;
+
 }
