@@ -399,6 +399,9 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel)
     Double_t deltaPhiDeg = deltaPhi * 180./TMath::Pi();
     Double_t deltaR = sqrt(pow(deltaEta,2) + pow(deltaPhi,2));
 
+    //convert the deltaPhi variable from the TTree from rad to deg:
+    JpsiDphiM2 *= 180./TMath::Pi();
+
     hGen_deltaR_pT_rap[0][0]->Fill(deltaR);
     hGen_deltaRM2_pT_rap[0][0]->Fill(JpsiDrM2);
     hGen_deltaPhiM2_pT_rap[0][0]->Fill(JpsiDphiM2);
