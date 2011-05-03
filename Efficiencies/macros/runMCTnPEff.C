@@ -109,8 +109,9 @@ void BookHistos(Char_t *oniaLabel){
   trigEff2D_pT_rap = new TH2D("trigEff2D_pT_rap", ";|y|;p_{T} [GeV/c]", eff::kNbRapForPTBins, eff::rapForPTRange, eff::kNbPTMaxBins, eff::pTRange[0]);
   totEff2D_pT_rapNP = new TH2D("totEff2D_pT_rapNP", ";y;p_{T} [GeV/c]", 2*eff::kNbRapForPTBins, eff::rapRange, eff::kNbPTMaxBins, eff::pTRange[0]);
   totEff2D_pT_rap = new TH2D("totEff2D_pT_rap", ";|y|;p_{T} [GeV/c]", eff::kNbRapForPTBins, eff::rapForPTRange, eff::kNbPTMaxBins, eff::pTRange[0]);
-  recoEff2D_pT_rapNP->Sumw2();  recoEff2D_pT_rap->Sumw2();  trigEff2D_pT_rapNP->Sumw2();
-  trigEff2D_pT_rap->Sumw2();  totEff2D_pT_rap->Sumw2();
+  recoEff2D_pT_rapNP->Sumw2();  recoEff2D_pT_rap->Sumw2();  
+  trigEff2D_pT_rapNP->Sumw2();  trigEff2D_pT_rap->Sumw2();  
+  totEff2D_pT_rapNP->Sumw2(); totEff2D_pT_rap->Sumw2();
 
   //======================================================
   //polarization histograms:
@@ -229,42 +230,100 @@ void BookHistos(Char_t *oniaLabel){
       sprintf(name, "hGen2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
       hGen2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TH2D(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+      hGen2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Sumw2();
 
       //total efficiencies
       sprintf(name, "totEff2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
       totEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TH2D(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+      totEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Sumw2();
 
       //RECO events
       sprintf(name, "recoEff2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
       recoEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TH2D(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+      recoEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Sumw2();
 
       //RECO + TRIG events
       sprintf(name, "trigEff2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
       trigEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TH2D(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+      trigEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Sumw2();
 
       //2.) as a function of deltaR
       //all events
       sprintf(name, "hGen_deltaR_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, ";#DeltaR");
       hGen_deltaR_pT_rap[iPTBin][iRapBin] = new TH1D(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+      hGen_deltaR_pT_rap[iPTBin][iRapBin]->Sumw2();
 
       //total efficiencies
       sprintf(name, "totEff_deltaR_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, ";#DeltaR");
       totEff_deltaR_pT_rap[iPTBin][iRapBin] = new TH1D(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+      totEff_deltaR_pT_rap[iPTBin][iRapBin]->Sumw2();
 
       //RECO events
       sprintf(name, "recoEff_deltaR_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, ";#DeltaR");
       recoEff_deltaR_pT_rap[iPTBin][iRapBin] = new TH1D(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+      recoEff_deltaR_pT_rap[iPTBin][iRapBin]->Sumw2();
 
       //RECO + TRIG events
       sprintf(name, "trigEff_deltaR_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, ";#DeltaR");
       trigEff_deltaR_pT_rap[iPTBin][iRapBin] = new TH1D(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+      trigEff_deltaR_pT_rap[iPTBin][iRapBin]->Sumw2();
+
+      //3.) as a function of deltaRM2
+      //all events
+      sprintf(name, "hGen_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#DeltaR(M2)");
+      hGen_deltaRM2_pT_rap[iPTBin][iRapBin] = new TH1D(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+      hGen_deltaRM2_pT_rap[iPTBin][iRapBin]->Sumw2();
+
+      //total efficiencies
+      sprintf(name, "totEff_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#DeltaR(M2)");
+      totEff_deltaRM2_pT_rap[iPTBin][iRapBin] = new TH1D(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+      totEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Sumw2();
+
+      //RECO events
+      sprintf(name, "recoEff_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#DeltaR(M2)");
+      recoEff_deltaRM2_pT_rap[iPTBin][iRapBin] = new TH1D(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+      recoEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Sumw2();
+
+      //RECO + TRIG events
+      sprintf(name, "trigEff_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#DeltaR(M2)");
+      trigEff_deltaRM2_pT_rap[iPTBin][iRapBin] = new TH1D(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+      trigEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Sumw2();
+
+      //4.) as a function of deltaPhiM2
+      //all events
+      sprintf(name, "hGen_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#phi(M2)");
+      hGen_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TH1D(name, title, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+      hGen_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Sumw2();
+
+      //total efficiencies
+      sprintf(name, "totEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#phi(M2)");
+      totEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TH1D(name, title, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+      totEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Sumw2();
+
+      //RECO events
+      sprintf(name, "recoEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#phi(M2)");
+      recoEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TH1D(name, title, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+      recoEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Sumw2();
+
+      //RECO + TRIG events
+      sprintf(name, "trigEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#phi(M2)");
+      trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TH1D(name, title, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+      trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Sumw2();
     }
   }
 }
@@ -272,7 +331,9 @@ void BookHistos(Char_t *oniaLabel){
 //==========================================
 void DivideHistos(){
 
-  recoEff_pT->Divide(recoEff_pT, hGen_pT, 1., 1., "B"); //binomial errors
+  //given that the "reco" histograms were filled with Possonian errors,
+  //we can calculate the binomial errors
+  recoEff_pT->Divide(recoEff_pT, hGen_pT, 1., 1., "B"); 
   recoEff_y->Divide(recoEff_y, hGen_y, 1., 1., "B");
   recoEff_phi->Divide(recoEff_phi, hGen_phi, 1., 1., "B");
 
@@ -327,6 +388,14 @@ void DivideHistos(){
       recoEff_deltaR_pT_rap[iPTBin][iRapBin]->Divide(recoEff_deltaR_pT_rap[iPTBin][iRapBin], hGen_deltaR_pT_rap[iPTBin][iRapBin], 1., 1., "B");
       trigEff_deltaR_pT_rap[iPTBin][iRapBin]->Divide(trigEff_deltaR_pT_rap[iPTBin][iRapBin], hGen_deltaR_pT_rap[iPTBin][iRapBin], 1., 1., "B");
       totEff_deltaR_pT_rap[iPTBin][iRapBin]->Divide(totEff_deltaR_pT_rap[iPTBin][iRapBin], hGen_deltaR_pT_rap[iPTBin][iRapBin], 1., 1., "B");
+
+      recoEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Divide(recoEff_deltaRM2_pT_rap[iPTBin][iRapBin], hGen_deltaRM2_pT_rap[iPTBin][iRapBin], 1., 1., "B");
+      trigEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Divide(trigEff_deltaRM2_pT_rap[iPTBin][iRapBin], hGen_deltaRM2_pT_rap[iPTBin][iRapBin], 1., 1., "B");
+      totEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Divide(totEff_deltaRM2_pT_rap[iPTBin][iRapBin], hGen_deltaRM2_pT_rap[iPTBin][iRapBin], 1., 1., "B");
+
+      recoEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Divide(recoEff_deltaPhiM2_pT_rap[iPTBin][iRapBin], hGen_deltaPhiM2_pT_rap[iPTBin][iRapBin], 1., 1., "B");
+      trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Divide(trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin], hGen_deltaPhiM2_pT_rap[iPTBin][iRapBin], 1., 1., "B");
+      totEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Divide(totEff_deltaPhiM2_pT_rap[iPTBin][iRapBin], hGen_deltaPhiM2_pT_rap[iPTBin][iRapBin], 1., 1., "B");
     }
   }
 }
@@ -380,6 +449,20 @@ void WriteHistos(){
       totEff_deltaR_pT_rap[iPTBin][iRapBin]->Write();
       recoEff_deltaR_pT_rap[iPTBin][iRapBin]->Write();
       trigEff_deltaR_pT_rap[iPTBin][iRapBin]->Write();
+    }
+  }
+  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+      totEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Write();
+      recoEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Write();
+      trigEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Write();
+    }
+  }
+  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+      totEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
+      recoEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
+      trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
     }
   }
 

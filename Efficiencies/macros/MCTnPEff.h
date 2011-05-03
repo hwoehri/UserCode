@@ -30,6 +30,12 @@ public :
    Double_t        Jpsict;
    Double_t        JpsictErr;
    Double_t        JpsiVprob;
+   Double_t        JpsiDistM1;
+   Double_t        JpsiDphiM1;
+   Double_t        JpsiDrM1;
+   Double_t        JpsiDistM2;
+   Double_t        JpsiDphiM2;
+   Double_t        JpsiDrM2;
    Int_t           HLT_Mu0_Track0_Jpsi;
    Int_t           HLT_Mu3_Track0_Jpsi;
    Int_t           HLT_Mu5_Track0_Jpsi;
@@ -74,6 +80,12 @@ public :
    TBranch        *b_Jpsict;   //!
    TBranch        *b_JpsictErr;   //!
    TBranch        *b_JpsiVprob;   //!
+   TBranch        *b_JpsiDistM1;
+   TBranch        *b_JpsiDphiM1;
+   TBranch        *b_JpsiDrM1;
+   TBranch        *b_JpsiDistM2;
+   TBranch        *b_JpsiDphiM2;
+   TBranch        *b_JpsiDrM2;
    TBranch        *b_HLT_Mu0_Track0_Jpsi;   //!
    TBranch        *b_HLT_Mu3_Track0_Jpsi;   //!
    TBranch        *b_HLT_Mu5_Track0_Jpsi;   //!
@@ -203,6 +215,12 @@ void MCTnPEff::Init(TTree *tree)
    fChain->SetBranchAddress("Jpsict", &Jpsict, &b_Jpsict);
    fChain->SetBranchAddress("JpsictErr", &JpsictErr, &b_JpsictErr);
    fChain->SetBranchAddress("JpsiVprob", &JpsiVprob, &b_JpsiVprob);
+   fChain->SetBranchAddress("JpsiDistM1", &JpsiDistM1, &b_JpsiDistM1);
+   fChain->SetBranchAddress("JpsiDphiM1", &JpsiDphiM1, &b_JpsiDphiM1);
+   fChain->SetBranchAddress("JpsiDrM1", &JpsiDrM1, &b_JpsiDrM1);
+   fChain->SetBranchAddress("JpsiDistM2", &JpsiDistM2, &b_JpsiDistM2);
+   fChain->SetBranchAddress("JpsiDphiM2", &JpsiDphiM2, &b_JpsiDphiM2);
+   fChain->SetBranchAddress("JpsiDrM2", &JpsiDrM2, &b_JpsiDrM2);
    fChain->SetBranchAddress("HLT_Mu0_Track0_Jpsi", &HLT_Mu0_Track0_Jpsi, &b_HLT_Mu0_Track0_Jpsi);
    fChain->SetBranchAddress("HLT_Mu3_Track0_Jpsi", &HLT_Mu3_Track0_Jpsi, &b_HLT_Mu3_Track0_Jpsi);
    fChain->SetBranchAddress("HLT_Mu5_Track0_Jpsi", &HLT_Mu5_Track0_Jpsi, &b_HLT_Mu5_Track0_Jpsi);

@@ -5,6 +5,7 @@
 #include "TLorentzVector.h"
 #include <TH2.h>
 #include <TCanvas.h>
+#include "TRandom.h"
 
 Int_t const kNbEff = 7;
 Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/LucaPerrozzi/28March2011/MuonTrackingEff_28March2011.root",
@@ -81,6 +82,15 @@ TH2D *recoEff2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTB
 TH2D *trigEff2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TH2D *totEff2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
+TH1D *hGen_deltaRM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TH1D *recoEff_deltaRM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TH1D *trigEff_deltaRM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TH1D *totEff_deltaRM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+
+TH1D *hGen_deltaPhiM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TH1D *recoEff_deltaPhiM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TH1D *trigEff_deltaPhiM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TH1D *totEff_deltaPhiM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
 Double_t GetEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt);
 Double_t GetEfficiency_FromParametrization(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt);
@@ -93,6 +103,8 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel)
   Long64_t nb = 0;
   Long64_t countRecEvent = 0;
   printf("number of entries = %d\n", (Int_t) nentries);
+
+  Bool_t incrementReco, incrementTrig, incrementTot;
 
   //loop over the events
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
@@ -232,30 +244,44 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel)
     Double_t recoEff = recoEff_Pos * recoEff_Neg;
     Double_t trigEff = epsL1L2Trig_Pos * epsL3Trig_Pos * epsL1L2Trig_Neg * epsL3Trig_Neg;
     Double_t totEff = trigEff * recoEff;
-    
+
+    //the indiv. histograms will be filled depending on the
+    //assigned probability
+    Double_t randNb = gRandom->Uniform();
+    if(recoEff > randNb) incrementReco = kTRUE;
+    else incrementReco = kFALSE;
+    if(trigEff > randNb) incrementTrig = kTRUE;
+    else incrementTrig = kFALSE;
+    if(totEff > randNb) incrementTot = kTRUE;
+    else incrementTot = kFALSE;
+
     hGen_pT->Fill(onia_Gen_pt);
     hGen_y->Fill(onia_Gen_rap);
     hGen_phi->Fill(onia_Gen_phi);
     hGen2D_pT_rapNP->Fill(onia_Gen_rap, onia_Gen_pt);
     hGen2D_pT_rap->Fill(fabs(onia_Gen_rap), onia_Gen_pt);
 
-    recoEff_pT->Fill(onia_Gen_pt, recoEff);
-    recoEff_y->Fill(onia_Gen_rap, recoEff);
-    recoEff_phi->Fill(onia_Gen_phi, recoEff);
-    recoEff2D_pT_rapNP->Fill(onia_Gen_rap, onia_Gen_pt, recoEff);
-    recoEff2D_pT_rap->Fill(fabs(onia_Gen_rap), onia_Gen_pt, recoEff);
-
-    trigEff_pT->Fill(onia_Gen_pt, trigEff);
-    trigEff_y->Fill(onia_Gen_rap, trigEff);
-    trigEff_phi->Fill(onia_Gen_phi, trigEff);
-    trigEff2D_pT_rapNP->Fill(onia_Gen_rap, onia_Gen_pt, trigEff);
-    trigEff2D_pT_rap->Fill(fabs(onia_Gen_rap), onia_Gen_pt, trigEff);
-
-    totEff_pT->Fill(onia_Gen_pt, totEff);
-    totEff_y->Fill(onia_Gen_rap, totEff);
-    totEff_phi->Fill(onia_Gen_phi, totEff);
-    totEff2D_pT_rapNP->Fill(onia_Gen_rap, onia_Gen_pt, totEff);
-    totEff2D_pT_rap->Fill(fabs(onia_Gen_rap), onia_Gen_pt, totEff);
+    if(incrementReco){
+      recoEff_pT->Fill(onia_Gen_pt);
+      recoEff_y->Fill(onia_Gen_rap);
+      recoEff_phi->Fill(onia_Gen_phi);
+      recoEff2D_pT_rapNP->Fill(onia_Gen_rap, onia_Gen_pt);
+      recoEff2D_pT_rap->Fill(fabs(onia_Gen_rap), onia_Gen_pt);
+    }
+    if(incrementTrig){
+      trigEff_pT->Fill(onia_Gen_pt);
+      trigEff_y->Fill(onia_Gen_rap);
+      trigEff_phi->Fill(onia_Gen_phi);
+      trigEff2D_pT_rapNP->Fill(onia_Gen_rap, onia_Gen_pt);
+      trigEff2D_pT_rap->Fill(fabs(onia_Gen_rap), onia_Gen_pt);
+    }
+    if(incrementTot){
+      totEff_pT->Fill(onia_Gen_pt);
+      totEff_y->Fill(onia_Gen_rap);
+      totEff_phi->Fill(onia_Gen_phi);
+      totEff2D_pT_rapNP->Fill(onia_Gen_rap, onia_Gen_pt);
+      totEff2D_pT_rap->Fill(fabs(onia_Gen_rap), onia_Gen_pt);
+    }
 
     //fill the eff. histos for all the different frames
     for(int iFrame = 0; iFrame < eff::kNbFrames; iFrame++){
@@ -263,39 +289,57 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel)
 	//histos for neg. and pos. rapidity separately:
       if(rapIndex_Gen >= 0){
 	  hGen2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
-	  recoEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame], recoEff);
-	  trigEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame], trigEff);
-	  totEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame], totEff);
+	  if(incrementReco)
+	    recoEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	  if(incrementTrig)
+	    trigEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	  if(incrementTot)
+	    totEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
       }
       if(pTIndex_Gen > 0 && rapIndex_Gen >= 0){
 	hGen2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
-	recoEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame], recoEff);
-	trigEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame], trigEff);
-	totEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame], totEff);
+	if(incrementReco)
+	  recoEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	if(incrementTrig)
+	  trigEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	if(incrementTot)
+	  totEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
       }
 	
       //histos taking together +y and -y
       hGen2D_pol_pT_rap[iFrame][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
-      recoEff2D_pol_pT_rap[iFrame][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], recoEff);
-      trigEff2D_pol_pT_rap[iFrame][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], trigEff);
-      totEff2D_pol_pT_rap[iFrame][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], totEff);
+      if(incrementReco)
+	recoEff2D_pol_pT_rap[iFrame][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+      if(incrementTrig)
+	trigEff2D_pol_pT_rap[iFrame][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+      if(incrementTot)
+	totEff2D_pol_pT_rap[iFrame][0][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
       if(rapIntegratedPTIndex_Gen > 0){
 	hGen2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
-	recoEff2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], recoEff);
-	trigEff2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], trigEff);
-	totEff2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame], totEff);
+	if(incrementReco)
+	  recoEff2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	if(incrementTrig)
+	  trigEff2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	if(incrementTot)
+	  totEff2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
       }
       if(rapForPTIndex_Gen > 0){
 	hGen2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
-	recoEff2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame], recoEff);
-	trigEff2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame], trigEff);
-	totEff2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame], totEff);
+	if(incrementReco)
+	  recoEff2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	if(incrementTrig)
+	  trigEff2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	if(incrementTot)
+	  totEff2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
       }
       if(pTIndex_Gen > 0 && rapForPTIndex_Gen > 0){
 	hGen2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
-	recoEff2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame], recoEff);
-	trigEff2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame], trigEff);
-	totEff2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame], totEff);
+	if(incrementReco)
+	  recoEff2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	if(incrementTrig)
+	  trigEff2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	if(incrementTot)
+	  totEff2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
       }
 	  
       //histos taking together +y and -y and phi 4-folding
@@ -312,26 +356,38 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel)
 	thetaAdjusted *= -1;
       }
       hGen2D_pol_pT_rap_phiFolded[iFrame][0][0]->Fill(thetaAdjusted, phiFolded);
-      recoEff2D_pol_pT_rap_phiFolded[iFrame][0][0]->Fill(thetaAdjusted, phiFolded, recoEff);
-      trigEff2D_pol_pT_rap_phiFolded[iFrame][0][0]->Fill(thetaAdjusted, phiFolded, trigEff);
-      totEff2D_pol_pT_rap_phiFolded[iFrame][0][0]->Fill(thetaAdjusted, phiFolded, totEff);
+      if(incrementReco)
+	recoEff2D_pol_pT_rap_phiFolded[iFrame][0][0]->Fill(thetaAdjusted, phiFolded);
+      if(incrementTrig)
+	trigEff2D_pol_pT_rap_phiFolded[iFrame][0][0]->Fill(thetaAdjusted, phiFolded);
+      if(incrementTot)
+	totEff2D_pol_pT_rap_phiFolded[iFrame][0][0]->Fill(thetaAdjusted, phiFolded);
       if(rapIntegratedPTIndex_Gen > 0){
 	hGen2D_pol_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thetaAdjusted, phiFolded);
-	recoEff2D_pol_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thetaAdjusted, phiFolded, recoEff);
-	trigEff2D_pol_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thetaAdjusted, phiFolded, trigEff);
-	totEff2D_pol_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thetaAdjusted, phiFolded, totEff);
+	if(incrementReco)
+	  recoEff2D_pol_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thetaAdjusted, phiFolded);
+	if(incrementTrig)
+	  trigEff2D_pol_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thetaAdjusted, phiFolded);
+	if(incrementTot)
+	  totEff2D_pol_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(thetaAdjusted, phiFolded);
       }
       if(rapForPTIndex_Gen > 0){
 	hGen2D_pol_pT_rap_phiFolded[iFrame][0][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded);
-	recoEff2D_pol_pT_rap_phiFolded[iFrame][0][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded, recoEff);
-	trigEff2D_pol_pT_rap_phiFolded[iFrame][0][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded, trigEff);
-	totEff2D_pol_pT_rap_phiFolded[iFrame][0][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded, totEff);
+	if(incrementReco)
+	  recoEff2D_pol_pT_rap_phiFolded[iFrame][0][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded);
+	if(incrementTrig)
+	  trigEff2D_pol_pT_rap_phiFolded[iFrame][0][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded);
+	if(incrementTot)
+	  totEff2D_pol_pT_rap_phiFolded[iFrame][0][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded);
       }
       if(pTIndex_Gen > 0 && rapForPTIndex_Gen > 0){
 	hGen2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded);
-	recoEff2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded, recoEff);
-	trigEff2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded, trigEff);
-	totEff2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded, totEff);
+	if(incrementReco)
+	  recoEff2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded);
+	if(incrementTrig)
+	  trigEff2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded);
+	if(incrementTot)
+	  totEff2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(thetaAdjusted, phiFolded);
       }
     }
 
@@ -344,47 +400,114 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel)
     Double_t deltaR = sqrt(pow(deltaEta,2) + pow(deltaPhi,2));
 
     hGen_deltaR_pT_rap[0][0]->Fill(deltaR);
-    recoEff_deltaR_pT_rap[0][0]->Fill(deltaR, recoEff);
-    trigEff_deltaR_pT_rap[0][0]->Fill(deltaR, trigEff);
-    totEff_deltaR_pT_rap[0][0]->Fill(deltaR, totEff);
-
+    hGen_deltaRM2_pT_rap[0][0]->Fill(JpsiDrM2);
+    hGen_deltaPhiM2_pT_rap[0][0]->Fill(JpsiDphiM2);
+    if(incrementReco){
+      recoEff_deltaR_pT_rap[0][0]->Fill(deltaR);
+      recoEff_deltaRM2_pT_rap[0][0]->Fill(JpsiDrM2);
+      recoEff_deltaPhiM2_pT_rap[0][0]->Fill(JpsiDphiM2);
+    }
+    if(incrementTrig){
+      trigEff_deltaR_pT_rap[0][0]->Fill(deltaR);
+      trigEff_deltaRM2_pT_rap[0][0]->Fill(JpsiDrM2);
+      trigEff_deltaPhiM2_pT_rap[0][0]->Fill(JpsiDphiM2);
+    }
+    if(incrementTot){
+      totEff_deltaR_pT_rap[0][0]->Fill(deltaR);
+      totEff_deltaRM2_pT_rap[0][0]->Fill(JpsiDrM2);
+      totEff_deltaPhiM2_pT_rap[0][0]->Fill(JpsiDphiM2);
+    }
     hGen2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(deltaEta, deltaPhiDeg);
-    recoEff2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(deltaEta, deltaPhiDeg, recoEff);
-    trigEff2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(deltaEta, deltaPhiDeg, trigEff);
-    totEff2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(deltaEta, deltaPhiDeg, totEff);
+    if(incrementReco)
+      recoEff2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(deltaEta, deltaPhiDeg);
+    if(incrementTrig)
+      trigEff2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(deltaEta, deltaPhiDeg);
+    if(incrementTot)
+      totEff2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(deltaEta, deltaPhiDeg);
 
     if(rapIntegratedPTIndex_Gen > 0){
       hGen_deltaR_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaR);
-      recoEff_deltaR_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaR, recoEff);
-      trigEff_deltaR_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaR, trigEff);
-      totEff_deltaR_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaR, totEff);
+      hGen_deltaRM2_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(JpsiDrM2);
+      hGen_deltaPhiM2_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(JpsiDphiM2);
+      if(incrementReco){
+	recoEff_deltaR_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaR);
+	recoEff_deltaRM2_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(JpsiDrM2);
+	recoEff_deltaPhiM2_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(JpsiDphiM2);
+      }
+      if(incrementTrig){
+	trigEff_deltaR_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaR);
+	trigEff_deltaRM2_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(JpsiDrM2);
+	trigEff_deltaPhiM2_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(JpsiDphiM2);
+      }
+      if(incrementTot){
+	totEff_deltaR_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaR);
+	totEff_deltaRM2_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(JpsiDrM2);
+	totEff_deltaPhiM2_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(JpsiDphiM2);
+      }
 
       hGen2D_deltaPhiVsDeltaEta_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaEta, deltaPhiDeg);
-      recoEff2D_deltaPhiVsDeltaEta_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaEta, deltaPhiDeg, recoEff);
-      trigEff2D_deltaPhiVsDeltaEta_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaEta, deltaPhiDeg, trigEff);
-      totEff2D_deltaPhiVsDeltaEta_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaEta, deltaPhiDeg, totEff);
+      if(incrementReco)
+	recoEff2D_deltaPhiVsDeltaEta_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaEta, deltaPhiDeg);
+      if(incrementTrig)
+	trigEff2D_deltaPhiVsDeltaEta_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaEta, deltaPhiDeg);
+      if(incrementTot)
+	totEff2D_deltaPhiVsDeltaEta_pT_rap[rapIntegratedPTIndex_Gen][0]->Fill(deltaEta, deltaPhiDeg);
     }
     if(rapForPTIndex_Gen > 0){
       hGen_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaR);
-      recoEff_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaR, recoEff);
-      trigEff_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaR, trigEff);
-      totEff_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaR, totEff);
+      hGen_deltaRM2_pT_rap[0][rapForPTIndex_Gen]->Fill(JpsiDrM2);
+      hGen_deltaPhiM2_pT_rap[0][rapForPTIndex_Gen]->Fill(JpsiDphiM2);
+      if(incrementReco){
+	recoEff_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaR);
+	recoEff_deltaRM2_pT_rap[0][rapForPTIndex_Gen]->Fill(JpsiDrM2);
+	recoEff_deltaPhiM2_pT_rap[0][rapForPTIndex_Gen]->Fill(JpsiDphiM2);
+      }
+      if(incrementTrig){
+	trigEff_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaR);
+	trigEff_deltaRM2_pT_rap[0][rapForPTIndex_Gen]->Fill(JpsiDrM2);
+	trigEff_deltaPhiM2_pT_rap[0][rapForPTIndex_Gen]->Fill(JpsiDphiM2);
+      }
+      if(incrementTot){
+	totEff_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaR);
+	totEff_deltaRM2_pT_rap[0][rapForPTIndex_Gen]->Fill(JpsiDrM2);
+	totEff_deltaPhiM2_pT_rap[0][rapForPTIndex_Gen]->Fill(JpsiDphiM2);
+      }
 
       hGen2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg);
-      recoEff2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg, recoEff);
-      trigEff2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg, trigEff);
-      totEff2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg, totEff);
+      if(incrementReco)
+	recoEff2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg);
+      if(incrementTrig)
+	trigEff2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg);
+      if(incrementTot)
+	totEff2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg);
     }
     if(pTIndex_Gen > 0 && rapForPTIndex_Gen > 0){
       hGen_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaR);
-      recoEff_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaR, recoEff);
-      trigEff_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaR, trigEff);
-      totEff_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaR, totEff);
+      hGen_deltaRM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(JpsiDrM2);
+      hGen_deltaPhiM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(JpsiDphiM2);
+      if(incrementReco){
+	recoEff_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaR);
+	recoEff_deltaRM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(JpsiDrM2);
+	recoEff_deltaPhiM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(JpsiDphiM2);
+      }
+      if(incrementTrig){
+	trigEff_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaR);
+	trigEff_deltaRM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(JpsiDrM2);
+	trigEff_deltaPhiM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(JpsiDphiM2);
+      }
+      if(incrementTot){
+	totEff_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaR);
+	totEff_deltaRM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(JpsiDrM2);
+	totEff_deltaPhiM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(JpsiDphiM2);
+      }
 
       hGen2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg);
-      recoEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg, recoEff);
-      trigEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg, trigEff);
-      totEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg, totEff);
+      if(incrementReco)
+	recoEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg);
+      if(incrementTrig)
+	trigEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg);
+      if(incrementTot)
+	totEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(deltaEta, deltaPhiDeg);
     }
 
   }//loop over entries
