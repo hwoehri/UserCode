@@ -36,8 +36,24 @@ TEfficiency *totEff2D_pol_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRa
 TEfficiency *recoEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *trigEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *totEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+//=================================================
+//deltaR, deltaPhi vs deltaEta for various J/psi pT and y
+//=================================================
+TEfficiency *recoEff_deltaR_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TEfficiency *trigEff_deltaR_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TEfficiency *totEff_deltaR_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
-// Double_t massMuOnia;
+TEfficiency *recoEff_deltaRM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TEfficiency *trigEff_deltaRM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TEfficiency *totEff_deltaRM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+
+TEfficiency *recoEff_deltaPhiM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TEfficiency *trigEff_deltaPhiM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TEfficiency *totEff_deltaPhiM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+
+TEfficiency *recoEff2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TEfficiency *trigEff2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TEfficiency *totEff2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 //==============================================
 void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
 {
@@ -69,6 +85,8 @@ void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
     Double_t pTMuNeg_Gen = muNeg_Gen->Pt();
     Double_t pMuPos_Gen = muPos_Gen->P();
     Double_t pMuNeg_Gen = muNeg_Gen->P();
+    Double_t phiMuPos_Gen = muPos_Gen->Phi();
+    Double_t phiMuNeg_Gen = muNeg_Gen->Phi();
 
     //take muons only within a certain eta range
     if((fabs(etaMuPos_Gen) < eff::etaPS[0] && pTMuPos_Gen < eff::pTMuMin[0]) || //mid-rapidity cut
@@ -135,16 +153,23 @@ void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
     calcPol(*muPos_Gen, *muNeg_Gen);
     //==============================
 
+    //===============================
+    //set up the trigger logic:
     Int_t trigValue;
-    //process events further that pass the trigger under study
     if(strncmp("HLT_Mu0_TkMu0_OST_Jpsi", trigLabel, 22) == 0)
-      trigValue = HLT_Mu0_TkMu0_OST_Jpsi; //0... not matched, 1... fired+matched, 2... only fired --> needs changing in the future
+      trigValue = HLT_Mu0_TkMu0_OST_Jpsi; //0... not matched; 3... fired, but at least one not matched; 1, 2, -2 fired+both matched
     else if(strncmp("HLT_DoubleMu0", trigLabel, 13) == 0)
-      trigValue = HLT_DoubleMu0;
+      trigValue = HLT_DoubleMu0; //0... not matched, 1... fired+matched, 3... only fired
     else{
       printf("chosen trigger path, %s, not a valid option!\n", trigLabel);
       exit(0);
     }
+    //trigValue must NOT be 0 and not 3 --> set to 1 if this is the case
+    if(trigValue == 1 || trigValue == -1 || trigValue == 2)
+      trigValue = 1;
+    else
+      trigValue = 0;
+    //===============================
 
     Bool_t dimuTypeFlag = kTRUE;
     if(selDimuType < 3 && JpsiType != selDimuType)
@@ -226,6 +251,72 @@ void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
       }
     }
 
+    //fill the series of correlation histos for lab-frame
+    Double_t deltaEta = fabs(etaMuPos_Gen - etaMuNeg_Gen);
+    Double_t deltaPhi = phiMuPos_Gen - phiMuNeg_Gen;
+    if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
+    else if(deltaPhi > TMath::Pi()) deltaPhi -= 2.*TMath::Pi();
+    Double_t deltaPhiDeg = deltaPhi * 180./TMath::Pi();
+    Double_t deltaR = sqrt(pow(deltaEta,2) + pow(deltaPhi,2));
+
+    //convert the JpsiDphiM2 variable from rad to deg:
+    JpsiDphiM2 *= 180./TMath::Pi();
+
+    //deltaR
+    recoEff_deltaR_pT_rap[0][0]->Fill(recoPassed, deltaR);
+    totEff_deltaR_pT_rap[0][0]->Fill(totPassed, deltaR);
+    //deltaRM2
+    recoEff_deltaRM2_pT_rap[0][0]->Fill(recoPassed, JpsiDrM2);
+    totEff_deltaRM2_pT_rap[0][0]->Fill(totPassed, JpsiDrM2);
+    //deltaPhiM2
+    recoEff_deltaPhiM2_pT_rap[0][0]->Fill(recoPassed, JpsiDphiM2);
+    totEff_deltaPhiM2_pT_rap[0][0]->Fill(totPassed, JpsiDphiM2);
+    //deltaPhi vs deltaEta
+    recoEff2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(recoPassed, deltaEta, deltaPhiDeg);
+    totEff2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(totPassed, deltaEta, deltaPhiDeg);
+    if(rapIntegratedPTIndex_Gen > 0){
+      //deltaR
+      recoEff_deltaR_pT_rap[pTIndex_Gen][0]->Fill(recoPassed, deltaR);
+      totEff_deltaR_pT_rap[pTIndex_Gen][0]->Fill(totPassed, deltaR);
+      //deltaRM2
+      recoEff_deltaRM2_pT_rap[pTIndex_Gen][0]->Fill(recoPassed, JpsiDrM2);
+      totEff_deltaRM2_pT_rap[pTIndex_Gen][0]->Fill(totPassed, JpsiDrM2);
+      //deltaPhiM2
+      recoEff_deltaPhiM2_pT_rap[pTIndex_Gen][0]->Fill(recoPassed, JpsiDphiM2);
+      totEff_deltaPhiM2_pT_rap[pTIndex_Gen][0]->Fill(totPassed, JpsiDphiM2);
+      //deltaPhi vs deltaEta
+      recoEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][0]->Fill(recoPassed, deltaEta, deltaPhiDeg);
+      totEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][0]->Fill(totPassed, deltaEta, deltaPhiDeg);
+    }
+    if(rapForPTIndex_Gen > 0){
+      //deltaR
+      recoEff_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(recoPassed, deltaR);
+      totEff_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(totPassed, deltaR);
+      //deltaRM2
+      recoEff_deltaRM2_pT_rap[0][rapForPTIndex_Gen]->Fill(recoPassed, JpsiDrM2);
+      totEff_deltaRM2_pT_rap[0][rapForPTIndex_Gen]->Fill(totPassed, JpsiDrM2);
+      //deltaPhiM2
+      recoEff_deltaPhiM2_pT_rap[0][rapForPTIndex_Gen]->Fill(recoPassed, JpsiDphiM2);
+      totEff_deltaPhiM2_pT_rap[0][rapForPTIndex_Gen]->Fill(totPassed, JpsiDphiM2);
+      //deltaPhi vs deltaEta
+      recoEff2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(recoPassed, deltaEta, deltaPhiDeg);
+      totEff2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(totPassed, deltaEta, deltaPhiDeg);
+    }
+    if(pTIndex_Gen > 0 && rapForPTIndex_Gen > 0){
+      //deltaR
+      recoEff_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(recoPassed, deltaR);
+      totEff_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(totPassed, deltaR);
+      //deltaRM2
+      recoEff_deltaRM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(recoPassed, JpsiDrM2);
+      totEff_deltaRM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(totPassed, JpsiDrM2);
+      //deltaPhiM2
+      recoEff_deltaPhiM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(recoPassed, JpsiDphiM2);
+      totEff_deltaPhiM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(totPassed, JpsiDphiM2);
+      //deltaPhi vs deltaEta
+      recoEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(recoPassed, deltaEta, deltaPhiDeg);
+      totEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(totPassed, deltaEta, deltaPhiDeg);
+    }
+
     //continue only to process RECO info if
     //there is really a RECO dimuon in the event:
     if(onia->Pt() > 990.)
@@ -292,6 +383,45 @@ void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
       if(pTIndex_Gen > 0 && rapForPTIndex_Gen > 0){
 	trigEff2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(trigPassed, thetaAdjusted, phiFolded);
       }
+    }
+
+    //deltaR
+    trigEff_deltaR_pT_rap[0][0]->Fill(trigPassed, deltaR);
+    //deltaRM2
+    trigEff_deltaRM2_pT_rap[0][0]->Fill(trigPassed, JpsiDrM2);
+    //deltaPhiM2
+    trigEff_deltaPhiM2_pT_rap[0][0]->Fill(trigPassed, JpsiDphiM2);
+    //deltaPhi vs deltaEta
+    trigEff2D_deltaPhiVsDeltaEta_pT_rap[0][0]->Fill(trigPassed, deltaEta, deltaPhiDeg);
+    if(rapIntegratedPTIndex_Gen > 0){
+      //deltaR
+      trigEff_deltaR_pT_rap[pTIndex_Gen][0]->Fill(trigPassed, deltaR);
+      //deltaRM2
+      trigEff_deltaRM2_pT_rap[pTIndex_Gen][0]->Fill(trigPassed, JpsiDrM2);
+      //deltaPhiM2
+      trigEff_deltaPhiM2_pT_rap[pTIndex_Gen][0]->Fill(trigPassed, JpsiDphiM2);
+      //deltaPhi vs deltaEta
+      trigEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][0]->Fill(trigPassed, deltaEta, deltaPhiDeg);
+    }
+    if(rapForPTIndex_Gen > 0){
+      //deltaR
+      trigEff_deltaR_pT_rap[0][rapForPTIndex_Gen]->Fill(trigPassed, deltaR);
+      //deltaRM2
+      trigEff_deltaRM2_pT_rap[0][rapForPTIndex_Gen]->Fill(trigPassed, JpsiDrM2);
+      //deltaPhiM2
+      trigEff_deltaPhiM2_pT_rap[0][rapForPTIndex_Gen]->Fill(trigPassed, JpsiDphiM2);
+      //deltaPhi vs deltaEta
+      trigEff2D_deltaPhiVsDeltaEta_pT_rap[0][rapForPTIndex_Gen]->Fill(trigPassed, deltaEta, deltaPhiDeg);
+    }
+    if(pTIndex_Gen > 0 && rapForPTIndex_Gen > 0){
+      //deltaR
+      trigEff_deltaR_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(trigPassed, deltaR);
+      //deltaRM2
+      trigEff_deltaRM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(trigPassed, JpsiDrM2);
+      //deltaPhiM2
+      trigEff_deltaPhiM2_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(trigPassed, JpsiDphiM2);
+      //deltaPhi vs deltaEta
+      trigEff2D_deltaPhiVsDeltaEta_pT_rap[pTIndex_Gen][rapForPTIndex_Gen]->Fill(trigPassed, deltaEta, deltaPhiDeg);
     }
   }//loop over entries
 

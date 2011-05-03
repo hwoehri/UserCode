@@ -6,7 +6,9 @@ void WriteHistos();
 //======================================
 void runMCTruthEff(Char_t *fileNameOut = "MCTruthEff_16Feb2011.root",
 		   Char_t *trigLabel = "HLT_DoubleMu0", //"HLT_DoubleMu0", "HLT_Mu0_TkMu0_OST_Jpsi",
-		   Char_t *fileNameIn = "/home/hermine/CMS/CMSSW/hWoehri/Polarization/macros/JPsiToMuMu_Fall10-START38_V12-v1-Onia2MuMu-v6-WithAllMCEvents_merged.root",
+		   Char_t *fileNameIn = "/Users/hwoehri/CMS/CMSSW/hWoehri/Polarization/macros/JPsiToMuMu_Fall10-START38_V12-HLTrereco-WithAllMCEvents.root", 
+		   //Char_t *fileNameIn = "/Users/hwoehri/CMS/Work/Polarization/Ilse/3April2011/JPsiToMuMu_pol_Fall10_noDimuVtxCut_1April2011.root",
+		   //Char_t *fileNameIn = "/Users/hwoehri/CMS/CMSSW/hWoehri/Polarization/macros/JPsiToMuMu_Fall10-START38_V12-v1-Onia2MuMu-v6-WithAllMCEvents_merged.root",
 		   Int_t selDimuType = 4, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT		
 		   Char_t *oniaLabel = "J/#psi" //"J/#psi", "#psi'", "Ups(1S)", "Ups(2S)", "Ups(3S)"
 		   ){
@@ -143,6 +145,81 @@ void BookHistos(Char_t *oniaLabel){
       }
     }
   }
+
+  //efficiencies vs. lab coordinates
+  Int_t nBinsDeltaEta = 10, nBinsDeltaPhi = 9;
+  Double_t deltaEtaMin = 0., deltaEtaMax = 2.5;
+  Double_t deltaPhiMin = 0., deltaPhiMax = 180.;
+  Int_t nBinsDeltaR = 32;
+  Double_t deltaRMin = 0., deltaRMax = 3.2;
+  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+
+      //1.) as a function of deltaPhi vs deltaEta
+      //all events
+      sprintf(name, "totEff2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
+      totEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+
+      //RECO events
+      sprintf(name, "recoEff2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
+      recoEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+
+      //RECO + TRIG events
+      sprintf(name, "trigEff2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
+      trigEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+
+      //2.) as a function of deltaR
+      //all events
+      sprintf(name, "totEff_deltaR_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#DeltaR");
+      totEff_deltaR_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+
+      //RECO events
+      sprintf(name, "recoEff_deltaR_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#DeltaR");
+      recoEff_deltaR_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+
+      //RECO + TRIG events
+      sprintf(name, "trigEff_deltaR_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#DeltaR");
+      trigEff_deltaR_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+
+      //3.) as a function of deltaRM2
+      //all events
+      sprintf(name, "totEff_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#DeltaR(M2)");
+      totEff_deltaRM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+
+      //RECO events
+      sprintf(name, "recoEff_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#DeltaR(M2)");
+      recoEff_deltaRM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+
+      //RECO + TRIG events
+      sprintf(name, "trigEff_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#DeltaR(M2)");
+      trigEff_deltaRM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+
+      //4.) as a function of deltaPhiM2
+      //all events
+      sprintf(name, "totEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#phi(M2)");
+      totEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+
+      //RECO events
+      sprintf(name, "recoEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#phi(M2)");
+      recoEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+
+      //RECO + TRIG events
+      sprintf(name, "trigEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#phi(M2)");
+      trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+    }
+  }
 }
 
 //==========================================
@@ -182,6 +259,35 @@ void WriteHistos(){
       }
     }
   }
+  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+      totEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Write();
+      recoEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Write();
+      trigEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Write();
+    }
+  }
+  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+      totEff_deltaR_pT_rap[iPTBin][iRapBin]->Write();
+      recoEff_deltaR_pT_rap[iPTBin][iRapBin]->Write();
+      trigEff_deltaR_pT_rap[iPTBin][iRapBin]->Write();
+    }
+  }
+  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+      totEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Write();
+      recoEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Write();
+      trigEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Write();
+    }
+  }
+  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+      totEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
+      recoEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
+      trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
+    }
+  }
+
 
   //efficiencies
   recoEff_pT->Write();   recoEff_y->Write();   recoEff_phi->Write();
