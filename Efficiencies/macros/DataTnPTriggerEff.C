@@ -10,13 +10,15 @@
 
 
 Int_t const kNbEff = 4;
-Char_t *effFileNames[kNbEff] = {//"/Users/hwoehri/CMS/Work/TnP/Francesco/2April2011/L1L2_DMu0_TriggerEfficiencies_RUNA_distM2gt120_7April2011_fitted.root",//RunA
-                                "/Users/hwoehri/CMS/Work/TnP/Francesco/2April2011/L1L2_DMu0_TriggerEfficiencies_RUNB_distM2gt120_7April2011_fitted.root",//RunB
-				//"/Users/hwoehri/CMS/Work/TnP/Luigi/5April2011/L3_DoubleMu0_TriggerEfficiencies_Run2010A_distM1gt150_7April2011_fitted.root",//RunA
-				"/Users/hwoehri/CMS/Work/TnP/Luigi/5April2011/L3_DoubleMu0_TriggerEfficiencies_Run2010B_distM1gt150_7April2011_fitted.root",//RunB
+Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/Francesco/2April2011/L1L2_DMu0_TriggerEfficiencies_RUNA_distM2gt120_7April2011_fitted.root",//RunA
+                                //"/Users/hwoehri/CMS/Work/TnP/Francesco/2April2011/L1L2_DMu0_TriggerEfficiencies_RUNB_distM2gt120_7April2011_fitted.root",//RunB
+				"/Users/hwoehri/CMS/Work/TnP/Luigi/5April2011/L3_DoubleMu0_TriggerEfficiencies_Run2010A_distM1gt150_7April2011_fitted.root",//RunA
+				//"/Users/hwoehri/CMS/Work/TnP/Luigi/5April2011/L3_DoubleMu0_TriggerEfficiencies_Run2010B_distM1gt150_7April2011_fitted.root",//RunB
 				"/Users/hwoehri/CMS/Work/TnP/Herbert/28March2011/HLT_Track_Mu0TkMu0_Run1.root",
+				//"/Users/hwoehri/CMS/Work/TnP/Herbert/29March2011/HLT_Track_Mu0TkMu0_Run_Tightv3.root",
 				//change input file for different instances of the low pT J/psi trigger
-				"/Users/hwoehri/CMS/Work/TnP/Ilse/24March2011/HLTMuonTrack_Mu0_TkMu0_TM.root"};
+				"/Users/hwoehri/CMS/Work/TnP/Ilse/29March2011/HLTMuonTrack_Mu0_TkMu0_TM_runA_29March2011.root"};
+				//"/Users/hwoehri/CMS/Work/TnP/Ilse/29March2011/HLTMuonTrack_Mu0_TkMu0_TM_runB1_29March2011.root"};
 enum {L1L2Eff, L3Eff, Trk_TkMu0, Mu_TkMu0};
 Char_t *effName[kNbEff] = {"L1L2Eff", "L3Eff", "Trk_TkMu0Eff", "Mu_TkMu0Eff"};
 Int_t const kNbEffSample = 3;
@@ -29,13 +31,23 @@ Int_t const kNbEtaBins = 8;
 Float_t binsEta[kNbEtaBins] = {0.2, 0.3, 0.6, 0.8, 1.2, 1.5, 2.1, 2.4}; //needs manual adjustment!!!
 TF1 *fMuEff_pT[kNbEff][kNbEffSample][kNbEtaBins];
 
-Int_t const kNbPTMaxBins = 4;
-Int_t const kNbRapForPTBins = 2;
-Int_t const kNbPTBins[kNbRapForPTBins+1] = {4,4,4};//all y, y1, y2
-Double_t pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = {{0., 10., 20., 30., 500.},//all y
-						       {0., 10., 20., 30., 500.},//y1
-						       {0., 10., 20., 30., 500.}};//y2
-Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 1.2, 2.4};
+// Int_t const kNbPTMaxBins = 4;
+// Int_t const kNbRapForPTBins = 2;
+// Int_t const kNbPTBins[kNbRapForPTBins+1] = {kNbPTMaxBins,kNbPTMaxBins,kNbPTMaxBins};//all y, y1, y2
+// Double_t pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = {{0., 10., 20., 30., 500.},//all y
+// 						       {0., 10., 20., 30., 500.},//y1
+// 						       {0., 10., 20., 30., 500.}};//y2
+// Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 1.2, 2.4};
+
+Int_t const kNbPTMaxBins = 6;
+Int_t const kNbRapForPTBins = 4;
+Int_t const kNbPTBins[kNbRapForPTBins+1] = {kNbPTMaxBins,kNbPTMaxBins,kNbPTMaxBins,kNbPTMaxBins,kNbPTMaxBins};//all y, y1...y4
+Double_t pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = {{0., 6., 10., 15., 20., 30., 500.},//all y
+						       {0., 6., 10., 15., 20., 30., 500.},//y1
+						       {0., 6., 10., 15., 20., 30., 500.},//y2
+						       {0., 6., 10., 15., 20., 30., 500.},//y3
+						       {0., 6., 10., 15., 20., 30., 500.}};//y4
+Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 0.9, 1.2, 1.6, 2.4};
 
 //=================================================
 //1D histos versus dimuon mass
@@ -158,14 +170,14 @@ void DataTnPTriggerEff::Loop(Int_t effSample, Char_t *trigLabel)
     }
     else if(strncmp("HLT_Mu0_TkMu0_OST_Jpsi", trigLabel, 22) == 0){ //
       if(HLT_Mu0_TkMu0_OST_Jpsi == 1){//pos. muon matched to L3 muon, neg. muon to tk-muon
-	epsL1L2Trig_Pos  = GetEfficiency(L1L2Eff, effSample, etaMuPos, pTMuPos);
-	epsL3Trig_Pos    = GetEfficiency(L3Eff, effSample, etaMuPos, pTMuPos);
+	epsL1L2Trig_Pos  = GetEfficiency_FromParametrization(L1L2Eff, effSample, etaMuPos, pTMuPos);
+	epsL3Trig_Pos    = GetEfficiency_FromParametrization(L3Eff, effSample, etaMuPos, pTMuPos);
 	epsL1L2Trig_Neg  = GetEfficiency(Mu_TkMu0, effSample, etaMuNeg, pTMuNeg);
 	epsL3Trig_Neg    = GetEfficiency(Trk_TkMu0, effSample, etaMuNeg, pTMuNeg);
       }
       else if(HLT_Mu0_TkMu0_OST_Jpsi == -1){//neg. muon matched to L3 muon, pos. muon to tk-muon
-	epsL1L2Trig_Neg  = GetEfficiency(L1L2Eff, effSample, etaMuNeg, pTMuNeg);
-	epsL3Trig_Neg    = GetEfficiency(L3Eff, effSample, etaMuNeg, pTMuNeg);
+	epsL1L2Trig_Neg  = GetEfficiency_FromParametrization(L1L2Eff, effSample, etaMuNeg, pTMuNeg);
+	epsL3Trig_Neg    = GetEfficiency_FromParametrization(L3Eff, effSample, etaMuNeg, pTMuNeg);
 	epsL1L2Trig_Pos  = GetEfficiency(Mu_TkMu0, effSample, etaMuPos, pTMuPos);
 	epsL3Trig_Pos    = GetEfficiency(Trk_TkMu0, effSample, etaMuPos, pTMuPos);
       }
@@ -176,12 +188,12 @@ void DataTnPTriggerEff::Loop(Int_t effSample, Char_t *trigLabel)
 	  epsL1L2Trig_Pos  = GetEfficiency(Mu_TkMu0, effSample, etaMuPos, pTMuPos);
 	  epsL3Trig_Pos    = GetEfficiency(Trk_TkMu0, effSample, etaMuPos, pTMuPos);
 
-	  epsL1L2Trig_Neg  = GetEfficiency(L1L2Eff, effSample, etaMuNeg, pTMuNeg);
-	  epsL3Trig_Neg    = GetEfficiency(L3Eff, effSample, etaMuNeg, pTMuNeg);
+	  epsL1L2Trig_Neg  = GetEfficiency_FromParametrization(L1L2Eff, effSample, etaMuNeg, pTMuNeg);
+	  epsL3Trig_Neg    = GetEfficiency_FromParametrization(L3Eff, effSample, etaMuNeg, pTMuNeg);
 	}
 	else{
-	  epsL1L2Trig_Pos  = GetEfficiency(L1L2Eff, effSample, etaMuPos, pTMuPos);
-	  epsL3Trig_Pos    = GetEfficiency(L3Eff, effSample, etaMuPos, pTMuPos);
+	  epsL1L2Trig_Pos  = GetEfficiency_FromParametrization(L1L2Eff, effSample, etaMuPos, pTMuPos);
+	  epsL3Trig_Pos    = GetEfficiency_FromParametrization(L3Eff, effSample, etaMuPos, pTMuPos);
 
 	  epsL1L2Trig_Neg  = GetEfficiency(Mu_TkMu0, effSample, etaMuNeg, pTMuNeg);
 	  epsL3Trig_Neg    = GetEfficiency(Trk_TkMu0, effSample, etaMuNeg, pTMuNeg);
