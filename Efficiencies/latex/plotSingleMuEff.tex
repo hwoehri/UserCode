@@ -18,10 +18,19 @@
 \newcommand{\jpsi}{J/$\psi$}
 \newcommand{\psip}{$\psi^\prime$}
 \newcommand{\cost}{$|\cos \theta|$}
-\newcommand{\effName}{L1L2Eff}
-\newcommand{\effNameLong}{L1/L2 trigger efficiency of the ``HLT\_DoubleMu0'' trigger path}
-%\newcommand{\effName}{Mu-TkMu0}
+%\newcommand{\effName}{MuIDEff} %(1)
+%\newcommand{\effNameLong}{Muon ID efficiency}
+%\newcommand{\effName}{MuQualEff} %(2)
+%\newcommand{\effNameLong}{Efficiency of the muon quality cuts}
+%\newcommand{\effName}{L1L2Eff} %(3)
+%\newcommand{\effNameLong}{L1/L2 trigger efficiency of the ``HLT\_DoubleMu0'' trigger path}
+%\newcommand{\effName}{L3Eff} %(4)
+%\newcommand{\effNameLong}{L3 trigger efficiency of the ``HLT\_DoubleMu0'' trigger path}
+%\newcommand{\effName}{Mu-TkMu0} %(6)
 %\newcommand{\effNameLong}{Muon trigger efficiency of the ``TkMu0'' trigger}
+\newcommand{\effName}{TkMuL1L2} %(6)
+\newcommand{\effNameLong}{Muon trigger efficiency of the ``TkMu0'' trigger AND L1*L2}
+
 \begin{document}
 
 \begin{figure}[htbp]
@@ -80,9 +89,8 @@
 \resizebox{\textwidth}{!}{%
 \includegraphics*{../macros/Figures/\effName_eta_DataVsMC_pTBin8.pdf}
 \includegraphics*{../macros/Figures/\effName_eta_DataVsMC_pTBin9.pdf}}
-\resizebox{\textwidth}{!}{%
-\includegraphics*{../macros/Figures/\effName_eta_DataVsMC_pTBin10.pdf}
-\includegraphics*{../macros/Figures/\effName_eta_DataVsMC_pTBin11.pdf}}
+\resizebox{0.5\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\effName_eta_DataVsMC_pTBin10.pdf}}
 \caption{\effNameLong\ as a function of muon pseudo-rapidity, $|\eta|$, for
   several slices of muon \pt.}
 %\label{fig:}
