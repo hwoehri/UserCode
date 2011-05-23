@@ -2,7 +2,7 @@
 #include "TGraphAsymmErrors.h"
 #include "TMath.h"
 
-Int_t const kNbEff = 7;
+Int_t const kNbEff = 8;
 Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/LucaPerrozzi/17March2011/MuonTrackingEff_17March2011.root",
 				"/Users/hwoehri/CMS/Work/TnP/Zongchang/29March2011/MuonIDEff_29March2011_fitted.root",
 				"/Users/hwoehri/CMS/Work/TnP/Xianyou/25March2011/MuonQualEff_25March2011_fitted.root",
@@ -16,7 +16,8 @@ Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/LucaPerrozzi/17Marc
 // 				"/Users/hwoehri/CMS/Work/TnP/Herbert/29March2011/HLT_Track_Mu0TkMu0_Run_Tightv3.root",
 				"/Users/hwoehri/CMS/Work/TnP/Herbert/13May2011/HLT_Track_Mu0TkMu0_Run1_13May2011.root", //
 // 				"/Users/hwoehri/CMS/Work/TnP/Ilse/29March2011/HLTMuonTrack_Mu0_TkMu0_TM_runA_29March2011.root"};
-				"/Users/hwoehri/CMS/Work/TnP/Ilse/29March2011/HLTMuonTrack_Mu0_TkMu0_TM_runB1_29March2011.root"};
+				"/Users/hwoehri/CMS/Work/TnP/Ilse/29March2011/HLTMuonTrack_Mu0_TkMu0_TM_runB1_29March2011.root",
+				"/Users/hwoehri/CMS/Work/TnP/Ilse/24May2011/TkMu0L1L2-pt-abseta-runA.root"};
 //old version of scripts:
 //  				"/Users/hwoehri/CMS/Work/TnP/Luigi/25March2011/L3_DoubleMu0_TriggerEfficiencies_Run2010B_25March2011_fitted.root",
 //				"/Users/hwoehri/CMS/Work/TnP/Luigi/5April2011/L3_DoubleMu0_TriggerEfficiencies_Run2010A_distM1gt150_7April2011_fitted.root",
@@ -28,12 +29,13 @@ Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/LucaPerrozzi/17Marc
 // 				"/Users/hwoehri/CMS/Work/TnP/Luigi/19March2011/L3_DoubleMu0_TriggerEfficiencies_19March2011.root",
 // 				"/Users/hwoehri/CMS/Work/TnP/Xianyou/19March2011/MuonQualEff_19March2011.root",
 // 				"/Users/hwoehri/CMS/Work/TnP/Ilse/24March2011/HLTMuonTrack_Mu0_TkMu0_TM.root"};
-enum {TrkEff, MuIDEff, MuQualEff, L1L2Eff, L3Eff};
-Char_t *effName[kNbEff] = {"TrkEff", "MuIDEff", "MuQualEff", "L1L2Eff", "L3Eff", "Track-TkMu0", "Mu-TkMu0"};
+enum {TrkEff, MuIDEff, MuQualEff, L1L2Eff, L3Eff, TkMuL1L2};
+Char_t *effName[kNbEff] = {"TrkEff", "MuIDEff", "MuQualEff", "L1L2Eff", "L3Eff", "Track-TkMu0", "Mu-TkMu0", "TkMuL1L2"};
 Char_t *effNameLong[kNbEff] = {"offline tracking efficiency", "muon identification efficiency", 
 				"efficiency of muon quality cuts", "L1-L2 trigger efficiency (Mu0)", 
 			       "L3 trigger efficiency (Mu0)", "tracking efficiency of TkMu0",
-			       "muon trigger efficency of TkMu0"};
+			       "muon trigger efficency of TkMu0",
+			       "muon trigger efficiency of TkMu0 and L1-L2 combined"};
 Int_t const kNbEffSample = 3;
 enum {DATA, MC, MCTRUTH};
 Char_t *effSampleName[kNbEffSample] = {"DATA", "MC", "MCTRUTH"};
@@ -42,11 +44,11 @@ enum {CENTRAL, UPPER, LOWER};
 Char_t *valName[3] = {"central", "lower", "upper"};
 TH2D *hMuEff[kNbEff][kNbEffSample][3];
 // Int_t const kNbEta = 3;//Track-TkMu0
-//Int_t const kNbEta = 8;
-Int_t const kNbEta = 14; //new L1/L2 and L3 efficiencies
+Int_t const kNbEta = 8;
+//Int_t const kNbEta = 14; //new L1/L2 and L3 efficiencies
 // Int_t const kNbPT = 12; //"old" PT binning
-// Int_t const kNbPT = 11; //"new" PT binning
-Int_t const kNbPT = 15; //"new" L1/L2 and L3 PT binning
+Int_t const kNbPT = 11; //"new" PT binning
+//Int_t const kNbPT = 15; //"new" L1/L2 and L3 PT binning
 TGraphAsymmErrors *gEff_pT[kNbEff][kNbEffSample][kNbEta];
 TGraphAsymmErrors *gEff_eta[kNbEff][kNbEffSample][kNbPT];
 //
@@ -57,11 +59,11 @@ Int_t const colourEta[kNbPT] = {1,2,3,4,kYellow-6,6,7,8,9,10,11};
 //Int_t const colourPT[kNbEta] = {1,2,3,4,kYellow-6,6,7,8};
 Int_t const colourPT[kNbEta] = {1,2,4};
 //Float_t binsEta[kNbEta] = {1.2, 1.6,  2.4}; //Track-TkMu0
-//Float_t binsEta[kNbEta] = {0.2, 0.3, 0.6, 0.8, 1.2, 1.6, 2.1, 2.4};
-Float_t binsEta[kNbEta] = {0.2, 0.3, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.1, 2.2, 2.3, 2.4};//new L1/L2 and L3 binning
+Float_t binsEta[kNbEta] = {0.2, 0.3, 0.6, 0.8, 1.2, 1.6, 2.1, 2.4};
+//Float_t binsEta[kNbEta] = {0.2, 0.3, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.1, 2.2, 2.3, 2.4};//new L1/L2 and L3 binning
 //Float_t binsPT[kNbPT+1] = {0.7, 1., 1.25, 1.5, 1.75, 2., 2.5, 3.5, 4., 6., 10., 20., 30.}; //old binning
-//Float_t binsPT[kNbPT+1] = {0.8, 1.25, 1.5, 1.75, 2., 2.5, 3.3, 4., 6., 10., 20., 30.};//standard binning
-Float_t binsPT[kNbPT+1] = {0.8, 1.25, 1.5, 1.75, 2., 2.25, 2.5, 3, 3.3,  4.,  5., 6., 7., 10., 20., 30.};//new L1/L2 and L3 binning
+Float_t binsPT[kNbPT+1] = {0.8, 1.25, 1.5, 1.75, 2., 2.5, 3.3, 4., 6., 10., 20., 30.};//standard binning
+//Float_t binsPT[kNbPT+1] = {0.8, 1.25, 1.5, 1.75, 2., 2.25, 2.5, 3, 3.3,  4.,  5., 6., 7., 10., 20., 30.};//new L1/L2 and L3 binning
 
 void LoadEfficiencies(Int_t iEff, Int_t iEffSample);
 void PlotEff_DataVsMC_PT(Int_t iEff, Int_t iEta);
@@ -78,9 +80,11 @@ void plotSingleMuEff(Bool_t saveFit = kFALSE,
   //for(int iEff = 1; iEff < 2; iEff++){//MuonID efficiency (Zongchang)
   //for(int iEff = 2; iEff < 3; iEff++){//Muon Quality efficiency (Xianyou)
   // for(int iEff = 3; iEff < 4; iEff++){//L1/L2 trigger efficiency (Francesco)
-  for(int iEff = 4; iEff < 5; iEff++){//L3 trigger efficiency (Luigi)
+  // for(int iEff = 4; iEff < 5; iEff++){//L3 trigger efficiency (Luigi)
   //for(int iEff = 5; iEff < 6; iEff++){//Tracking trigger eff. of TkMu0 (Herbert)
     //for(int iEff = 6; iEff < 7; iEff++){//Muon trigger eff. of TkMu0 (Ilse)
+  for(int iEff = 7; iEff < 8; iEff++){//Muon trigger eff. of TkMu0 + L1/L2 (Ilse)
+
     for(int iEffSample = 0; iEffSample < kNbEffSample; iEffSample++) //DATA, MC, MCTRUTH
 
       LoadEfficiencies(iEff, iEffSample);
