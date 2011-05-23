@@ -130,8 +130,8 @@ void PlotEff_DataVsMC_PT(Int_t iEff, Int_t iEta){
   TH1F *hFrame1 = gPad->DrawFrame(0., minY, 31., maxY);
   hFrame1->SetXTitle("p_{T}(#mu) GeV");
   
-  // gEff_pT[iEff][MC][iEta]->Draw("p same");   gEff_pT[iEff][MC][iEta]->SetLineColor(2); gEff_pT[iEff][MC][iEta]->SetMarkerColor(2);
-  // gEff_pT[iEff][MCTRUTH][iEta]->Draw("p same"); gEff_pT[iEff][MCTRUTH][iEta]->SetLineColor(4); gEff_pT[iEff][MCTRUTH][iEta]->SetMarkerColor(4);
+  gEff_pT[iEff][MC][iEta]->Draw("p same");   gEff_pT[iEff][MC][iEta]->SetLineColor(2); gEff_pT[iEff][MC][iEta]->SetMarkerColor(2);
+  gEff_pT[iEff][MCTRUTH][iEta]->Draw("p same"); gEff_pT[iEff][MCTRUTH][iEta]->SetLineColor(4); gEff_pT[iEff][MCTRUTH][iEta]->SetMarkerColor(4);
   gEff_pT[iEff][DATA][iEta]->Draw("p same"); gEff_pT[iEff][DATA][iEta]->SetLineColor(1); gEff_pT[iEff][DATA][iEta]->SetMarkerColor(1);
 
   TLatex *tex1;
@@ -160,8 +160,8 @@ void PlotEff_DataVsMC_PT(Int_t iEff, Int_t iEta){
   }
   TLegend *leg = new TLegend(0.7456897,0.1610169,0.9454023,0.3622881, name);
   leg->AddEntry(gEff_pT[iEff][DATA][iEta], "Data T&P", "pl");
-  // leg->AddEntry(gEff_pT[iEff][MC][iEta], "MC T&P", "pl");
-  // leg->AddEntry(gEff_pT[iEff][MCTRUTH][iEta], "MC Truth", "pl");
+  leg->AddEntry(gEff_pT[iEff][MC][iEta], "MC T&P", "pl");
+  leg->AddEntry(gEff_pT[iEff][MCTRUTH][iEta], "MC Truth", "pl");
   leg->SetFillColor(0); leg->SetTextSize(0.04); 
   leg->SetBorderSize(0); leg->Draw();
 
@@ -179,8 +179,8 @@ void PlotEff_DataVsMC_Eta(Int_t iEff, Int_t iPT){
   TH1F *hFrame1 = gPad->DrawFrame(0., minY, 2.5, maxY);
   hFrame1->SetXTitle("|#eta(#mu)|");
 
-  // gEff_eta[iEff][MC][iPT]->Draw("p same");   gEff_eta[iEff][MC][iPT]->SetLineColor(2); gEff_eta[iEff][MC][iPT]->SetMarkerColor(2);
-  // gEff_eta[iEff][MCTRUTH][iPT]->Draw("p same"); gEff_eta[iEff][MCTRUTH][iPT]->SetLineColor(4); gEff_eta[iEff][MCTRUTH][iPT]->SetMarkerColor(4);
+  gEff_eta[iEff][MC][iPT]->Draw("p same");   gEff_eta[iEff][MC][iPT]->SetLineColor(2); gEff_eta[iEff][MC][iPT]->SetMarkerColor(2);
+  gEff_eta[iEff][MCTRUTH][iPT]->Draw("p same"); gEff_eta[iEff][MCTRUTH][iPT]->SetLineColor(4); gEff_eta[iEff][MCTRUTH][iPT]->SetMarkerColor(4);
   gEff_eta[iEff][DATA][iPT]->Draw("p same"); gEff_eta[iEff][DATA][iPT]->SetLineColor(1); gEff_eta[iEff][DATA][iPT]->SetMarkerColor(1);
 
   TLatex *tex1;
@@ -196,8 +196,8 @@ void PlotEff_DataVsMC_Eta(Int_t iEff, Int_t iPT){
   sprintf(name, "%1.1f < p_{T}(#mu) < %1.1f GeV", binsPT[iPT], binsPT[iPT+1]);
   TLegend *leg = new TLegend(0.30,0.1652542,0.50,0.3665254, name);
   leg->AddEntry(gEff_eta[iEff][DATA][iPT], "Data T&P", "pl");
-  // leg->AddEntry(gEff_eta[iEff][MC][iPT], "MC T&P", "pl");
-  // leg->AddEntry(gEff_eta[iEff][MCTRUTH][iPT], "MC Truth", "pl");
+  leg->AddEntry(gEff_eta[iEff][MC][iPT], "MC T&P", "pl");
+  leg->AddEntry(gEff_eta[iEff][MCTRUTH][iPT], "MC Truth", "pl");
   leg->SetFillColor(0); leg->SetTextSize(0.04); 
   leg->SetBorderSize(0); leg->Draw();
 
