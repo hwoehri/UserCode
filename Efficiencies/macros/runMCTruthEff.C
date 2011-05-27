@@ -4,8 +4,8 @@
 void BookHistos(Char_t *oniaLabel);
 void WriteHistos();
 //======================================
-void runMCTruthEff(Char_t *fileNameOut = "MCTruthEff_16Feb2011.root",
-		   Char_t *trigLabel = "HLT_DoubleMu0", //"HLT_DoubleMu0", "HLT_Mu0_TkMu0_OST_Jpsi",
+void runMCTruthEff(Char_t *fileNameOut = "MCTruthEff_HLTMu0TkMu0OSTJpsi_18May2011.root",
+		   Char_t *trigLabel = "HLT_Mu0_TkMu0_OST_Jpsi", //"HLT_DoubleMu0", "HLT_Mu0_TkMu0_OST_Jpsi",
 		   Char_t *fileNameIn = "/Users/hwoehri/CMS/CMSSW/hWoehri/Polarization/macros/JPsiToMuMu_Fall10-START38_V12-HLTrereco-WithAllMCEvents.root", 
 		   //Char_t *fileNameIn = "/Users/hwoehri/CMS/Work/Polarization/Ilse/3April2011/JPsiToMuMu_pol_Fall10_noDimuVtxCut_1April2011.root",
 		   //Char_t *fileNameIn = "/Users/hwoehri/CMS/CMSSW/hWoehri/Polarization/macros/JPsiToMuMu_Fall10-START38_V12-v1-Onia2MuMu-v6-WithAllMCEvents_merged.root",
@@ -129,18 +129,18 @@ void BookHistos(Char_t *oniaLabel){
 	//all events
 	sprintf(name, "totEff2D_Onia_phiFolded_%s_pT%d_rap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	totEff2D_pol_pT_rap_phiFolded[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
+	totEff2D_pol_pT_rap_phiFolded[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT/2, eff::cosTMin, eff::cosTMax,
 								  eff::kNbBinsPhiPol, 0., 90.);
 	//RECO events
 	sprintf(name, "recoEff2D_Onia_phiFolded_%s_pT%d_rap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	recoEff2D_pol_pT_rap_phiFolded[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
+	recoEff2D_pol_pT_rap_phiFolded[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT/2, eff::cosTMin, eff::cosTMax,
 								     eff::kNbBinsPhiPol, 0., 90.);
 
 	//RECO + trigEff events
 	sprintf(name, "trigEff2D_Onia_phiFolded_%s_pT%d_rap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	trigEff2D_pol_pT_rap_phiFolded[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
+	trigEff2D_pol_pT_rap_phiFolded[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT/2, eff::cosTMin, eff::cosTMax,
 								     eff::kNbBinsPhiPol, 0., 90.);
       }
     }
@@ -152,6 +152,8 @@ void BookHistos(Char_t *oniaLabel){
   Double_t deltaPhiMin = 0., deltaPhiMax = 180.;
   Int_t nBinsDeltaR = 32;
   Double_t deltaRMin = 0., deltaRMax = 3.2;
+  Int_t nBinsDistM2 = 20;
+  Double_t distMin = 0., distMax = 200.;
   for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
     for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
 
@@ -218,6 +220,38 @@ void BookHistos(Char_t *oniaLabel){
       sprintf(name, "trigEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, ";#Delta#phi(M2)");
       trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+
+      //5.) as a function of deltaEtaM2
+      //all events
+      sprintf(name, "totEff_deltaEtaM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#eta(M2)");
+      totEff_deltaEtaM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaEta, deltaEtaMin, deltaEtaMax);
+
+      //RECO events
+      sprintf(name, "recoEff_deltaEtaM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#eta(M2)");
+      recoEff_deltaEtaM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaEta, deltaEtaMin, deltaEtaMax);
+
+      //RECO + TRIG events
+      sprintf(name, "trigEff_deltaEtaM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";#Delta#eta(M2)");
+      trigEff_deltaEtaM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaEta, deltaEtaMin, deltaEtaMax);
+
+      //6.) as a function of distM2
+      //all events
+      sprintf(name, "totEff_distM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";dist(M2) [cm]");
+      totEff_distM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDistM2, distMin, distMax);
+
+      //RECO events
+      sprintf(name, "recoEff_distM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";dist(M2) [cm]");
+      recoEff_distM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDistM2, distMin, distMax);
+
+      //RECO + TRIG events
+      sprintf(name, "trigEff_distM2_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, ";dist(M2) [cm]");
+      trigEff_distM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDistM2, distMin, distMax);
     }
   }
 }
@@ -285,6 +319,20 @@ void WriteHistos(){
       totEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
       recoEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
       trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
+    }
+  }
+  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+      totEff_deltaEtaM2_pT_rap[iPTBin][iRapBin]->Write();
+      recoEff_deltaEtaM2_pT_rap[iPTBin][iRapBin]->Write();
+      trigEff_deltaEtaM2_pT_rap[iPTBin][iRapBin]->Write();
+    }
+  }
+  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+      totEff_distM2_pT_rap[iPTBin][iRapBin]->Write();
+      recoEff_distM2_pT_rap[iPTBin][iRapBin]->Write();
+      trigEff_distM2_pT_rap[iPTBin][iRapBin]->Write();
     }
   }
 
