@@ -60,7 +60,9 @@ void FitJPsi(Int_t thePT, Int_t theRap, Int_t fitFunc, Char_t *hltTag){
   Char_t name[100];
 
   Bool_t performFit = kTRUE;
-  if(hMass[thePT][theRap]->Integral() < 30)
+  Int_t binMin = hMass[thePT][theRap]->GetXaxis()->FindBin(3.0);
+  Int_t binMax = hMass[thePT][theRap]->GetXaxis()->FindBin(3.2);
+  if(hMass[thePT][theRap]->Integral(binMin, binMax) < 30)
     performFit = kFALSE;
 
   TLatex *tex1;
