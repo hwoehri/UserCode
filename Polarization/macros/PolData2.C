@@ -24,8 +24,8 @@ TH1F *Reco_Onia_phi[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH1F *Reco_Onia_rap[jpsi::kNbPTMaxBins+1];
 TH2F *Reco_Onia_rap_pT;
 //check the lower pT and p of the single muons vs eta
-TH2F *Reco_muHLT_pT_eta, *Reco_muHLT_p_eta;
-TH2F *Reco_muTM_pT_eta, *Reco_muTM_p_eta;
+TH2F *Reco_muHLT_pT_eta[4], *Reco_muHLT_p_eta[4]; //higher pT muon: all, after acc. cuts, triggered; using the "correct" muon as the HLT muon
+TH2F *Reco_muTM_pT_eta[4], *Reco_muTM_p_eta[4];//lower pT muon: all, after acc. cuts, triggered; using the "correct" muon as the HLT muon
 //debugging histos:
 TH2F *hPhiPos_PhiNeg[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH2F *hPtPos_PtNeg[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
@@ -42,8 +42,7 @@ TH2F *Reco2D_Onia_pol_pT_rap_FWDBWD[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][2*jps
 //
 TH1F *hDelta[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH1F *hSin2Delta[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
-
-Double_t CalcPolWeight(Double_t pf_onia_P, Double_t thisCosTh);
+enum {LOOSE,TIGHT};//set of muon fiducial cuts
 //==============================================
 void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 {
@@ -60,7 +59,6 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 
   //loop over the events
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
-//     for (Long64_t jentry=0; jentry<100000;jentry++) {
 
     if(jentry % 100000 == 0) printf("event %d\n", (Int_t) jentry);
 
@@ -109,14 +107,6 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     // trigDecision = HLT_DoubleMu0;
 //     trigDecision = HLT_Mu0_TkMu0_OST_Jpsi;
 
-    if(trigDecision != 1 &&  trigDecision != -1 && trigDecision != 2){
-      //       printf("rejecting events in run %d\n", runNb);
-      continue;
-    }
-
-    
-    Reco_StatEv->Fill(1.5);
-
     //reject processing of events where the dimuon type (GG, GT or TT)
     //does not correspond to the chosen one
     if(selDimuType < 3 && JpsiType != selDimuType)
@@ -124,7 +114,7 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     else if(selDimuType == 3 && JpsiType > 1) //only GG or GT
       continue;
 
-    Reco_StatEv->Fill(2.5);//count all events
+    Reco_StatEv->Fill(1.5);//count all events
 
     Double_t onia_mass = onia->M();
     Double_t onia_pt = onia->Pt();
@@ -136,7 +126,7 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 
     if(TMath::Abs(onia_rap) > jpsi::rapYPS)
       continue;
-    Reco_StatEv->Fill(3.5);
+    Reco_StatEv->Fill(2.5);
 
     Double_t etaMuPos = muPos->PseudoRapidity();
     Double_t etaMuNeg = muNeg->PseudoRapidity();
@@ -148,55 +138,117 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     //select events with a cut on the lifetime to reject NP J/psis:
     if(Jpsict > jpsi::JpsiCtauMax)
       continue;
-    Reco_StatEv->Fill(4.5);
+    Reco_StatEv->Fill(3.5);
 
     Double_t jPsiMassMin = jpsi::polMassJpsi[0] - jpsi::nSigMass*jpsi::sigmaMassJpsi[0];
     Double_t jPsiMassMax = jpsi::polMassJpsi[0] + jpsi::nSigMass*jpsi::sigmaMassJpsi[0];
     if(onia_mass < jPsiMassMin || onia_mass > jPsiMassMax)
       continue;
-    
+
+    Reco_StatEv->Fill(4.5);
+
     Reco_mupl_eta_pT->Fill(etaMuPos, pTMuPos);
     Reco_mumi_eta_pT->Fill(etaMuNeg, pTMuNeg);
     Reco_mupl_eta_p->Fill(etaMuPos, pMuPos);
     Reco_mumi_eta_p->Fill(etaMuNeg, pMuNeg);
 
+    if(pTMuPos > pTMuNeg){
+      Reco_muHLT_pT_eta[0]->Fill(fabs(etaMuPos), pTMuPos);
+      Reco_muHLT_p_eta[0]->Fill(fabs(etaMuPos), pMuPos);
+      Reco_muTM_pT_eta[0]->Fill(fabs(etaMuNeg), pTMuNeg);
+      Reco_muTM_p_eta[0]->Fill(fabs(etaMuNeg), pMuNeg);
+    }
+    else{
+      Reco_muHLT_pT_eta[0]->Fill(fabs(etaMuNeg), pTMuNeg);
+      Reco_muHLT_p_eta[0]->Fill(fabs(etaMuNeg), pMuNeg);
+      Reco_muTM_pT_eta[0]->Fill(fabs(etaMuPos), pTMuPos);
+      Reco_muTM_p_eta[0]->Fill(fabs(etaMuPos), pMuPos);
+    }
+
+    // //take muons only within a certain eta range
+    // if((fabs(etaMuPos) < jpsi::etaPS[0] && pTMuPos < jpsi::pTMuMin[0]) || //mid-rapidity cut
+    //    (fabs(etaMuPos) > jpsi::etaPS[0] && fabs(etaMuPos) < jpsi::etaPS[1] && pMuPos < jpsi::pMuMin[1]) ||
+    //    (fabs(etaMuPos) > jpsi::etaPS[1] && fabs(etaMuPos) < jpsi::etaPS[2] && pTMuPos < jpsi::pTMuMin[2]))
+    //   continue;
+    // //(b) on the negative muon
+    // if((fabs(etaMuNeg) < jpsi::etaPS[0] && pTMuNeg < jpsi::pTMuMin[0]) || //mid-rapidity cut
+    //    (fabs(etaMuNeg) > jpsi::etaPS[0] && fabs(etaMuNeg) < jpsi::etaPS[1] && pMuNeg < jpsi::pMuMin[1]) ||
+    //    (fabs(etaMuNeg) > jpsi::etaPS[1] && fabs(etaMuNeg) < jpsi::etaPS[2] && pTMuNeg < jpsi::pTMuMin[2]))
+    //   continue;
+
+    //apply different fiducial cuts for the muon matched to the HLT leg or the TM leg
+    //for simplicity we decided to apply the stronger cuts to the higher pT muon and not
+    //strictly to the HLT muon
+    Bool_t muonsInAcc = kFALSE;
+    if(pTMuPos > pTMuNeg){
+      muonsInAcc = areMuonsInAcceptance(LOOSE, pTMuPos, etaMuPos, pTMuNeg, etaMuNeg); //code needs to be adjusted for the DoubleMu0 trigger!!!!
+      //muonsInAcc = areMuonsInAcceptance(TIGHT, pTMuPos, etaMuPos, pTMuNeg, etaMuNeg); //code needs to be adjusted for the DoubleMu0 trigger!!!!
+      if(muonsInAcc){
+	Reco_muHLT_pT_eta[1]->Fill(fabs(etaMuPos), pTMuPos);
+	Reco_muHLT_p_eta[1]->Fill(fabs(etaMuPos), pMuPos);
+	Reco_muTM_pT_eta[1]->Fill(fabs(etaMuNeg), pTMuNeg);
+	Reco_muTM_p_eta[1]->Fill(fabs(etaMuNeg), pMuNeg);
+      }
+    }
+    else{
+      muonsInAcc = areMuonsInAcceptance(LOOSE, pTMuNeg, etaMuNeg, pTMuPos, etaMuPos); //code needs to be adjusted for the DoubleMu0 trigger!!!!
+      //muonsInAcc = areMuonsInAcceptance(TIGHT, pTMuNeg, etaMuNeg, pTMuPos, etaMuPos); //code needs to be adjusted for the DoubleMu0 trigger!!!!
+      if(muonsInAcc){
+	Reco_muHLT_pT_eta[1]->Fill(fabs(etaMuNeg), pTMuNeg);
+	Reco_muHLT_p_eta[1]->Fill(fabs(etaMuNeg), pMuNeg);
+	Reco_muTM_pT_eta[1]->Fill(fabs(etaMuPos), pTMuPos);
+	Reco_muTM_p_eta[1]->Fill(fabs(etaMuPos), pMuPos);
+      }
+    }
+    if(!muonsInAcc)
+      continue;
+
+   Reco_StatEv->Fill(5.5);
+
+    //check the trigger
+    if(trigDecision != 1 &&  trigDecision != -1 && trigDecision != 2){
+      //       printf("rejecting events in run %d\n", runNb);
+      continue;
+    }
+    if(pTMuPos > pTMuNeg){
+      Reco_muHLT_pT_eta[2]->Fill(fabs(etaMuPos), pTMuPos);
+      Reco_muHLT_p_eta[2]->Fill(fabs(etaMuPos), pMuPos);
+      Reco_muTM_pT_eta[2]->Fill(fabs(etaMuNeg), pTMuNeg);
+      Reco_muTM_p_eta[2]->Fill(fabs(etaMuNeg), pMuNeg);
+    }
+    else{
+      Reco_muHLT_pT_eta[2]->Fill(fabs(etaMuNeg), pTMuNeg);
+      Reco_muHLT_p_eta[2]->Fill(fabs(etaMuNeg), pMuNeg);
+      Reco_muTM_pT_eta[2]->Fill(fabs(etaMuPos), pTMuPos);
+      Reco_muTM_p_eta[2]->Fill(fabs(etaMuPos), pMuPos);
+    }
+
+    Reco_StatEv->Fill(6.5);
+
     //definitions done for the low pT J/psi trigger...
     if(trigDecision == 1){
-      Reco_muHLT_pT_eta->Fill(etaMuPos, pTMuPos);
-      Reco_muHLT_p_eta->Fill(etaMuPos, pMuPos);
-      Reco_muTM_pT_eta->Fill(etaMuNeg, pTMuNeg);
-      Reco_muTM_p_eta->Fill(etaMuNeg, pMuNeg);
+      Reco_muHLT_pT_eta[3]->Fill(fabs(etaMuPos), pTMuPos);
+      Reco_muHLT_p_eta[3]->Fill(fabs(etaMuPos), pMuPos);
+      Reco_muTM_pT_eta[3]->Fill(fabs(etaMuNeg), pTMuNeg);
+      Reco_muTM_p_eta[3]->Fill(fabs(etaMuNeg), pMuNeg);
     }
     else if(trigDecision == -1){
-      Reco_muHLT_pT_eta->Fill(etaMuNeg, pTMuNeg);
-      Reco_muHLT_p_eta->Fill(etaMuNeg, pMuNeg);
-      Reco_muTM_pT_eta->Fill(etaMuPos, pTMuPos);
-      Reco_muTM_p_eta->Fill(etaMuPos, pMuPos);
+      Reco_muHLT_pT_eta[3]->Fill(fabs(etaMuNeg), pTMuNeg);
+      Reco_muHLT_p_eta[3]->Fill(fabs(etaMuNeg), pMuNeg);
+      Reco_muTM_pT_eta[3]->Fill(fabs(etaMuPos), pTMuPos);
+      Reco_muTM_p_eta[3]->Fill(fabs(etaMuPos), pMuPos);
     }
     else if(trigDecision == 1){
-      Reco_muTM_pT_eta->Fill(etaMuNeg, pTMuNeg);
-      Reco_muTM_p_eta->Fill(etaMuNeg, pMuNeg);
-      Reco_muTM_pT_eta->Fill(etaMuPos, pTMuPos);
-      Reco_muTM_p_eta->Fill(etaMuPos, pMuPos);
+      Reco_muTM_pT_eta[3]->Fill(fabs(etaMuNeg), pTMuNeg);
+      Reco_muTM_p_eta[3]->Fill(fabs(etaMuNeg), pMuNeg);
+      Reco_muTM_pT_eta[3]->Fill(fabs(etaMuPos), pTMuPos);
+      Reco_muTM_p_eta[3]->Fill(fabs(etaMuPos), pMuPos);
 
-      Reco_muHLT_pT_eta->Fill(etaMuNeg, pTMuNeg);
-      Reco_muHLT_p_eta->Fill(etaMuNeg, pMuNeg);
-      Reco_muHLT_pT_eta->Fill(etaMuPos, pTMuPos);
-      Reco_muHLT_p_eta->Fill(etaMuPos, pMuPos);
+      Reco_muHLT_pT_eta[3]->Fill(fabs(etaMuNeg), pTMuNeg);
+      Reco_muHLT_p_eta[3]->Fill(fabs(etaMuNeg), pMuNeg);
+      Reco_muHLT_pT_eta[3]->Fill(fabs(etaMuPos), pTMuPos);
+      Reco_muHLT_p_eta[3]->Fill(fabs(etaMuPos), pMuPos);
     }
-
-    //take muons only within a certain eta range
-    if((fabs(etaMuPos) < jpsi::etaPS[0] && pTMuPos < jpsi::pTMuMin[0]) || //mid-rapidity cut
-       (fabs(etaMuPos) > jpsi::etaPS[0] && fabs(etaMuPos) < jpsi::etaPS[1] && pMuPos < jpsi::pMuMin[1]) ||
-       (fabs(etaMuPos) > jpsi::etaPS[1] && fabs(etaMuPos) < jpsi::etaPS[2] && pTMuPos < jpsi::pTMuMin[2]))
-      continue;
-    //(b) on the negative muon
-    if((fabs(etaMuNeg) < jpsi::etaPS[0] && pTMuNeg < jpsi::pTMuMin[0]) || //mid-rapidity cut
-       (fabs(etaMuNeg) > jpsi::etaPS[0] && fabs(etaMuNeg) < jpsi::etaPS[1] && pMuNeg < jpsi::pMuMin[1]) ||
-       (fabs(etaMuNeg) > jpsi::etaPS[1] && fabs(etaMuNeg) < jpsi::etaPS[2] && pTMuNeg < jpsi::pTMuMin[2]))
-      continue;
-
-    Reco_StatEv->Fill(5.5);
 
     //set up the pT and y indices
     Int_t rapForPTIndex = -1;
@@ -237,7 +289,7 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     if(onia_mass < jPsiMassMin || onia_mass > jPsiMassMax)
       continue;
 
-    Reco_StatEv->Fill(6.5);
+    Reco_StatEv->Fill(7.5);
 
     //fill mass, phi, pt, eta and rap distributions
     //for all events, before rejecting events with pT > 30 GeV/c etc.
@@ -296,7 +348,7 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
       continue;
     }
 
-    Reco_StatEv->Fill(7.5);
+    Reco_StatEv->Fill(8.5);
 
     //b) individual pT and rap bins:
     Reco_Onia_mass[pTIndex][rapForPTIndex]->Fill(onia_mass);
@@ -395,9 +447,44 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 }
 
 //==========================================================
-Double_t CalcPolWeight(Double_t onia_P, Double_t cosTh){
+Double_t PolData2::CalcPolWeight(Double_t onia_P, Double_t thisCosTh){
 
   Double_t lambdaTh = 0.;
-  Double_t weight = 1. + lambdaTh * TMath::Power(cosTh, 2.);
+  Double_t weight = 1. + lambdaTh * TMath::Power(thisCosTh, 2.);
   return weight;
+}
+
+//==========================================================
+Bool_t PolData2::areMuonsInAcceptance(Int_t iCut, Double_t pTHigh, Double_t etaHigh, Double_t pTLow, Double_t etaLow){
+
+  Double_t etaBorderHLT[2][4] = {{0., 1.1, 1.4, 2.4}, {0., 1.2, 1.3, 2.2}}; //LOOSE, TIGHT cuts
+  Double_t pTBorderHLT[2][4] = {{4.6, 4.0, 2.75, 2.0}, {5.2, 4.7, 3.3, 3.0}};
+  Double_t etaBorderTM[2][4] = {{0., 1.1, 1.65, 2.4}, {0., 1.2, 1.6, 2.25}};
+  Double_t pTBorderTM[2][4] = {{3.5, 3.5, 1.2, 1.2}, {3.8, 3.8, 1.75, 1.75}};
+  
+  Double_t minPT_HLT, minPT_TM;
+  Bool_t decision = kFALSE;
+
+  //loop over higher pT muon
+  for(int iEta = 0; iEta < 3; iEta++){
+    if(fabs(etaHigh) > etaBorderHLT[iCut][iEta] && fabs(etaHigh) < etaBorderHLT[iCut][iEta+1]){
+      minPT_HLT = (pTBorderHLT[iCut][iEta+1]-pTBorderHLT[iCut][iEta]) / (etaBorderHLT[iCut][iEta+1]-etaBorderHLT[iCut][iEta]) * (fabs(etaHigh) - etaBorderHLT[iCut][iEta]) + pTBorderHLT[iCut][iEta];
+      break;
+    }
+    else if(fabs(etaHigh) > etaBorderHLT[iCut][3])
+      minPT_HLT = 1000.; //reject all events with |eta| > 2.4 (or 2.2, ...)
+  }
+  //loop over lower pT muon
+  for(int iEta = 0; iEta < 3; iEta++){
+    if(fabs(etaLow) > etaBorderTM[iCut][iEta] && fabs(etaLow) < etaBorderTM[iCut][iEta+1]){
+      minPT_TM = (pTBorderTM[iCut][iEta+1]-pTBorderTM[iCut][iEta]) / (etaBorderTM[iCut][iEta+1]-etaBorderTM[iCut][iEta]) * (fabs(etaLow) - etaBorderTM[iCut][iEta]) + pTBorderTM[iCut][iEta];
+      break;
+    }
+    else if(fabs(etaLow) > etaBorderTM[iCut][3])
+      minPT_TM = 1000.; //reject all events with |eta| > 2.4 (or 2.25, ...)
+  }
+  if(pTHigh > minPT_HLT && pTLow > minPT_TM)
+    decision = kTRUE;
+
+  return decision;
 }

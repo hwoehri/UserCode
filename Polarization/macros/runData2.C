@@ -126,11 +126,16 @@ void BookHistosReco(Char_t *oniaLabel){
   sprintf(title, ";#eta(#mu^{-});p(#mu^{-}) [GeV/c]");
   Reco_mumi_eta_p = new TH2F(name, title, nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
 
-  Reco_muHLT_pT_eta = new TH2F("Reco_muHLT_pT_eta", ";#eta(HLT-#mu);p_{T} [GeV/c]", nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
-  Reco_muHLT_p_eta = new TH2F("Reco_muHLT_p_eta", ";#eta(HLT-#mu);p [GeV/c]", nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
-  Reco_muTM_pT_eta = new TH2F("Reco_muTM_pT_eta", ";#eta(TM-#mu);p_{T} [GeV/c]", nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
-  Reco_muTM_p_eta = new TH2F("Reco_muTM_p_eta", ";#eta(TM-#mu);p [GeV/c]", nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
-
+  for(int iCut = 0; iCut < 4; iCut++){
+    sprintf(name, "Reco_muHLT_pt_eta_%d", iCut);
+    Reco_muHLT_pT_eta[iCut] = new TH2F(name, ";#eta(HLT-#mu);p_{T} [GeV/c]", nBinsRap,0.,rapMax, nBinsPt,pTMin,pTMaxOnia);
+    sprintf(name, "Reco_muHLT_p_eta_%d", iCut);
+    Reco_muHLT_p_eta[iCut] = new TH2F(name, ";#eta(HLT-#mu);p [GeV/c]", nBinsRap,0.,rapMax, nBinsPt,pTMin,pTMaxOnia);
+    sprintf(name, "Reco_muTM_pt_eta_%d", iCut);
+    Reco_muTM_pT_eta[iCut] = new TH2F(name, ";#eta(TM-#mu);p_{T} [GeV/c]", nBinsRap,0.,rapMax, nBinsPt,pTMin,pTMaxOnia);
+    sprintf(name, "Reco_muTM_p_eta_%d", iCut);
+    Reco_muTM_p_eta[iCut] = new TH2F(name, ";#eta(TM-#mu);p [GeV/c]", nBinsRap,0.,rapMax, nBinsPt,pTMin,pTMaxOnia);
+  }
   for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
     for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
       sprintf(name, "Reco_mupl_pt_pT%d_rap%d", iPTBin, iRapBin);
@@ -352,8 +357,10 @@ void WriteHistosReco(Char_t *fNameOut){
     }
   }
 
-  Reco_muHLT_pT_eta->Write();
-  Reco_muHLT_p_eta->Write();
-  Reco_muTM_pT_eta->Write();
-  Reco_muTM_p_eta->Write();
+  for(int iCut = 0; iCut < 4; iCut++){
+    Reco_muHLT_pT_eta[iCut]->Write();
+    Reco_muHLT_p_eta[iCut]->Write();
+    Reco_muTM_pT_eta[iCut]->Write();
+    Reco_muTM_p_eta[iCut]->Write();
+  }
 }
