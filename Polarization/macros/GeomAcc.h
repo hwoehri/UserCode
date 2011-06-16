@@ -11,6 +11,7 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include "TLorentzVector.h"
 
 class GeomAcc {
 public :
@@ -46,6 +47,11 @@ public :
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
    virtual void     Loop(Bool_t applySmearing);
+   double           sigmaPt(const double & pt, const double & eta, const double *parval);
+   double           sigmaCotgTh(const double & pt, const double & eta, const double *parval);
+   TLorentzVector*  ApplySmearing(TLorentzVector *vec, const double *parval);
+   Double_t         CalcPolWeight(Double_t thisCosTh);
+   Bool_t           areMuonsInAcceptance(Int_t iCut, Double_t pTHigh, Double_t etaHigh, Double_t pTLow, Double_t etaLow);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };

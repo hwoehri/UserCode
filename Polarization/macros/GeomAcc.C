@@ -5,7 +5,6 @@
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
-#include "TLorentzVector.h"
 #include "TRandom.h"
 
 using namespace std;
@@ -29,6 +28,8 @@ TH2D *hGenCut_pT_rap[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBin
 //histos taking together +y and -y and 4-folding in phi
 TH2D *hGen_pT_rap_phiFolded[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH2D *hGenCut_pT_rap_phiFolded[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+
+enum {LOOSE,TIGHT};//set of muon fiducial cuts
 //================================================
 Double_t smearValues[27] = {1.27851,
 			    0.00679612,
@@ -51,13 +52,9 @@ Double_t smearValues[27] = {1.27851,
 			    0.160361,
 			    2.26713,
 			    0.,0.,0.,0.,0.,0.,0.};
-double sigmaPt(const double & pt, const double & eta, const double *parval);
-double sigmaCotgTh(const double & pt, const double & eta, const double *parval);
-TLorentzVector* ApplySmearing(TLorentzVector *vec, const double *parval);
-Double_t CalcPolWeight(Double_t thisCosTh);
+
 //================================
-void GeomAcc::Loop(Bool_t smearing)
-{
+void GeomAcc::Loop(Bool_t smearing){
    if (fChain == 0) return;
 
    Long64_t nentries = fChain->GetEntriesFast();
@@ -98,7 +95,6 @@ void GeomAcc::Loop(Bool_t smearing)
 //    fPT->FixParameter(2, 28.8277); fPT->SetParName(2, "<pT2> [GeV2]");
 
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
-//    for (Long64_t jentry=0; jentry<100;jentry++) {
 
      if(jentry%10000 == 0) printf("event %d / %d\n", (Int_t) jentry, (Int_t) nentries);
       Long64_t ientry = LoadTree(jentry);
@@ -137,8 +133,6 @@ void GeomAcc::Loop(Bool_t smearing)
       Double_t pTOniaFSR = oniaFSR->Pt();
       Double_t massOniaFSR = oniaFSR->M();
 
-      calcPol(*muPos, *muNeg);  //get the polarization variables at the generation level (with FSR muons)
-
       Int_t rapIndex = -1;
       for(int iRap = 0; iRap < 2*jpsi::kNbRapBins; iRap++){
 	if(rapOniaFSR > jpsi::rapRange[iRap] && rapOniaFSR < jpsi::rapRange[iRap+1]){
@@ -168,6 +162,17 @@ void GeomAcc::Loop(Bool_t smearing)
 	  break;
 	}
       }
+
+      //select events within a narrow mass window around the J/psi
+      //(rapidity dependence of the resolution --> different mass windows)
+      //values obtained from Gaussian fits in "plotMass.C"
+      Double_t jPsiMassMin = jpsi::polMassJpsi[rapForPTIndex] - jpsi::nSigMass*jpsi::sigmaMassJpsi[rapForPTIndex];
+      Double_t jPsiMassMax = jpsi::polMassJpsi[rapForPTIndex] + jpsi::nSigMass*jpsi::sigmaMassJpsi[rapForPTIndex];
+      if(massOniaFSR < jPsiMassMin || massOniaFSR > jPsiMassMax)
+	continue;
+
+      calcPol(*muPos, *muNeg);  //get the polarization variables at the generation level (with FSR muons)
+
       //assign a weight according to a given pT and y distribution (taken from PYTHIA)
       //PYTHIA distributions fit with the macro "projectPTRap_Pythia.C(kTRUE)"
       //pT distribtuions do NOT show any rapidity dependence, while for pT > 10 GeV/c
@@ -253,20 +258,33 @@ void GeomAcc::Loop(Bool_t smearing)
       Double_t pMuPosSmeared = muPosSmeared->P();
       Double_t pMuNegSmeared = muNegSmeared->P();
 
-      //continue only if both muons are within |eta| < 2.4:
-      if(fabs(etaMuPosSmeared) > jpsi::etaPS[2] || fabs(etaMuNegSmeared) > jpsi::etaPS[2])
-	continue;
+      // //continue only if both muons are within |eta| < 2.4:
+      // if(fabs(etaMuPosSmeared) > jpsi::etaPS[2] || fabs(etaMuNegSmeared) > jpsi::etaPS[2])
+      // 	continue;
 
-      //apply the kinematical phase space cut:
-      //(a) on the positive muon
-      if((fabs(etaMuPosSmeared) < jpsi::etaPS[0] && pTMuPosSmeared < jpsi::pTMuMin[0]) || //mid-rapidity cut
-	 (fabs(etaMuPosSmeared) > jpsi::etaPS[0] && fabs(etaMuPosSmeared) < jpsi::etaPS[1] && pMuPosSmeared < jpsi::pMuMin[1]) ||
-	 (fabs(etaMuPosSmeared) > jpsi::etaPS[1] && fabs(etaMuPosSmeared) < jpsi::etaPS[2] && pTMuPosSmeared < jpsi::pTMuMin[2]))
-	continue;
-      //(b) on the negative muon
-      if((fabs(etaMuNegSmeared) < jpsi::etaPS[0] && pTMuNegSmeared < jpsi::pTMuMin[0]) || //mid-rapidity cut
-	 (fabs(etaMuNegSmeared) > jpsi::etaPS[0] && fabs(etaMuNegSmeared) < jpsi::etaPS[1] && pMuNegSmeared < jpsi::pMuMin[1]) ||
-	 (fabs(etaMuNegSmeared) > jpsi::etaPS[1] && fabs(etaMuNegSmeared) < jpsi::etaPS[2] && pTMuNegSmeared < jpsi::pTMuMin[2]))
+      //old definition of acceptance
+      // //apply the kinematical phase space cut:
+      // //(a) on the positive muon
+      // if((fabs(etaMuPosSmeared) < jpsi::etaPS[0] && pTMuPosSmeared < jpsi::pTMuMin[0]) || //mid-rapidity cut
+      // 	 (fabs(etaMuPosSmeared) > jpsi::etaPS[0] && fabs(etaMuPosSmeared) < jpsi::etaPS[1] && pMuPosSmeared < jpsi::pMuMin[1]) ||
+      // 	 (fabs(etaMuPosSmeared) > jpsi::etaPS[1] && fabs(etaMuPosSmeared) < jpsi::etaPS[2] && pTMuPosSmeared < jpsi::pTMuMin[2]))
+      // 	continue;
+      // //(b) on the negative muon
+      // if((fabs(etaMuNegSmeared) < jpsi::etaPS[0] && pTMuNegSmeared < jpsi::pTMuMin[0]) || //mid-rapidity cut
+      // 	 (fabs(etaMuNegSmeared) > jpsi::etaPS[0] && fabs(etaMuNegSmeared) < jpsi::etaPS[1] && pMuNegSmeared < jpsi::pMuMin[1]) ||
+      // 	 (fabs(etaMuNegSmeared) > jpsi::etaPS[1] && fabs(etaMuNegSmeared) < jpsi::etaPS[2] && pTMuNegSmeared < jpsi::pTMuMin[2]))
+      // 	continue;
+      
+      Bool_t muonsInAcc = kFALSE;
+      if(pTMuPosSmeared > pTMuNegSmeared){
+	muonsInAcc = areMuonsInAcceptance(LOOSE, pTMuPosSmeared, etaMuPosSmeared, pTMuNegSmeared, etaMuNegSmeared); //code needs to be adjusted for the DoubleMu0 trigger!!!!
+	//muonsInAcc = areMuonsInAcceptance(TIGHT, pTMuPosSmeared, etaMuPosSmeared, pTMuNegSmeared, etaMuNegSmeared); //code needs to be adjusted for the DoubleMu0 trigger!!!!
+      }
+      else{
+	muonsInAcc = areMuonsInAcceptance(LOOSE, pTMuNegSmeared, etaMuNegSmeared, pTMuPosSmeared, etaMuPosSmeared); //code needs to be adjusted for the DoubleMu0 trigger!!!!
+	//muonsInAcc = areMuonsInAcceptance(TIGHT, pTMuNegSmeared, etaMuNegSmeared, pTMuPosSmeared, etaMuPosSmeared); //code needs to be adjusted for the DoubleMu0 trigger!!!!
+      }
+      if(!muonsInAcc)
 	continue;
 
       //build the invariant mass, pt, ... of the two muons
@@ -281,14 +299,6 @@ void GeomAcc::Loop(Bool_t smearing)
       Double_t oniaSim_rap = oniaSim->Rapidity();
       Double_t oniaSim_phi = oniaSim->Phi();
       Double_t oniaSim_mT = sqrt(oniaSim_mass*oniaSim_mass + oniaSim_pt*oniaSim_pt);
-
-      //assign a weight according to a given pT and y distribution (taken from PYTHIA)
-      //PYTHIA distributions fit with the macro "projectPTRap_Pythia.C(kTRUE)"
-      //pT distribtuions do NOT show any rapidity dependence, while for pT > 10 GeV/c
-      //there seems to be some rapidity dependence which is neglected in this parameterization
-//       pTweight = fPT->Eval(oniaSim_pt);
-//       rapweight = fRap->Eval(oniaSim_rap);
-//       kinWeight = pTweight*rapweight;
 
       hMass_Smeared[0][0]->Fill(oniaSim_mass, kinWeight); //others will be filled after all indices are set
 
@@ -343,8 +353,8 @@ void GeomAcc::Loop(Bool_t smearing)
       //select events within a narrow mass window around the J/psi
       //(rapidity dependence of the resolution --> different mass windows)
       //values obtained from Gaussian fits in "plotMass.C"
-      Double_t jPsiMassMin = jpsi::polMassJpsi[rapForPTIndex] - jpsi::nSigMass*jpsi::sigmaMassJpsi[rapForPTIndex];
-      Double_t jPsiMassMax = jpsi::polMassJpsi[rapForPTIndex] + jpsi::nSigMass*jpsi::sigmaMassJpsi[rapForPTIndex];
+      jPsiMassMin = jpsi::polMassJpsi[rapForPTIndex] - jpsi::nSigMass*jpsi::sigmaMassJpsi[rapForPTIndex];
+      jPsiMassMax = jpsi::polMassJpsi[rapForPTIndex] + jpsi::nSigMass*jpsi::sigmaMassJpsi[rapForPTIndex];
       if(oniaSim_mass < jPsiMassMin || oniaSim_mass > jPsiMassMax)
 	continue;
 
@@ -418,7 +428,7 @@ void GeomAcc::Loop(Bool_t smearing)
 }
 
 //==========================================================
-Double_t CalcPolWeight(Double_t cosTh){
+Double_t GeomAcc::CalcPolWeight(Double_t cosTh){
 
 //   Double_t lambdaTh = -1.;
   Double_t lambdaTh = 0.;
@@ -427,7 +437,7 @@ Double_t CalcPolWeight(Double_t cosTh){
 }
 
 //==========================================================
-TLorentzVector* ApplySmearing(TLorentzVector *vec, const double *parval){
+TLorentzVector* GeomAcc::ApplySmearing(TLorentzVector *vec, const double *parval){
 
   TLorentzVector *vecSmeared;
   Double_t pT = vec->Pt();
@@ -469,7 +479,7 @@ TLorentzVector* ApplySmearing(TLorentzVector *vec, const double *parval){
 //taken from 
 //http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/MuonAnalysis/MomentumScaleCalibration/interface/Functions.h?revision=1.52&view=markup
 //according to the mail of Marco De Mattia on 02/12/2010
-double sigmaPt(const double &pt, const double &eta, const double *parval){
+double GeomAcc::sigmaPt(const double &pt, const double &eta, const double *parval){
 
   double fabsEta = fabs(eta);
   
@@ -504,7 +514,7 @@ double sigmaPt(const double &pt, const double &eta, const double *parval){
 }
 
 //===================================================
-double sigmaCotgTh(const double & pt, const double & eta, const double *parval) {
+double GeomAcc::sigmaCotgTh(const double & pt, const double & eta, const double *parval) {
 
   double fabsEta = fabs(eta);
   double value = parval[8] + parval[9]*fabsEta + parval[10]*eta*eta + parval[11]*fabsEta*fabsEta*fabsEta;
@@ -512,4 +522,39 @@ double sigmaCotgTh(const double & pt, const double & eta, const double *parval) 
     return( value );
   }
   return 0;
+}
+
+//==========================================================
+Bool_t GeomAcc::areMuonsInAcceptance(Int_t iCut, Double_t pTHigh, Double_t etaHigh, Double_t pTLow, Double_t etaLow){
+
+  Double_t etaBorderHLT[2][4] = {{0., 1.1, 1.4, 2.4}, {0., 1.2, 1.3, 2.2}}; //LOOSE, TIGHT cuts
+  Double_t pTBorderHLT[2][4] = {{4.6, 4.0, 2.75, 2.0}, {5.2, 4.7, 3.3, 3.0}};
+  Double_t etaBorderTM[2][4] = {{0., 1.1, 1.65, 2.4}, {0., 1.2, 1.6, 2.25}};
+  Double_t pTBorderTM[2][4] = {{3.5, 3.5, 1.2, 1.2}, {3.8, 3.8, 1.75, 1.75}};
+  
+  Double_t minPT_HLT, minPT_TM;
+  Bool_t decision = kFALSE;
+
+  //loop over higher pT muon
+  for(int iEta = 0; iEta < 3; iEta++){
+    if(fabs(etaHigh) > etaBorderHLT[iCut][iEta] && fabs(etaHigh) < etaBorderHLT[iCut][iEta+1]){
+      minPT_HLT = (pTBorderHLT[iCut][iEta+1]-pTBorderHLT[iCut][iEta]) / (etaBorderHLT[iCut][iEta+1]-etaBorderHLT[iCut][iEta]) * (fabs(etaHigh) - etaBorderHLT[iCut][iEta]) + pTBorderHLT[iCut][iEta];
+      break;
+    }
+    else if(fabs(etaHigh) > etaBorderHLT[iCut][3])
+      minPT_HLT = 1000.; //reject all events with |eta| > 2.4 (or 2.2, ...)
+  }
+  //loop over lower pT muon
+  for(int iEta = 0; iEta < 3; iEta++){
+    if(fabs(etaLow) > etaBorderTM[iCut][iEta] && fabs(etaLow) < etaBorderTM[iCut][iEta+1]){
+      minPT_TM = (pTBorderTM[iCut][iEta+1]-pTBorderTM[iCut][iEta]) / (etaBorderTM[iCut][iEta+1]-etaBorderTM[iCut][iEta]) * (fabs(etaLow) - etaBorderTM[iCut][iEta]) + pTBorderTM[iCut][iEta];
+      break;
+    }
+    else if(fabs(etaLow) > etaBorderTM[iCut][3])
+      minPT_TM = 1000.; //reject all events with |eta| > 2.4 (or 2.25, ...)
+  }
+  if(pTHigh > minPT_HLT && pTLow > minPT_TM)
+    decision = kTRUE;
+
+  return decision;
 }
