@@ -21,8 +21,16 @@ void runData2(Char_t *fNameOut = "pol_data_HLT_Mu0TkMu0Jpsi.root",
 	     Char_t *oniaLabel = "J/#psi"){//"Ups(1S)"
 
   TChain *chain = new TChain(nameDataSet);
-  chain->Add("/home/hermine/CMS/Work/Polarization/Florian/7Dec2010/TTree_pol_noTriggerFilter_Run2010A-Nov4ReReco_v1_06Dec2010.root");
-  chain->Add("/home/hermine/CMS/Work/Polarization/Florian/7Dec2010/TTree_pol_noTriggerFilter_Run2010B-Nov4ReReco_v1_06Dec2010.root");
+//   chain->Add("/home/hermine/CMS/Work/Polarization/Florian/7Dec2010/TTree_pol_noTriggerFilter_Run2010A-Nov4ReReco_v1_06Dec2010.root");
+//   chain->Add("/home/hermine/CMS/Work/Polarization/Florian/7Dec2010/TTree_pol_noTriggerFilter_Run2010B-Nov4ReReco_v1_06Dec2010.root");
+
+  // chain->Add("JPsiToMuMu_Fall10-START38_V12-v1-Onia2MuMu-v6-WithAllMCEvents_merged.root");
+
+  chain->Add("/Users/hwoehri/CMS/Work/Polarization/Herbert/13April2011/TTree_pol_RUN_2010A_p_1_noDimuVtxCut_11April2011.root");
+  chain->Add("/Users/hwoehri/CMS/Work/Polarization/Herbert/13April2011/TTree_pol_RUN_2010A_p_2_noDimuVtxCut_11April2011.root");
+  chain->Add("/Users/hwoehri/CMS/Work/Polarization/Herbert/13April2011/TTree_pol_RUN_2010B_p_1_noDimuVtxCut_11April2011.root");
+  chain->Add("/Users/hwoehri/CMS/Work/Polarization/Herbert/13April2011/TTree_pol_RUN_2010B_p_2_noDimuVtxCut_11April2011.root");
+
   TTree *tree = chain;
   
   TFile *fOut;
@@ -33,6 +41,7 @@ void runData2(Char_t *fNameOut = "pol_data_HLT_Mu0TkMu0Jpsi.root",
   BookHistosReco(oniaLabel);
   printf("after booking of histo\n");
   treeReco.Loop(selDimuType, writeOutEvents);
+  printf("writing out the histograms\n");
   WriteHistosReco(fNameOut);
 
   fOut->Close();
@@ -50,8 +59,8 @@ void BookHistosReco(Char_t *oniaLabel){
   }
 
   //pt
-  Int_t nBinsPt = 100, nBinsPtGamma = 30;
-  Double_t pTMin = 0., pTMaxOnia = 30., pTMaxGamma = 3.0;
+  Int_t nBinsPt = 240;
+  Double_t pTMin = 0., pTMaxOnia = 60.;
   //energy
   Int_t nBinsE = 50, nBinsEOnia = 200;
   Double_t enMin = 0., enMax = 5., enMaxOnia = 50.;
@@ -61,9 +70,6 @@ void BookHistosReco(Char_t *oniaLabel){
   //rap
   Int_t nBinsRap = 100;
   Double_t rapMin = -2.5, rapMax = 2.5;
-  //pseudo-rap
-  Int_t nBinsEtaGamma = 120;
-  Double_t etaMinGamma = -3.0, etaMaxGamma = 3.0;
 
   Char_t name[100], title[300];
   //statistics
@@ -76,11 +82,11 @@ void BookHistosReco(Char_t *oniaLabel){
       //Mass:
       sprintf(name, "Reco_Onia_mass_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, ";M [GeV/c^{2}]");
-      Reco_Onia_mass[iPTBin][iRapBin] = new TH1F(name, title, nBinsMass,massMin,massMax);
+      Reco_Onia_mass[iPTBin][iRapBin] = new TH1F(name, title, nBinsMass, massMin, massMax);
       Reco_Onia_mass[iPTBin][iRapBin]->Sumw2();
       //phi-lab:
       sprintf(name, "Reco_Onia_phi_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";%s #phi (rad)", oniaLabel);
+      sprintf(title, ";%s #phi [rad]", oniaLabel);
       Reco_Onia_phi[iPTBin][iRapBin] = new TH1F(name, title, nBinsPhi,phiMin,phiMax);
       Reco_Onia_phi[iPTBin][iRapBin]->Sumw2();
     }
@@ -92,6 +98,13 @@ void BookHistosReco(Char_t *oniaLabel){
     Reco_Onia_pt[iRapBin]  = new TH1F(name, title, nBinsPt,pTMin,pTMaxOnia);
     Reco_Onia_pt[iRapBin]->Sumw2();
   }
+  for(int iPTBin = 0; iPTBin < jpsi::kNbPTMaxBins+1; iPTBin++){
+    //rap
+    sprintf(name, "Reco_Onia_rap_pT%d", iPTBin);
+    sprintf(title, ";%s y", oniaLabel);
+    Reco_Onia_rap[iPTBin]  = new TH1F(name, title, nBinsRap, rapMin,rapMax);
+    Reco_Onia_rap[iPTBin]->Sumw2();
+  }
 
   //2D Onia histos:
   sprintf(name, "Reco_Onia_rap_pt");
@@ -100,8 +113,26 @@ void BookHistosReco(Char_t *oniaLabel){
   Reco_Onia_rap_pT->Sumw2();
 
   //debugging histos (single Muons):
-  for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
-    for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+  sprintf(name, "Reco_mupl_eta_pt");
+  sprintf(title, ";#eta(#mu^{+});p_{T}(#mu^{+}) [GeV/c]");
+  Reco_mupl_eta_pT = new TH2F(name, title, nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
+  sprintf(name, "Reco_mumi_eta_pt");
+  sprintf(title, ";#eta(#mu^{-});p_{T}(#mu^{-}) [GeV/c]");
+  Reco_mumi_eta_pT = new TH2F(name, title, nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
+  sprintf(name, "Reco_mupl_eta_p");
+  sprintf(title, ";#eta(#mu^{+});p(#mu^{+}) [GeV/c]");
+  Reco_mupl_eta_p = new TH2F(name, title, nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
+  sprintf(name, "Reco_mumi_eta_p");
+  sprintf(title, ";#eta(#mu^{-});p(#mu^{-}) [GeV/c]");
+  Reco_mumi_eta_p = new TH2F(name, title, nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
+
+  Reco_muHLT_pT_eta = new TH2F("Reco_muHLT_pT_eta", ";#eta(HLT-#mu);p_{T} [GeV/c]", nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
+  Reco_muHLT_p_eta = new TH2F("Reco_muHLT_p_eta", ";#eta(HLT-#mu);p [GeV/c]", nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
+  Reco_muTM_pT_eta = new TH2F("Reco_muTM_pT_eta", ";#eta(TM-#mu);p_{T} [GeV/c]", nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
+  Reco_muTM_p_eta = new TH2F("Reco_muTM_p_eta", ";#eta(TM-#mu);p [GeV/c]", nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
+
+  for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
       sprintf(name, "Reco_mupl_pt_pT%d_rap%d", iPTBin, iRapBin);
       sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;p_{T}(#mu^{+})[GeV/c]",
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
@@ -259,10 +290,13 @@ void WriteHistosReco(Char_t *fNameOut){
   for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
     Reco_Onia_pt[iRapBin]->Write();
 
+  for(int iPTBin = 0; iPTBin < jpsi::kNbPTMaxBins+1; iPTBin++)
+    Reco_Onia_rap[iPTBin]->Write();
+    
   Reco_Onia_rap_pT->Write();
 
-  for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
-    for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
+  for(int iRapBin = 0; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++){
+    for(int iPTBin = 0; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++){
        //debugging histos (single muons):
        Reco_mupl_pt[iPTBin][iRapBin] ->Write();
        Reco_mupl_eta[iPTBin][iRapBin]->Write();
@@ -277,6 +311,11 @@ void WriteHistosReco(Char_t *fNameOut){
        hEtaPos_EtaNeg[iPTBin][iRapBin]->Write();
      }
   }
+  Reco_mupl_eta_pT->Write();
+  Reco_mumi_eta_pT->Write();
+  Reco_mupl_eta_p->Write();
+  Reco_mumi_eta_p->Write();
+
   // for(int iRapBin = 1; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++)
   for(int iRapBin = 1; iRapBin < jpsi::kNbRapForPTBins+1; iRapBin++)
     for(int iPTBin = 1; iPTBin < jpsi::kNbPTBins[iRapBin]+1; iPTBin++)
@@ -312,4 +351,9 @@ void WriteHistosReco(Char_t *fNameOut){
       hSin2Delta[iPTBin][iRapBin]->Write();
     }
   }
+
+  Reco_muHLT_pT_eta->Write();
+  Reco_muHLT_p_eta->Write();
+  Reco_muTM_pT_eta->Write();
+  Reco_muTM_p_eta->Write();
 }
