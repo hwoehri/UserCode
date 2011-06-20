@@ -7,6 +7,7 @@ void WriteHistos();
 void runGeomAcc(Char_t *fileNameOut = "geomAcc_WithFSR_kinWeighted.root",
 		Char_t *fileNameIn = "jpsiGun_WithFSR_Tree.root",
 		Bool_t applySmearing = kTRUE,
+		Bool_t rejectCowboys = kTRUE,
 		//Char_t *fileNameOut = "geomAcc.root",
 		//		Char_t *fileNameIn = "jpsiGun_Tree.root",
 		Char_t *oniaLabel = "J/#psi" //"J/#psi", "#psi'", "Ups(1S)", "Ups(2S)", "Ups(3S)"
@@ -22,7 +23,7 @@ void runGeomAcc(Char_t *fileNameOut = "geomAcc_WithFSR_kinWeighted.root",
   printf("...done\n");
   BookHistos(oniaLabel);
 
-  tree.Loop(applySmearing);
+  tree.Loop(applySmearing, rejectCowboys);
   WriteHistos();
   fOut->Close();
 }

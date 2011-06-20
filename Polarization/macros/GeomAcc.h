@@ -46,7 +46,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop(Bool_t applySmearing);
+   virtual void     Loop(Bool_t applySmearing, Bool_t rejectCowboys);
    double           sigmaPt(const double & pt, const double & eta, const double *parval);
    double           sigmaCotgTh(const double & pt, const double & eta, const double *parval);
    TLorentzVector*  ApplySmearing(TLorentzVector *vec, const double *parval);

@@ -54,7 +54,7 @@ Double_t smearValues[27] = {1.27851,
 			    0.,0.,0.,0.,0.,0.,0.};
 
 //================================
-void GeomAcc::Loop(Bool_t smearing){
+void GeomAcc::Loop(Bool_t smearing, Bool_t rejectCowboys){
    if (fChain == 0) return;
 
    Long64_t nentries = fChain->GetEntriesFast();
@@ -171,6 +171,10 @@ void GeomAcc::Loop(Bool_t smearing){
       if(massOniaFSR < jPsiMassMin || massOniaFSR > jPsiMassMax)
 	continue;
 
+      if(rejectCowboys)
+	if((muNeg->Phi() - muPos->Phi()) < 0.)
+	  continue;
+
       calcPol(*muPos, *muNeg);  //get the polarization variables at the generation level (with FSR muons)
 
       //assign a weight according to a given pT and y distribution (taken from PYTHIA)
@@ -285,6 +289,10 @@ void GeomAcc::Loop(Bool_t smearing){
 	//muonsInAcc = areMuonsInAcceptance(TIGHT, pTMuNegSmeared, etaMuNegSmeared, pTMuPosSmeared, etaMuPosSmeared); //code needs to be adjusted for the DoubleMu0 trigger!!!!
       }
       if(!muonsInAcc)
+	continue;
+
+      //reject furthermore all events in which one of the muons has a pT smaller than 3 GeV/c
+      if(pTMuPosSmeared < 3.0 || pTMuNegSmeared < 3.0)
 	continue;
 
       //build the invariant mass, pt, ... of the two muons
