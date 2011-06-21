@@ -14,13 +14,12 @@ void WriteHistosReco(Char_t *fNameOut);
 //       root 'runData.C+("pol_MC_HLT_Mu0Track0Jpsi.root", kTRUE)' (e.g.) 
 //==========================================
 void runData2(Char_t *fNameOut = "pol_data_HLT_Mu0TkMu0Jpsi.root",
-	     Bool_t newOutputFile = kTRUE, //allows to create a new file or to append info
-	     Char_t *nameDataSet = "data", //"data" or "recoData"
-	     Int_t selDimuType = 4, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
-	     Bool_t writeOutEvents = kFALSE, //writes out Run, LS, Ev.Nb for any J/psi candidate
-	     Char_t *oniaLabel = "J/#psi"){//"Ups(1S)"
-
-  TChain *chain = new TChain(nameDataSet);
+	      Bool_t rejectCowboys = kTRUE,
+	      Int_t selDimuType = 4, //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
+	      Bool_t writeOutEvents = kFALSE, //writes out Run, LS, Ev.Nb for any J/psi candidate
+	      Char_t *oniaLabel = "J/#psi"){//"Ups(1S)"
+  
+  TChain *chain = new TChain("data");
 //   chain->Add("/home/hermine/CMS/Work/Polarization/Florian/7Dec2010/TTree_pol_noTriggerFilter_Run2010A-Nov4ReReco_v1_06Dec2010.root");
 //   chain->Add("/home/hermine/CMS/Work/Polarization/Florian/7Dec2010/TTree_pol_noTriggerFilter_Run2010B-Nov4ReReco_v1_06Dec2010.root");
 
@@ -33,14 +32,12 @@ void runData2(Char_t *fNameOut = "pol_data_HLT_Mu0TkMu0Jpsi.root",
 
   TTree *tree = chain;
   
-  TFile *fOut;
-  if(newOutputFile) fOut = new TFile(fNameOut, "RECREATE");
-  else fOut = new TFile(fNameOut, "UPDATE");
+  TFile *fOut = fOut = new TFile(fNameOut, "RECREATE");
 
   PolData2 treeReco(tree);
   BookHistosReco(oniaLabel);
   printf("after booking of histo\n");
-  treeReco.Loop(selDimuType, writeOutEvents);
+  treeReco.Loop(selDimuType, rejectCowboys, writeOutEvents);
   printf("writing out the histograms\n");
   WriteHistosReco(fNameOut);
 
@@ -179,20 +176,25 @@ void BookHistosReco(Char_t *oniaLabel){
       Reco_mumi_phi[iPTBin][iRapBin]->Sumw2();
 
       sprintf(name, "Reco_PhiPos_PhiNeg_pT%d_rap%d" , iPTBin, iRapBin);
-      sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;#phi(#mu^{-});#phi(#mu^{+})", 
+      sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;#phi(#mu^{-});#phi(#mu^{+})", 
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
 	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hPhiPos_PhiNeg[iPTBin][iRapBin] = new TH2F(name, title, 60,-180.,180., 60,-180.,180.);
       sprintf(name, "Reco_PtPos_PtNeg_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;p_{T}(#mu^{-}) [GeV/c];p_{T}(#mu^{+}) [GeV/c]", 
+      sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;p_{T}(#mu^{-}) [GeV/c];p_{T}(#mu^{+}) [GeV/c]", 
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
 	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hPtPos_PtNeg[iPTBin][iRapBin] = new TH2F(name, title, 80, 0., 20., 80, 0., 20.);
       sprintf(name, "Reco_EtaPos_EtaNeg_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < |p_{T}(%s)| < %1.1f GeV/c;#eta(#mu^{-});#eta(#mu^{+})", 
+      sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;#eta(#mu^{-});#eta(#mu^{+})", 
 	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
 	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
       hEtaPos_EtaNeg[iPTBin][iRapBin] = new TH2F(name, title, 48, -2.4, 2.4, 48, -2.4, 2.4);
+      sprintf(name, "Reco_HighPt_LowPt_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(title, "%1.1f < |y(%s)| < %1.1f, %1.1f < p_{T}(%s) < %1.1f GeV/c;p_{T}(#mu-low) [GeV/c];p_{T}(#mu-high) [GeV/c]", 
+	      jpsi::rapForPTRange[iRapBin-1], oniaLabel, jpsi::rapForPTRange[iRapBin], 
+	      jpsi::pTRange[iRapBin][iPTBin-1], oniaLabel, jpsi::pTRange[iRapBin][iPTBin]);
+      hHighPt_LowPt[iPTBin][iRapBin] = new TH2F(name, title, 80, 0., 20., 80, 0., 20.);
     }
   }
   // for(int iRapBin = 1; iRapBin < 2*jpsi::kNbRapBins+1; iRapBin++)
@@ -314,6 +316,7 @@ void WriteHistosReco(Char_t *fNameOut){
        hPhiPos_PhiNeg[iPTBin][iRapBin]->Write();
        hPtPos_PtNeg[iPTBin][iRapBin]->Write();
        hEtaPos_EtaNeg[iPTBin][iRapBin]->Write();
+       hHighPt_LowPt[iPTBin][iRapBin]->Write();
      }
   }
   Reco_mupl_eta_pT->Write();

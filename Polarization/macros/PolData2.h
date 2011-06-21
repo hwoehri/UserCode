@@ -113,7 +113,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop(Int_t selDimuType, Bool_t writeOutEvents);
+   virtual void     Loop(Int_t selDimuType, Bool_t rejectCowboys, Bool_t writeOutEvents);
    Bool_t           areMuonsInAcceptance(Int_t iCut, Double_t pTHigh, Double_t etaHigh, Double_t pTLow, Double_t etaLow);
    Double_t         CalcPolWeight(Double_t pf_onia_P, Double_t thisCosTh);
    virtual Bool_t   Notify();

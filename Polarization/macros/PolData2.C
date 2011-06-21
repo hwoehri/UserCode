@@ -31,6 +31,7 @@ TH2F *hPhiPos_PhiNeg[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH2F *hPtPos_PtNeg[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH2F *hEtaPos_EtaNeg[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH1F *hDeltaPhi[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
+TH2F *hHighPt_LowPt[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 
 //polarization histos:
 TH1F *Reco_Onia_pol_pT_rap[jpsi::kNbFrames][jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1][jpsi::kNbPolVar];
@@ -44,7 +45,7 @@ TH1F *hDelta[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 TH1F *hSin2Delta[jpsi::kNbPTMaxBins+1][jpsi::kNbRapForPTBins+1];
 enum {LOOSE,TIGHT};//set of muon fiducial cuts
 //==============================================
-void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
+void PolData2::Loop(Int_t selDimuType, Bool_t rejectCowboys, Bool_t writeOutEvents)
 {
   if (fChain == 0) return;
 
@@ -135,17 +136,23 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     Double_t pMuPos = muPos->P();
     Double_t pMuNeg = muNeg->P();
 
+    if(rejectCowboys)
+      if((muNeg->Phi() - muPos->Phi()) < 0.)
+	continue;
+
+    Reco_StatEv->Fill(3.5);
+
     //select events with a cut on the lifetime to reject NP J/psis:
     if(Jpsict > jpsi::JpsiCtauMax)
       continue;
-    Reco_StatEv->Fill(3.5);
+    Reco_StatEv->Fill(4.5);
 
     Double_t jPsiMassMin = jpsi::polMassJpsi[0] - jpsi::nSigMass*jpsi::sigmaMassJpsi[0];
     Double_t jPsiMassMax = jpsi::polMassJpsi[0] + jpsi::nSigMass*jpsi::sigmaMassJpsi[0];
     if(onia_mass < jPsiMassMin || onia_mass > jPsiMassMax)
       continue;
 
-    Reco_StatEv->Fill(4.5);
+    Reco_StatEv->Fill(5.5);
 
     Reco_mupl_eta_pT->Fill(etaMuPos, pTMuPos);
     Reco_mumi_eta_pT->Fill(etaMuNeg, pTMuNeg);
@@ -205,6 +212,12 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 
    Reco_StatEv->Fill(5.5);
 
+   //reject furthermore all events in which one of the muons has a pT smaller than 3 GeV/c
+   if(pTMuPos < 3.0 || pTMuNeg < 3.0)
+     continue;
+
+   Reco_StatEv->Fill(6.5);
+
     //check the trigger
     if(trigDecision != 1 &&  trigDecision != -1 && trigDecision != 2){
       //       printf("rejecting events in run %d\n", runNb);
@@ -223,7 +236,7 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
       Reco_muTM_p_eta[2]->Fill(fabs(etaMuPos), pMuPos);
     }
 
-    Reco_StatEv->Fill(6.5);
+    Reco_StatEv->Fill(7.5);
 
     //definitions done for the low pT J/psi trigger...
     if(trigDecision == 1){
@@ -289,7 +302,7 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     if(onia_mass < jPsiMassMin || onia_mass > jPsiMassMax)
       continue;
 
-    Reco_StatEv->Fill(7.5);
+    Reco_StatEv->Fill(8.5);
 
     //fill mass, phi, pt, eta and rap distributions
     //for all events, before rejecting events with pT > 30 GeV/c etc.
@@ -301,11 +314,11 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
     Reco_Onia_pt[0]->Fill(onia_pt);
     Reco_Onia_phi[0][0]->Fill(onia_phi);
 
-    Reco_mupl_pt  [0][0]->Fill(muPos->Pt());
-    Reco_mupl_eta [0][0]->Fill(muPos->PseudoRapidity());
+    Reco_mupl_pt  [0][0]->Fill(pTMuPos);
+    Reco_mupl_eta [0][0]->Fill(etaMuPos);
     Reco_mupl_phi [0][0]->Fill(muPos->Phi());
-    Reco_mumi_pt [0][0]->Fill(muNeg->Pt());
-    Reco_mumi_eta[0][0]->Fill(muNeg->PseudoRapidity());
+    Reco_mumi_pt [0][0]->Fill(pTMuNeg);
+    Reco_mumi_eta[0][0]->Fill(etaMuNeg);
     Reco_mumi_phi[0][0]->Fill(muNeg->Phi());
 
     if(rapIntegratedPTIndex >= 0){
@@ -313,11 +326,11 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
       Reco_Onia_phi[rapIntegratedPTIndex][0]->Fill(onia_phi);
       Reco_Onia_rap[rapIntegratedPTIndex]->Fill(onia_rap);
 
-      Reco_mupl_pt [rapIntegratedPTIndex][0]->Fill(muPos->Pt());
-      Reco_mupl_eta[rapIntegratedPTIndex][0]->Fill(muPos->PseudoRapidity());
+      Reco_mupl_pt [rapIntegratedPTIndex][0]->Fill(pTMuPos);
+      Reco_mupl_eta[rapIntegratedPTIndex][0]->Fill(etaMuPos);
       Reco_mupl_phi[rapIntegratedPTIndex][0]->Fill(muPos->Phi());
-      Reco_mumi_pt [rapIntegratedPTIndex][0]->Fill(muNeg->Pt());
-      Reco_mumi_eta[rapIntegratedPTIndex][0]->Fill(muNeg->PseudoRapidity());
+      Reco_mumi_pt [rapIntegratedPTIndex][0]->Fill(pTMuNeg);
+      Reco_mumi_eta[rapIntegratedPTIndex][0]->Fill(etaMuNeg);
       Reco_mumi_phi[rapIntegratedPTIndex][0]->Fill(muNeg->Phi());
     }
     if(rapForPTIndex > 0){
@@ -326,11 +339,11 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
       Reco_Onia_pt[rapForPTIndex]->Fill(onia_pt);
       Reco_Onia_phi[0][rapForPTIndex]->Fill(onia_phi);
       //
-      Reco_mupl_pt [0][rapForPTIndex]->Fill(muPos->Pt());
-      Reco_mupl_eta[0][rapForPTIndex]->Fill(muPos->PseudoRapidity());
+      Reco_mupl_pt [0][rapForPTIndex]->Fill(pTMuPos);
+      Reco_mupl_eta[0][rapForPTIndex]->Fill(etaMuPos);
       Reco_mupl_phi[0][rapForPTIndex]->Fill(muPos->Phi());
-      Reco_mumi_pt [0][rapForPTIndex]->Fill(muNeg->Pt());
-      Reco_mumi_eta[0][rapForPTIndex]->Fill(muNeg->PseudoRapidity());
+      Reco_mumi_pt [0][rapForPTIndex]->Fill(pTMuNeg);
+      Reco_mumi_eta[0][rapForPTIndex]->Fill(etaMuNeg);
       Reco_mumi_phi[0][rapForPTIndex]->Fill(muNeg->Phi());
     }
 
@@ -348,7 +361,7 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
       continue;
     }
 
-    Reco_StatEv->Fill(8.5);
+    Reco_StatEv->Fill(9.5);
 
     //b) individual pT and rap bins:
     Reco_Onia_mass[pTIndex][rapForPTIndex]->Fill(onia_mass);
@@ -386,16 +399,20 @@ void PolData2::Loop(Int_t selDimuType, Bool_t writeOutEvents)
 
     //debugging histos
     hPhiPos_PhiNeg[pTIndex][rapForPTIndex]->Fill(180./TMath::Pi() * muNeg->Phi(), 180./TMath::Pi() * muPos->Phi());
-    hPtPos_PtNeg[pTIndex][rapForPTIndex]->Fill(muNeg->Pt(), muPos->Pt());
-    hEtaPos_EtaNeg[pTIndex][rapForPTIndex]->Fill(muNeg->PseudoRapidity(), muPos->PseudoRapidity());
+    hPtPos_PtNeg[pTIndex][rapForPTIndex]->Fill(pTMuNeg, pTMuPos);
+    hEtaPos_EtaNeg[pTIndex][rapForPTIndex]->Fill(etaMuNeg, etaMuPos);
     hDeltaPhi[pTIndex][rapForPTIndex]->Fill(deltaPhi);
+    if(pTMuPos > pTMuNeg)
+      hHighPt_LowPt[pTIndex][rapForPTIndex]->Fill(pTMuNeg, pTMuPos);
+    else
+      hHighPt_LowPt[pTIndex][rapForPTIndex]->Fill(pTMuPos, pTMuNeg);
 
-    Reco_mupl_pt[pTIndex][rapForPTIndex]->Fill(muPos->Pt());
-    Reco_mupl_eta[pTIndex][rapForPTIndex]->Fill(muPos->PseudoRapidity());
+    Reco_mupl_pt[pTIndex][rapForPTIndex]->Fill(pTMuPos);
+    Reco_mupl_eta[pTIndex][rapForPTIndex]->Fill(etaMuPos);
     Reco_mupl_phi[pTIndex][rapForPTIndex]->Fill(muPos->Phi());
       
-    Reco_mumi_pt[pTIndex][rapForPTIndex]->Fill(muNeg->Pt());
-    Reco_mumi_eta[pTIndex][rapForPTIndex]->Fill(muNeg->PseudoRapidity());
+    Reco_mumi_pt[pTIndex][rapForPTIndex]->Fill(pTMuNeg);
+    Reco_mumi_eta[pTIndex][rapForPTIndex]->Fill(etaMuNeg);
     Reco_mumi_phi[pTIndex][rapForPTIndex]->Fill(muNeg->Phi());
 
     //fill the histos for all the different frames
