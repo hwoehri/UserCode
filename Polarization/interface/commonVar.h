@@ -3,8 +3,6 @@
 
 namespace jpsi{
 
-  //enum {L1DoubleMuOpen, Mu0Track0Jpsi, Mu3Track0Jpsi, DoubleMu0, DoubleMu3};
-
   // beam energy in GeV
   const double pbeam = 3500.;
   // masses
@@ -16,17 +14,39 @@ namespace jpsi{
   //rap bins
   Int_t const kNbRapForPTBins = 5;
   /* Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 0.9, 1.5, 1.9, 2.3}; */
-  Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 0.9, 1.2, 1.6, 2.1, 2.4};
+  /* Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 0.9, 1.2, 1.6, 2.1, 2.4}; */
+  Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 0.5, 1.0, 1.5, 2.0, 2.4}; //21June 2011
   //pT bins (optimized to have at least 10.000 entries per bin)
-  Int_t const kNbPTMaxBins = 12;
-  Int_t const kNbPTBins[kNbRapForPTBins+1] = {kNbPTMaxBins, 7,8,9,12,12};//all y, y1, y2, y3, y4, y5
+
+  /* Int_t const kNbPTMaxBins = 12; */
+  /* Int_t const kNbPTBins[kNbRapForPTBins+1] = {kNbPTMaxBins, 7,8,9,12,12};//all y, y1, y2, y3, y4, y5 */
+  /* Double_t pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = { */
+    /* {0., 1., 2., 3., 4., 5., 6., 7., 8., 10., 15., 20., 30.},//all rapidities */
+    /* {0., 6., 7., 8., 10., 15., 20., 30.},//mid-rap */
+    /* {0., 4., 6., 7., 8., 10., 15., 20., 30.}, */
+    /* {0., 4., 5., 6., 7., 8., 10., 15., 20., 30.}, */
+    /* {0., 1., 2., 3., 4., 5., 6., 7., 8., 10., 15., 20., 30.}, */
+    /* {0., 1., 2., 3., 4., 5., 6., 7., 8., 10., 15., 20., 30.}};//most forward */
+//The following bins were tuned on 20 Feb 2011 to equalize the statistics
+  /* Int_t const kNbPTMaxBins = 13; */
+  /* Int_t const kNbPTBins[kNbRapForPTBins+1] = {kNbPTMaxBins, 9,8,10,13,13};//all y, y1, y2, y3, y4, y5 */
+  /* Double_t pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = { */
+  /*   {1., 2., 3., 4., 5., 6., 7., 8., 10., 15., 20., 30.},//all rapidities */
+  /*   {6., 7., 8., 9., 10., 12., 14., 16., 20., 30.},//mid-rap */
+  /*   {4., 6., 7., 8., 9., 10., 14., 20., 30.}, */
+  /*   {3., 4., 5., 6., 7., 8., 9., 10., 14., 20., 30.}, */
+  /*   {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 12., 14., 20., 30.}, */
+  /*   {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 12., 14., 20., 30.}};//most forward */
+  //The following bins were tuned on 21 June 2011 to equalize the statistics
+  Int_t const kNbPTMaxBins = 19;
+  Int_t const kNbPTBins[kNbRapForPTBins+1] = {kNbPTMaxBins, 9,10,12,14,14};//all y, y1, y2, y3, y4, y5
   Double_t pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = {
-    {0., 1., 2., 3., 4., 5., 6., 7., 8., 10., 15., 20., 30.},//all rapidities
-    {0., 6., 7., 8., 10., 15., 20., 30.},//mid-rap
-    {0., 4., 6., 7., 8., 10., 15., 20., 30.},
-    {0., 4., 5., 6., 7., 8., 10., 15., 20., 30.},
-    {0., 1., 2., 3., 4., 5., 6., 7., 8., 10., 15., 20., 30.},
-    {0., 1., 2., 3., 4., 5., 6., 7., 8., 10., 15., 20., 30.}};//most forward
+    {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 18., 20., 25., 30.},//all rapidities
+    {                    6., 7., 8., 9., 10., 12., 15., 20., 25., 30.},//mid-rap
+    {4.,                 6., 7., 8., 9., 10., 12., 15., 20., 25., 30.},
+    {3., 4., 5.,         6., 7., 8., 9., 10., 12., 15., 20., 25., 30.},
+    {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 12., 15., 20., 25., 30.},
+    {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 12., 15., 20., 25., 30.}};//most forward
   //the following values are dummy and need to be filled out at end of analysis
   Double_t pTWCentre_rap[kNbRapForPTBins+1][23] = 
     {{0.5, 1.25, 1.75, 1.95, 2.5, 2.8, 3.1, 3.4, 3.9, 4.3, 4.6, 5.0, 5.5, 6.0, 6.5, 7.2, 7.8, 8.5, 9.6, 11.0, 14., 27.},
@@ -48,7 +68,8 @@ namespace jpsi{
   Int_t const kNbBinsCosT = 40;
   Double_t cosTMin = -1., cosTMax = 1.;
   //phi for pol. 
-  Int_t const kNbBinsPhiPol = 36;
+/*   Int_t const kNbBinsPhiPol = 36; */
+   Int_t const kNbBinsPhiPol = 144;
   //  Double_t phiPolMin = 0., phiPolMax = 360.;
   Double_t phiPolMin = -180., phiPolMax = 180.;
   //cos2Phi
@@ -58,7 +79,8 @@ namespace jpsi{
   //study the negative and positive rapidity sides separately
   Int_t const kNbRapBins = kNbRapForPTBins;
   /* Double_t rapRange[2*kNbRapBins+1] = {-2.3, -1.9, -1.5, -0.9, 0., 0.9, 1.5, 1.9, 2.3}; */
-  Double_t rapRange[2*kNbRapBins+1] = {-2.4, -2.1, -1.6, -1.2, -0.9, 0., 0.9, 1.2, 1.6, 2.1, 2.4};
+  /* Double_t rapRange[2*kNbRapBins+1] = {-2.4, -2.1, -1.6, -1.2, -0.9, 0., 0.9, 1.2, 1.6, 2.1, 2.4}; */
+  Double_t rapRange[2*kNbRapBins+1] = {-2.4, -2.0, -1.5, -1.0, -0.5, 0., 0.5, 1.0, 1.5, 2.0, 2.4}; //21st of June 2011
   
   //phase space limiting cuts:
   Int_t const kNbEtaRegions = 3;
@@ -68,9 +90,13 @@ namespace jpsi{
   Double_t rapYPS = 2.4;
   /* Double_t JpsiCtauMax = 0.100; //100 micron */
   Double_t JpsiCtauMax = 1000.; //effectively no cut on lifetime
-  Double_t nSigMass = 1000.;
-  Double_t polMassJpsi[kNbRapForPTBins+1] = {3.092, 3.094, 3.094, 3.092, 3.092, 3.090};//[all rap, rap bin 1-3]
-  Double_t sigmaMassJpsi[kNbRapForPTBins+1] = {0.042, 0.024, 0.035, 0.040, 0.045, 0.056};//[all rap, rap bin 1-3]
+  /* Double_t nSigMass = 1000.; */
+/*    Double_t nSigMass = 3.5; */
+  Double_t nSigMass = 2.;
+  /* Double_t polMassJpsi[kNbRapForPTBins+1] = {3.092, 3.094, 3.094, 3.092, 3.092, 3.090};//[all rap, rap bin 1-5] used up to 21 June*/ 
+  /* Double_t sigmaMassJpsi[kNbRapForPTBins+1] = {0.042, 0.024, 0.035, 0.040, 0.045, 0.056};//[all rap, rap bin 1-5] used up to 21 June */
+  Double_t polMassJpsi[kNbRapForPTBins+1] = {3.094, 3.094, 3.094, 3.092, 3.092, 3.092};//[all rap, rap bin 1-5]
+  Double_t sigmaMassJpsi[kNbRapForPTBins+1] = {0.037, 0.022, 0.029, 0.039, 0.045, 0.059};//[all rap, rap bin 1-5]
 
   //some make up to use the same colour and marker for each pT and rapidity bin
   //in every plotting macro:
