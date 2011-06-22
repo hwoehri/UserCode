@@ -2,12 +2,13 @@
 #include "TGraphAsymmErrors.h"
 #include "TMath.h"
 
-Int_t const kNbEff = 8;
+Int_t const kNbEff = 9;
 Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/LucaPerrozzi/17March2011/MuonTrackingEff_17March2011.root",
 				"/Users/hwoehri/CMS/Work/TnP/Zongchang/29March2011/MuonIDEff_29March2011_fitted.root",
 				"/Users/hwoehri/CMS/Work/TnP/Xianyou/25March2011/MuonQualEff_25March2011_fitted.root",
 				//"/Users/hwoehri/CMS/Work/TnP/Francesco/2April2011/L1L2_DMu0_TriggerEfficiencies_RUNB_distM2gt120_7April2011_fitted.root",
-  				"/Users/hwoehri/CMS/Work/TnP/Francesco/2April2011/L1L2_DMu0_TriggerEfficiencies_RUNA_distM2gt120_7April2011_fitted.root",
+  				//"/Users/hwoehri/CMS/Work/TnP/Francesco/2April2011/L1L2_DMu0_TriggerEfficiencies_RUNA_distM2gt120_7April2011_fitted.root",
+				"/Users/hwoehri/CMS/Work/TnP/Ilse/22June2011/L1L2EfficiencyMu0_Mu3_Track3_pt_abseta_seagull_looseCuts_runA.root",
 //				"/Users/hwoehri/CMS/Work/TnP/Luigi/17April2011/L3_DoubleMu0_TriggerEfficiencies_Run2010A_distM2gt120_17April2011.root",
 //				"/Users/hwoehri/CMS/Work/TnP/Luigi/17April2011/L3_DoubleMu0_TriggerEfficiencies_Run2010B_distM2gt120_17April2011.root",
 				"/Users/hwoehri/CMS/Work/TnP/Luigi/17April2011/L3_DoubleMu0_TriggerEfficiencies_Run2010A_distM2gt120_17April2011_fitted.root",
@@ -15,9 +16,14 @@ Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/LucaPerrozzi/17Marc
 // 				"/Users/hwoehri/CMS/Work/TnP/Herbert/28March2011/HLT_Track_Mu0TkMu0_Run1.root",
 // 				"/Users/hwoehri/CMS/Work/TnP/Herbert/29March2011/HLT_Track_Mu0TkMu0_Run_Tightv3.root",
 				"/Users/hwoehri/CMS/Work/TnP/Herbert/13May2011/HLT_Track_Mu0TkMu0_Run1_13May2011.root", //
-// 				"/Users/hwoehri/CMS/Work/TnP/Ilse/29March2011/HLTMuonTrack_Mu0_TkMu0_TM_runA_29March2011.root"};
-				"/Users/hwoehri/CMS/Work/TnP/Ilse/29March2011/HLTMuonTrack_Mu0_TkMu0_TM_runB1_29March2011.root",
-				"/Users/hwoehri/CMS/Work/TnP/Ilse/24May2011/TkMu0L1L2-pt-abseta-runA.root"};
+				//"/Users/hwoehri/CMS/Work/TnP/Ilse/20June2011/TkMu_Mu3_Track3_pt_abseta_seagull_looseCuts_runA.root",
+				//"/Users/hwoehri/CMS/Work/TnP/Ilse/20June2011/TkMu_Mu3_Track3_pt_abseta_seagull_looseCuts_runB1.root",
+				//"/Users/hwoehri/CMS/Work/TnP/Ilse/20June2011/TkMu_Mu3_Track3_pt_abseta_seagull_looseCuts_runB2.root",
+				"/Users/hwoehri/CMS/Work/TnP/Ilse/20June2011/TkMu_Mu3_Track3_pt_abseta_seagull_tightCuts_runA.root",
+				//"/Users/hwoehri/CMS/Work/TnP/Ilse/20June2011/TkMu_Mu3_Track3_pt_abseta_seagull_tightCuts_runB1.root",
+				//"/Users/hwoehri/CMS/Work/TnP/Ilse/20June2011/TkMu_Mu3_Track3_pt_abseta_seagull_tightCuts_runB2.root",
+				"/Users/hwoehri/CMS/Work/TnP/Herbert/24May2011/MuX_L2Mu0_L3Mu0.root",
+				"/Users/hwoehri/CMS/Work/TnP/Ilse/23May2011/TkMu0L1L2-pt-abseta-runA-distM2gt120_modified.root"};
 //old version of scripts:
 //  				"/Users/hwoehri/CMS/Work/TnP/Luigi/25March2011/L3_DoubleMu0_TriggerEfficiencies_Run2010B_25March2011_fitted.root",
 //				"/Users/hwoehri/CMS/Work/TnP/Luigi/5April2011/L3_DoubleMu0_TriggerEfficiencies_Run2010A_distM1gt150_7April2011_fitted.root",
@@ -29,12 +35,16 @@ Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/LucaPerrozzi/17Marc
 // 				"/Users/hwoehri/CMS/Work/TnP/Luigi/19March2011/L3_DoubleMu0_TriggerEfficiencies_19March2011.root",
 // 				"/Users/hwoehri/CMS/Work/TnP/Xianyou/19March2011/MuonQualEff_19March2011.root",
 // 				"/Users/hwoehri/CMS/Work/TnP/Ilse/24March2011/HLTMuonTrack_Mu0_TkMu0_TM.root"};
-enum {TrkEff, MuIDEff, MuQualEff, L1L2Eff, L3Eff, TkMuL1L2};
-Char_t *effName[kNbEff] = {"TrkEff", "MuIDEff", "MuQualEff", "L1L2Eff", "L3Eff", "Track-TkMu0", "Mu-TkMu0", "TkMuL1L2"};
+// 				"/Users/hwoehri/CMS/Work/TnP/Ilse/29March2011/HLTMuonTrack_Mu0_TkMu0_TM_runA_29March2011.root"};
+//				"/Users/hwoehri/CMS/Work/TnP/Ilse/29March2011/HLTMuonTrack_Mu0_TkMu0_TM_runB1_29March2011.root",
+
+enum {TrkEff, MuIDEff, MuQualEff, L1L2Eff, L3Eff, TkMu_Track, TkMu_Mu, TkMuL1L2, TkMuL3};
+Char_t *effName[kNbEff] = {"TrkEff", "MuIDEff", "MuQualEff", "L1L2Eff", "L3Eff", "Trk_TkMu0Eff", "Mu_TkMu0Eff", "Track_TkMu0AndL3Mu0", "Mu_TkMu0andL1L2"};
 Char_t *effNameLong[kNbEff] = {"offline tracking efficiency", "muon identification efficiency", 
 				"efficiency of muon quality cuts", "L1-L2 trigger efficiency (Mu0)", 
 			       "L3 trigger efficiency (Mu0)", "tracking efficiency of TkMu0",
 			       "muon trigger efficency of TkMu0",
+			       "tracking efficiency of TkMu0 and L3 of Mu0",
 			       "muon trigger efficiency of TkMu0 and L1-L2 combined"};
 Int_t const kNbEffSample = 3;
 enum {DATA, MC, MCTRUTH};
@@ -43,27 +53,33 @@ Char_t *effSampleName[kNbEffSample] = {"DATA", "MC", "MCTRUTH"};
 enum {CENTRAL, UPPER, LOWER};
 Char_t *valName[3] = {"central", "lower", "upper"};
 TH2D *hMuEff[kNbEff][kNbEffSample][3];
-// Int_t const kNbEta = 3;//Track-TkMu0
 Int_t const kNbEta = 8;
 //Int_t const kNbEta = 14; //new L1/L2 and L3 efficiencies
 // Int_t const kNbPT = 12; //"old" PT binning
-Int_t const kNbPT = 11; //"new" PT binning
+//Int_t const kNbPT = 11; //"new" PT binning
 //Int_t const kNbPT = 15; //"new" L1/L2 and L3 PT binning
+// Int_t const kNbPT = 11; //TkMu_Mu, 20June 2011: loose cuts
+Int_t const kNbPT = 9; //TkMu_Mu, 20June 2011: tight cuts
+// Int_t const kNbPT = 8; //L1*L2, 20June 2011: tight cuts
 TGraphAsymmErrors *gEff_pT[kNbEff][kNbEffSample][kNbEta];
 TGraphAsymmErrors *gEff_eta[kNbEff][kNbEffSample][kNbPT];
 //
 TF1 *fitPT, *fitPT_PlateauCorrected;
 
 Int_t const marker[kNbEffSample] = {20, 25, 21};
-Int_t const colourEta[kNbPT] = {1,2,3,4,kYellow-6,6,7,8,9,10,11};
-//Int_t const colourPT[kNbEta] = {1,2,3,4,kYellow-6,6,7,8};
-Int_t const colourPT[kNbEta] = {1,2,4};
 //Float_t binsEta[kNbEta] = {1.2, 1.6,  2.4}; //Track-TkMu0
-Float_t binsEta[kNbEta] = {0.2, 0.3, 0.6, 0.8, 1.2, 1.6, 2.1, 2.4};
+// Float_t binsEta[kNbEta] = {0.2, 0.3, 0.6, 0.8, 1.2, 1.6, 2.1, 2.4};
 //Float_t binsEta[kNbEta] = {0.2, 0.3, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.1, 2.2, 2.3, 2.4};//new L1/L2 and L3 binning
 //Float_t binsPT[kNbPT+1] = {0.7, 1., 1.25, 1.5, 1.75, 2., 2.5, 3.5, 4., 6., 10., 20., 30.}; //old binning
-Float_t binsPT[kNbPT+1] = {0.8, 1.25, 1.5, 1.75, 2., 2.5, 3.3, 4., 6., 10., 20., 30.};//standard binning
+// Float_t binsPT[kNbPT+1] = {0.8, 1.25, 1.5, 1.75, 2., 2.5, 3.3, 4., 6., 10., 20., 30.};//standard binning
 //Float_t binsPT[kNbPT+1] = {0.8, 1.25, 1.5, 1.75, 2., 2.25, 2.5, 3, 3.3,  4.,  5., 6., 7., 10., 20., 30.};//new L1/L2 and L3 binning
+//June 2011:
+// Float_t binsEta[kNbEta] = {0.2, 0.3, 0.6, 0.8, 1.1, 1.65, 2.1, 2.4};//TkMu_Mu, 20 June 2011: loose cuts
+// Float_t binsPT[kNbPT+1] = {1.2, 1.5, 1.75, 2., 2.5, 3., 3.5, 4., 6., 10., 20., 30.};//TkMu_Mu, 20 June 2011: loose cuts
+Float_t binsEta[kNbEta] = {0.2, 0.3, 0.6, 0.8, 1.2, 1.6, 2.1, 2.25};//TkMu_Mu, 20 June 2011: tight cuts
+Float_t binsPT[kNbPT+1] = {1.75, 2., 2.5, 3., 3.8, 4.5, 6., 10., 20., 30.};//TkMu_Mu, 20 June 2011: tight cuts
+// Float_t binsEta[kNbEta] = {0.2, 0.3, 0.6, 0.8, 1.1, 1.4, 2.1, 2.4};//L1*L2, 22 June: loose cuts
+// Float_t binsPT[kNbPT+1] = {2., 2.75, 3., 4.0, 4.6, 6., 10., 20., 30.};//L1*L2, 20 June 2011: tight cuts
 
 void LoadEfficiencies(Int_t iEff, Int_t iEffSample);
 void PlotEff_DataVsMC_PT(Int_t iEff, Int_t iEta);
@@ -82,11 +98,11 @@ void plotSingleMuEff(Bool_t saveFit = kFALSE,
   // for(int iEff = 3; iEff < 4; iEff++){//L1/L2 trigger efficiency (Francesco)
   // for(int iEff = 4; iEff < 5; iEff++){//L3 trigger efficiency (Luigi)
   //for(int iEff = 5; iEff < 6; iEff++){//Tracking trigger eff. of TkMu0 (Herbert)
-    //for(int iEff = 6; iEff < 7; iEff++){//Muon trigger eff. of TkMu0 (Ilse)
-  for(int iEff = 7; iEff < 8; iEff++){//Muon trigger eff. of TkMu0 + L1/L2 (Ilse)
+  for(int iEff = 6; iEff < 7; iEff++){//Muon trigger eff. of TkMu0 (Ilse)
+  //for(int iEff = 7; iEff < 8; iEff++){//Tracking trigger eff. of TkMu0 + L3 (Mu0) (Herbert)
+  // for(int iEff = 8; iEff < 9; iEff++){//Muon trigger eff. of TkMu0 + L1/L2 (Ilse)
 
     for(int iEffSample = 0; iEffSample < kNbEffSample; iEffSample++) //DATA, MC, MCTRUTH
-
       LoadEfficiencies(iEff, iEffSample);
     
     Int_t maxEta = kNbEta;
@@ -97,20 +113,20 @@ void plotSingleMuEff(Bool_t saveFit = kFALSE,
       PlotEff_DataVsMC_Eta(iEff, iPT);
  
 
-    // // fitPT = new TF1("fitPT", erfunction, 0., 100., 3);
-    // // fitPT->SetParName(0, "xPos-Offset");
-    // // fitPT->SetParName(1, "xPos-Plateau");
-    // // fitPT->SetParName(2, "yPos-Plateau");
-    // fitPT = new TF1("fitPT", erfunction2, 0., 100., 3);
-    // fitPT->SetParName(0, "norm");
-    // fitPT->SetParName(1, "xPos-Offset");
-    // fitPT->SetParName(2, "rising-slope");
-    // // fitPT_PlateauCorrected = new TF1("fitPT_PlateauCorrected", erfunction_corr, 0., 100., 3);
-    // // fitPT_PlateauCorrected->SetParName(0, "xPos-Offset");
-    // // fitPT_PlateauCorrected->SetParName(1, "xPos-Plateau");
-    // // fitPT_PlateauCorrected->SetParName(2, "yPos-Plateau");
+    // fitPT = new TF1("fitPT", erfunction, 0., 100., 3);
+    // fitPT->SetParName(0, "xPos-Offset");
+    // fitPT->SetParName(1, "xPos-Plateau");
+    // fitPT->SetParName(2, "yPos-Plateau");
+    fitPT = new TF1("fitPT", erfunction2, 0., 100., 3);
+    fitPT->SetParName(0, "norm");
+    fitPT->SetParName(1, "xPos-Offset");
+    fitPT->SetParName(2, "rising-slope");
+    // fitPT_PlateauCorrected = new TF1("fitPT_PlateauCorrected", erfunction_corr, 0., 100., 3);
+    // fitPT_PlateauCorrected->SetParName(0, "xPos-Offset");
+    // fitPT_PlateauCorrected->SetParName(1, "xPos-Plateau");
+    // fitPT_PlateauCorrected->SetParName(2, "yPos-Plateau");
 
-    // for(int iEffSample = 0; iEffSample < 1; iEffSample++){
+    // for(int iEffSample = 1; iEffSample < 2; iEffSample++){
     //   for(int iEta = 0; iEta < maxEta; iEta++){
     // 	ParametrizePT(iEff, iEffSample, iEta, saveFit, plateauCorrection);
     //   }
@@ -148,7 +164,7 @@ void PlotEff_DataVsMC_PT(Int_t iEff, Int_t iEta){
     if(iEta == 0)
       sprintf(name, "|#eta(#mu)| < %1.1f", binsEta[iEta]);
     else
-      sprintf(name, "%1.1f < |#eta(#mu)| < %1.1f", binsEta[iEta-1], binsEta[iEta]);
+      sprintf(name, "%1.2f < |#eta(#mu)| < %1.2f", binsEta[iEta-1], binsEta[iEta]);
   }
   else{
     if(iEta == 0)
@@ -215,8 +231,8 @@ void LoadEfficiencies(Int_t iEff, Int_t iEffSample){
     gEff_eta[iEff][iEffSample][iPT] = (TGraphAsymmErrors *) gDirectory->Get(name);
     printf("%s, %s eta differential for pT bin %d is: %p\n", effName[iEff], effSampleName[iEffSample], iPT, gEff_eta[iEff][iEffSample][iPT]);
     gEff_eta[iEff][iEffSample][iPT]->SetMarkerStyle(marker[iEffSample]);
-    gEff_eta[iEff][iEffSample][iPT]->SetMarkerColor(colourEta[iPT]);
-    gEff_eta[iEff][iEffSample][iPT]->SetLineColor(colourEta[iPT]);
+    // gEff_eta[iEff][iEffSample][iPT]->SetMarkerColor(colourEta[iPT]);
+    // gEff_eta[iEff][iEffSample][iPT]->SetLineColor(colourEta[iPT]);
   }
   Int_t maxEta = kNbEta;
   for(int iEta = 0; iEta < maxEta; iEta++){
@@ -224,8 +240,8 @@ void LoadEfficiencies(Int_t iEff, Int_t iEffSample){
     gEff_pT[iEff][iEffSample][iEta] = (TGraphAsymmErrors *) gDirectory->Get(name);
     printf("%s, %s pT differential for eta bin %d is: %p\n", effName[iEff], effSampleName[iEffSample], iEta, gEff_pT[iEff][iEffSample][iEta]);
     gEff_pT[iEff][iEffSample][iEta]->SetMarkerStyle(marker[iEffSample]);
-    gEff_pT[iEff][iEffSample][iEta]->SetMarkerColor(colourPT[iEta]);
-    gEff_pT[iEff][iEffSample][iEta]->SetLineColor(colourPT[iEta]);
+    // gEff_pT[iEff][iEffSample][iEta]->SetMarkerColor(colourPT[iEta]);
+    // gEff_pT[iEff][iEffSample][iEta]->SetLineColor(colourPT[iEta]);
   }
 }
 
@@ -242,56 +258,40 @@ void ParametrizePT(Int_t iEff, Int_t iEffSample, Int_t iEta, Bool_t saveFit, Boo
   hFrame1->SetXTitle("p_{T} [GeV]");
 
   gEff_pT[iEff][iEffSample][iEta]->Draw("p same"); gEff_pT[iEff][iEffSample][iEta]->SetLineColor(1); gEff_pT[iEff][iEffSample][iEta]->SetMarkerColor(1);
-  // if((iEta == 1 || iEta == 3) || !plateauCorrection){
-  // if(!plateauCorrection){
-    fitPT->SetParameters(1., 3., 0.8);
-    fitPT->SetParLimits(0., 0.9, 1.1);
-    fitPT->SetParLimits(1, 0., 5.);
-    fitPT->SetParLimits(2, 0., 2.);
-    if(iEta <= 5)
-      gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT", "", "", 3., 30.);
-    else if(iEta <= 8)
-      gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT", "", "", 2., 30.);
-    else if(iEta <= 10)
-      gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT", "", "", 1.5, 30.);
-    else 
-      gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT", "", "", 0.5, 30.);
-  // }
-  // else{
-  //   fitPT_PlateauCorrected->SetParameter(0, -0.6);
-  //   fitPT_PlateauCorrected->SetParameter(1, 7.);
-  //   fitPT_PlateauCorrected->SetParameter(2, -0.01);
-  //   if(iEta > 4)
-  //     gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT_PlateauCorrected", "", "", 0., 20.);
-  //   else if(iEta == 3) //L3 trigger efficiency
-  //     gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT_PlateauCorrected", "", "", 2., 10.);
-  //   else
-  //   gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT_PlateauCorrected", "", "", 3., 20.);
-  // }
+  fitPT->SetParameters(1., 3., 0.8);
+  fitPT->SetParLimits(0., 0.9, 1.1);
+  fitPT->SetParLimits(1, 0., 5.);
+  fitPT->SetParLimits(2, 0., 2.);
+  //following is useful for the 14 bins in Eta
+  // if(iEta <= 5)
+  //   gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT", "", "", 3., 30.);
+  // else if(iEta <= 8)
+  //   gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT", "", "", 2., 30.);
+  // else if(iEta <= 10)
+  //   gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT", "", "", 1.5, 30.);
+  // else 
+  //   gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT", "", "", 0.5, 30.);
+
+  //following is useful for the 8 bins in eta:
+  if(iEta <= 4)
+    gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT", "", "", 3., 30.);
+  else if(iEta <= 5)
+    gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT", "", "", 1.8, 30.);
+  else 
+    gEff_pT[iEff][iEffSample][iEta]->Fit("fitPT", "", "", 0.5, 30.);
 
   TF1 *fitFunc;
   
-  // if(!plateauCorrection){
-    sprintf(name, "fit%s_%s_pt_etaBin%d", effName[iEff], effSampleName[iEffSample], iEta);
-    fitFunc = new TF1(name, erfunction2, 0., 100., 3);
-    fitPT = gEff_pT[iEff][iEffSample][iEta]->GetFunction("fitPT");
-    for(int iPar = 0; iPar < 3; iPar++)
-      fitFunc->FixParameter(iPar, fitPT->GetParameter(iPar));
-  // }
-  // else{
-  //   sprintf(name, "fit%s_%s_pt_etaBin%d", effName[iEff], effSampleName[iEffSample], iEta);
-  //   fitFunc = new TF1(name, erfunction_corr, 0., 100., 3);
-  //   fitPT_PlateauCorrected = gEff_pT[iEff][iEffSample][iEta]->GetFunction("fitPT_PlateauCorrected");
-  //   for(int iPar = 0; iPar < 3; iPar++){
-  //     fitFunc->FixParameter(iPar, fitPT_PlateauCorrected->GetParameter(iPar));
-  //     printf("setting parameter %d to %1.3f\n", iPar, fitPT_PlateauCorrected->GetParameter(iPar));
-  //   }
-  // }
+  sprintf(name, "fit%s_%s_pt_etaBin%d", effName[iEff], effSampleName[iEffSample], iEta);
+  fitFunc = new TF1(name, erfunction2, 0., 100., 3);
+  fitPT = gEff_pT[iEff][iEffSample][iEta]->GetFunction("fitPT");
+  for(int iPar = 0; iPar < 3; iPar++)
+    fitFunc->FixParameter(iPar, fitPT->GetParameter(iPar));
+
   fitFunc->SetName(name);
   fitFunc->SetLineWidth(1);
   fitFunc->SetLineColor(2);
   fitFunc->Draw("same");
-  //fitFunc->SetRange(0., 100.);
   
   if(saveFit){
     TFile *fOut = new TFile(effFileNames[iEff], "UPDATE");
@@ -310,7 +310,7 @@ void ParametrizePT(Int_t iEff, Int_t iEffSample, Int_t iEta, Bool_t saveFit, Boo
     if(iEta == 0)
       sprintf(name, "|#eta(#mu)| < %1.1f", binsEta[iEta]);
     else
-      sprintf(name, "%1.1f < |#eta(#mu)| < %1.1f", binsEta[iEta-1], binsEta[iEta]);
+      sprintf(name, "%1.2f < |#eta(#mu)| < %1.2f", binsEta[iEta-1], binsEta[iEta]);
   }
   else{
     if(iEta == 0)
