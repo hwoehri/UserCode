@@ -6,6 +6,7 @@ void WriteHistos();
 //======================================
 void runMCTruthEff(Char_t *fileNameOut = "MCTruthEff_HLTMu0TkMu0OSTJpsi_18May2011.root",
 		   Char_t *trigLabel = "HLT_Mu0_TkMu0_OST_Jpsi", //"HLT_DoubleMu0", "HLT_Mu0_TkMu0_OST_Jpsi",
+		   Bool_t rejectCowboys = kTRUE,
 		   Char_t *fileNameIn = "/Users/hwoehri/CMS/CMSSW/hWoehri/Polarization/macros/JPsiToMuMu_Fall10-START38_V12-HLTrereco-WithAllMCEvents.root", 
 		   //Char_t *fileNameIn = "/Users/hwoehri/CMS/Work/Polarization/Ilse/3April2011/JPsiToMuMu_pol_Fall10_noDimuVtxCut_1April2011.root",
 		   //Char_t *fileNameIn = "/Users/hwoehri/CMS/CMSSW/hWoehri/Polarization/macros/JPsiToMuMu_Fall10-START38_V12-v1-Onia2MuMu-v6-WithAllMCEvents_merged.root",
@@ -24,7 +25,7 @@ void runMCTruthEff(Char_t *fileNameOut = "MCTruthEff_HLTMu0TkMu0OSTJpsi_18May201
   printf("...done\n");
   BookHistos(oniaLabel);
 
-  tree.Loop(selDimuType, trigLabel);
+  tree.Loop(selDimuType, trigLabel, rejectCowboys);
   WriteHistos();
   fOut->Close();
 }

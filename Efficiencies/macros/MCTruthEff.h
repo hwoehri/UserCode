@@ -126,7 +126,8 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop(Int_t selDimuType, Char_t *trigLabel);
+   virtual void     Loop(Int_t selDimuType, Char_t *trigLabel, Bool_t rejectCowboys);
+   Bool_t           areMuonsInAcceptance(Int_t iCut, Double_t pTHigh, Double_t etaHigh, Double_t pTLow, Double_t etaLow);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };

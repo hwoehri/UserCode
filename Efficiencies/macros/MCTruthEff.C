@@ -62,8 +62,10 @@ TEfficiency *totEff_distM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *recoEff2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *trigEff2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *totEff2D_deltaPhiVsDeltaEta_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+enum {LOOSE,TIGHT};//set of muon fiducial cuts
+
 //==============================================
-void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
+void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel, Bool_t rejectCowboys)
 {
   if (fChain == 0) return;
 
@@ -96,18 +98,41 @@ void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
     Double_t phiMuPos_Gen = muPos_Gen->Phi();
     Double_t phiMuNeg_Gen = muNeg_Gen->Phi();
 
-    //take muons only within a certain eta range
-    //(a) positive muon
-    if((fabs(etaMuPos_Gen) < eff::etaPS[0] && pTMuPos_Gen < eff::pTMuMin[0]) || //mid-rapidity cut
-       // (fabs(etaMuPos_Gen) > eff::etaPS[0] && fabs(etaMuPos_Gen) < eff::etaPS[1] && pMuPos_Gen < eff::pMuMin[1]) ||
-       (fabs(etaMuPos_Gen) > eff::etaPS[0] && fabs(etaMuPos_Gen) < eff::etaPS[1] && pTMuPos_Gen < eff::pTMuMin[1]) ||
-       (fabs(etaMuPos_Gen) > eff::etaPS[1] && fabs(etaMuPos_Gen) < eff::etaPS[2] && pTMuPos_Gen < eff::pTMuMin[2]))
+    // //take muons only within a certain eta range
+    // //(a) positive muon
+    // if((fabs(etaMuPos_Gen) < eff::etaPS[0] && pTMuPos_Gen < eff::pTMuMin[0]) || //mid-rapidity cut
+    //    // (fabs(etaMuPos_Gen) > eff::etaPS[0] && fabs(etaMuPos_Gen) < eff::etaPS[1] && pMuPos_Gen < eff::pMuMin[1]) ||
+    //    (fabs(etaMuPos_Gen) > eff::etaPS[0] && fabs(etaMuPos_Gen) < eff::etaPS[1] && pTMuPos_Gen < eff::pTMuMin[1]) ||
+    //    (fabs(etaMuPos_Gen) > eff::etaPS[1] && fabs(etaMuPos_Gen) < eff::etaPS[2] && pTMuPos_Gen < eff::pTMuMin[2]))
+    //   continue;
+    // //(b) negative muon
+    // if((fabs(etaMuNeg_Gen) < eff::etaPS[0] && pTMuNeg_Gen < eff::pTMuMin[0]) || //mid-rapidity cut
+    //    // (fabs(etaMuNeg_Gen) > eff::etaPS[0] && fabs(etaMuNeg_Gen) < eff::etaPS[1] && pMuNeg_Gen < eff::pMuMin[1]) ||
+    //    (fabs(etaMuNeg_Gen) > eff::etaPS[0] && fabs(etaMuNeg_Gen) < eff::etaPS[1] && pTMuNeg_Gen < eff::pTMuMin[1]) ||
+    //    (fabs(etaMuNeg_Gen) > eff::etaPS[1] && fabs(etaMuNeg_Gen) < eff::etaPS[2] && pTMuNeg_Gen < eff::pTMuMin[2]))
+    //   continue;
+
+    if(rejectCowboys)
+      if((phiMuNeg_Gen - phiMuPos_Gen) < 0.)
+	continue;
+
+    //apply different fiducial cuts for the muon matched to the HLT leg or the TM leg
+    //for simplicity we decided to apply the stronger cuts to the higher pT muon and not
+    //strictly to the HLT muon
+    Bool_t muonsInAcc = kFALSE;
+    if(pTMuPos_Gen > pTMuNeg_Gen){
+      //muonsInAcc = areMuonsInAcceptance(LOOSE, pTMuPos_Gen, etaMuPos_Gen, pTMuNeg_Gen, etaMuNeg_Gen); //code needs to be adjusted for the DoubleMu0 trigger!!!!
+      muonsInAcc = areMuonsInAcceptance(TIGHT, pTMuPos_Gen, etaMuPos_Gen, pTMuNeg_Gen, etaMuNeg_Gen); //code needs to be adjusted for the DoubleMu0 trigger!!!!
+    }
+    else{
+      //muonsInAcc = areMuonsInAcceptance(LOOSE, pTMuNeg_Gen, etaMuNeg_Gen, pTMuPos_Gen, etaMuPos_Gen); //code needs to be adjusted for the DoubleMu0 trigger!!!!
+      muonsInAcc = areMuonsInAcceptance(TIGHT, pTMuNeg_Gen, etaMuNeg_Gen, pTMuPos_Gen, etaMuPos_Gen); //code needs to be adjusted for the DoubleMu0 trigger!!!!
+    }
+    if(!muonsInAcc)
       continue;
-    //(b) negative muon
-    if((fabs(etaMuNeg_Gen) < eff::etaPS[0] && pTMuNeg_Gen < eff::pTMuMin[0]) || //mid-rapidity cut
-       // (fabs(etaMuNeg_Gen) > eff::etaPS[0] && fabs(etaMuNeg_Gen) < eff::etaPS[1] && pMuNeg_Gen < eff::pMuMin[1]) ||
-       (fabs(etaMuNeg_Gen) > eff::etaPS[0] && fabs(etaMuNeg_Gen) < eff::etaPS[1] && pTMuNeg_Gen < eff::pTMuMin[1]) ||
-       (fabs(etaMuNeg_Gen) > eff::etaPS[1] && fabs(etaMuNeg_Gen) < eff::etaPS[2] && pTMuNeg_Gen < eff::pTMuMin[2]))
+
+    //reject furthermore all events in which one of the muons has a pT smaller than 3 GeV/c
+    if(pTMuPos_Gen < 3.0 || pTMuNeg_Gen < 3.0)
       continue;
 
     Double_t onia_Gen_mass = onia_Gen->M();
@@ -575,3 +600,37 @@ void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
   printf("nb. of rec. events is %d of a total of %d events\n", (Int_t) countRecEvent, (Int_t) nentries);
 }
 
+//==========================================================
+Bool_t MCTruthEff::areMuonsInAcceptance(Int_t iCut, Double_t pTHigh, Double_t etaHigh, Double_t pTLow, Double_t etaLow){
+
+  Double_t etaBorderHLT[2][4] = {{0., 1.1, 1.4, 2.4}, {0., 1.2, 1.3, 2.2}}; //LOOSE, TIGHT cuts
+  Double_t pTBorderHLT[2][4] = {{4.6, 4.0, 2.75, 2.0}, {5.2, 4.7, 3.3, 3.0}};
+  Double_t etaBorderTM[2][4] = {{0., 1.1, 1.65, 2.4}, {0., 1.2, 1.6, 2.25}};
+  Double_t pTBorderTM[2][4] = {{3.5, 3.5, 1.2, 1.2}, {3.8, 3.8, 1.75, 1.75}};
+  
+  Double_t minPT_HLT, minPT_TM;
+  Bool_t decision = kFALSE;
+
+  //loop over higher pT muon
+  for(int iEta = 0; iEta < 3; iEta++){
+    if(fabs(etaHigh) > etaBorderHLT[iCut][iEta] && fabs(etaHigh) < etaBorderHLT[iCut][iEta+1]){
+      minPT_HLT = (pTBorderHLT[iCut][iEta+1]-pTBorderHLT[iCut][iEta]) / (etaBorderHLT[iCut][iEta+1]-etaBorderHLT[iCut][iEta]) * (fabs(etaHigh) - etaBorderHLT[iCut][iEta]) + pTBorderHLT[iCut][iEta];
+      break;
+    }
+    else if(fabs(etaHigh) > etaBorderHLT[iCut][3])
+      minPT_HLT = 1000.; //reject all events with |eta| > 2.4 (or 2.2, ...)
+  }
+  //loop over lower pT muon
+  for(int iEta = 0; iEta < 3; iEta++){
+    if(fabs(etaLow) > etaBorderTM[iCut][iEta] && fabs(etaLow) < etaBorderTM[iCut][iEta+1]){
+      minPT_TM = (pTBorderTM[iCut][iEta+1]-pTBorderTM[iCut][iEta]) / (etaBorderTM[iCut][iEta+1]-etaBorderTM[iCut][iEta]) * (fabs(etaLow) - etaBorderTM[iCut][iEta]) + pTBorderTM[iCut][iEta];
+      break;
+    }
+    else if(fabs(etaLow) > etaBorderTM[iCut][3])
+      minPT_TM = 1000.; //reject all events with |eta| > 2.4 (or 2.25, ...)
+  }
+  if(pTHigh > minPT_HLT && pTLow > minPT_TM)
+    decision = kTRUE;
+
+  return decision;
+}
