@@ -169,21 +169,36 @@ void MCTruthEff::Loop(Int_t selDimuType, Char_t *trigLabel)
 
     //===============================
     //set up the trigger logic:
-    Int_t trigValue;
-    if(strncmp("HLT_Mu0_TkMu0_OST_Jpsi", trigLabel, 22) == 0)
+    Int_t trigValue = -5;
+    if(strncmp("HLT_Mu0_TkMu0_OST_Jpsi", trigLabel, 22) == 0){
       trigValue = HLT_Mu0_TkMu0_OST_Jpsi; //0... not matched; 3... fired, but at least one not matched; 1, 2, -2 fired+both matched
+      //accept the event only if the higher pT muon is the HLT muon
+      if(trigValue == 1){
+	if(pTMuPos_Gen < pTMuNeg_Gen)
+	  trigValue = 0;
+	else
+	  trigValue = 1;
+      }
+      else if(trigValue == -1){
+	if(pTMuNeg_Gen < pTMuNeg_Gen)
+	  trigValue = 0;
+	else
+	  trigValue = 1;
+      }
+      else if(trigValue == 2)
+	trigValue = 1;
+    }
     else if(strncmp("HLT_DoubleMu0", trigLabel, 13) == 0)
       trigValue = HLT_DoubleMu0; //0... not matched, 1... fired+matched, 3... only fired
     else{
       printf("chosen trigger path, %s, not a valid option!\n", trigLabel);
       exit(0);
     }
-    //trigValue must NOT be 0 and not 3 --> set to 1 if this is the case
-    if(trigValue == 1 || trigValue == -1 || trigValue == 2)
-    // if(trigValue == 1 || trigValue == -1 || trigValue == 2 || trigValue == 3)//test
-      trigValue = 1;
-    else
-      trigValue = 0;
+    // //trigValue must NOT be 0 and not 3 --> set to 1 if this is the case
+    // if(trigValue == 1 || trigValue == -1 || trigValue == 2)
+    //   trigValue = 1;
+    // else
+    //   trigValue = 0;
 
     // ---> For the asymmetric triggers:
     // 0 : event not firing the corresponding trigger
