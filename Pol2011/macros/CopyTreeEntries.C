@@ -26,7 +26,7 @@ void CopyTreeEntries(Int_t iRapBin = 1, Int_t iPTBin = 1,
     Long64_t iEntry = treeIn->LoadTree(iEn);
     treeIn->GetEntry(iEntry);
     if(iEn % 100000 == 0)
-      printf("entry %d out of %d\n", iEntry, treeIn->GetEntries());
+      printf("entry %d out of %d\n", iEntry, (Int_t) treeIn->GetEntries());
     *onia = *(lepP) + *(lepN);
     if(onia->Pt() > onia::pTRange[iRapBin][iPTBin-1] && onia->Pt() < onia::pTRange[iRapBin][iPTBin] &&
        TMath::Abs(onia->Rapidity()) > onia::rapForPTRange[iRapBin-1] && TMath::Abs(onia->Rapidity()) < onia::rapForPTRange[iRapBin]){
