@@ -41,7 +41,7 @@ void upsilon_2StepFit(Int_t iRapBin = 0,
   
   GetHisto(fileNameIn, iRapBin, iPTBin);
   if(hMass->GetEntries() < 200.){
-    printf("skip processing this bin, because the number of entries is smaller than 200\n");
+    printf("\n\n\nskip processing this bin, because the number of entries is smaller than 200\n\n\n");
     return;
   }
   FitSignalBG(nSigma, iRapBin, iPTBin);
@@ -124,7 +124,7 @@ void FitSignalBG(Double_t nSigma, Int_t iRapBin, Int_t iPTBin){
   Char_t name[100];
   //1.) perform the fit to the continuum, using the sidebands
   sprintf(name, "c1_rap%d_pT%d", iRapBin, iPTBin);
-  TCanvas *c1 = new TCanvas("c1");
+  TCanvas *c1 = new TCanvas(name);
   sprintf(name, "Events in %1.0f MeV", 1000.*binWidth);
   hMass->SetYTitle(name);
   hMass->SetTitleOffset(1.7, "y");
@@ -353,7 +353,6 @@ void SaveFitPars(Int_t iRapBin, Int_t iPTBin){
   sprintf(name, "RootFiles/data_Ups_rap%d_pT%d.root", iRapBin, iPTBin);
   TFile *fOut = new TFile(name, "RECREATE");
   TTree *treeOut = new TTree("massFitParameters", "");
-  //  TF1 *f1S = fUps1S, *f2S = fUps2S, *f3S = fUps3S;
   Int_t bufsize = 32000; //default = 32000
   Int_t splitlevel = 0; //recommended by R. Brun
   treeOut->Branch("fUps1S", "TF1", &fUps1S, bufsize, splitlevel);
@@ -361,22 +360,6 @@ void SaveFitPars(Int_t iRapBin, Int_t iPTBin){
   treeOut->Branch("fUps3S", "TF1", &fUps3S, bufsize, splitlevel);
   treeOut->Branch("fBG", "TF1", &fBG, bufsize, splitlevel);
   treeOut->Fill();
-  // //fill in the next 5 events the parameters of the CB functions:
-  // Double_t fPar1S, fPar2S, fPar3S, fParBG;
-  // treeOut->Branch("fPar1S", &fPar1S, "fPar1S/D");
-  // treeOut->Branch("fPar2S", &fPar2S, "fPar2S/D");
-  // treeOut->Branch("fPar3S", &fPar3S, "fPar3S/D");
-  // treeOut->Branch("fParBG", &fParBG, "fParBG/D");
-  // for(int iPar = 0; iPar < 5; iPar++){
-  //   fPar1S = fUps1S->GetParameter(iPar);
-  //   fPar2S = fUps2S->GetParameter(iPar);
-  //   fPar3S = fUps3S->GetParameter(iPar);
-  //   if(iPar < 3)
-  //     fParBG = fBG->GetParameter(iPar);
-  //   else
-  //     fParBG = 999.;
-  //   treeOut->Fill();
-  // }
   
   treeOut->Write();
   fOut->Close();
