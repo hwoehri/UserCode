@@ -23,6 +23,7 @@ Double_t intCB[kNbSpecies]; //integral values of a CB with N=1 and fixed alpha, 
 Double_t massMin[kNbSpecies], massMax[kNbSpecies];
 TF1 *fUps1S, *fUps2S, *fUps3S, *fBG;
 Double_t fracBG[kNbSpecies];
+Double_t nY[kNbSpecies];
 
 void GetHisto(Char_t *fileNameIn, Int_t iPTBin, Int_t iRapBin);
 void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin);
@@ -30,7 +31,8 @@ Double_t fitPolyCrystal3(Double_t *x, Double_t *par);
 Double_t fitContinuum(Double_t *x, Double_t *par);
 Double_t DrawContinuum(Double_t *x, Double_t *par);
 void DrawFit(Double_t nSigma, Int_t iPTBin, Int_t iRapBin);
-//void CalcFracBG(Double_t nSigma);
+void SaveCBParameters(Int_t iPTBin, Int_t iRapBin, Double_t alpha, Double_t n, Double_t alphaErr, Double_t nErr);
+void SaveFitPars(Int_t iPTBin, Int_t iRapBin);
 //==============================
 void upsilon_2StepFit(Int_t iRapBin = 0,
 		      Int_t iPTBin = 0, 		     
@@ -91,14 +93,6 @@ void DrawFit(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
     line[iL]->DrawLine(massMax[iL], 0.1, massMax[iL], max[iL]*hUps1S->GetMaximum());
   }
 
-  // if(iRapBin == 0 && iPTBin == 0) sprintf(name, "|y| < %1.1f, all p_{T}", onia::rapYPS);
-  // else if(iRapBin == 0) sprintf(name, "|y| < %1.1f, %1.1f < p_{T} < %1.1f", onia::rapYPS, onia::pTRange[iRapBin][iPTBin-1], onia::pTRange[iRapBin][iPTBin]);
-  // else if(iRapBin > 1 && iPTBin == 0) sprintf(name, "%1.1f < |y| < %1.1f, all p_{T}", onia::rapForPTRange[iRapBin-1], onia::rapForPTRange[iRapBin]);
-  // else if(iRapBin == 1 && iPTBin == 0) sprintf(name, "|y| < %1.1f, all p_{T}", onia::rapForPTRange[iRapBin]);
-  // else if(iRapBin == 1) sprintf(name, "|y| < %1.1f, %1.1f < p_{T} < %1.1f", onia::rapForPTRange[iRapBin], onia::pTRange[iRapBin][iPTBin-1], onia::pTRange[iRapBin][iPTBin]);
-  // else if(iRapBin > 1)  sprintf(name, "%1.1f < |y| < %1.1f, %1.1f < p_{T} < %1.1f", 
-  // 	    onia::rapForPTRange[iRapBin-1], onia::rapForPTRange[iRapBin], onia::pTRange[iRapBin][iPTBin-1], onia::pTRange[iRapBin][iPTBin]);
-
   if(iRapBin == 0) sprintf(name, "|y| < %1.1f", onia::rapYPS);
   else if(iRapBin == 1) sprintf(name, "|y| < %1.1f", onia::rapForPTRange[iRapBin]);
   else if(iRapBin > 1)  sprintf(name, "%1.1f < |y| < %1.1f", onia::rapForPTRange[iRapBin-1], onia::rapForPTRange[iRapBin]);
@@ -134,7 +128,6 @@ void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
   //starting values for fit:
   Double_t a = -2.0e6, b = 5.e5, c = -2.4e4;
   Double_t range_min = 8.6, range_max = 11.4;
-  // Double_t normY1S = 3e6;
   Double_t normY1S = hMass->GetMaximum() / binWidth;
   Double_t normY2S = 0.3*normY1S; 
   Double_t normY3S = 0.15*normY1S;
@@ -165,8 +158,14 @@ void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
   fRECO->FixParameter(8,fitParBG[1]);
   fRECO->FixParameter(9,fitParBG[2]);
   //fix alpha and n from the fit to all bins
-  if(iPTBin > 0 || iRapBin > 0){
-    TFile *fIn = new TFile("CBParameters.root");
+  if(iPTBin > 0 && iRapBin > 0){
+
+    Char_t name[100];
+    if(iRapBin == 0)
+      sprintf(name, "CBParameters.root", iRapBin);
+    else
+      sprintf(name, "CBParameters_rap%d.root", iRapBin);
+    TFile *fIn = new TFile(name);
     TTree *treeIn = (TTree *) gDirectory->Get("CBPars");
     Double_t alphaAll, nAll;
     TBranch *b_alphaAll, *b_nAll;
@@ -201,25 +200,17 @@ void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
 
   //save alpha and n parameters if fit is 
   //for integrated bins in y and pT:
-  if(iPTBin == 0 && iRapBin == 0){
+  if(iPTBin == 0)
+    SaveCBParameters(iPTBin, iRapBin, alpha, n, fRECO->GetParError(6), fRECO->GetParError(5));
 
-    TFile *fOut = new TFile("CBParameters.root", "RECREATE");
-    TTree *treeOut = new TTree("CBPars", "");
-    Double_t alphaAll = alpha, nAll = n;
-    Double_t alphaAllErr = fRECO->GetParError(6), nAllErr = fRECO->GetParError(5);
-    treeOut->Branch("alphaAll", &alphaAll, "alphaAll/D");
-    treeOut->Branch("nAll", &nAll, "nAll/D");
-    treeOut->Branch("alphaAllErr", &alphaAllErr, "alphaAllErr/D");
-    treeOut->Branch("nAllErr", &nAllErr, "nAllErr/D");
-    treeOut->Fill();
-    treeOut->Write();
-    fOut->Close();
-  }
+  Double_t mean2S = mean1S*(massPDG2S/massPDG1S);
+  Double_t mean3S = mean1S*(massPDG3S/massPDG1S);
+  Double_t sigma2S = sigma1S*(massPDG2S/massPDG1S);
+  Double_t sigma3S = sigma1S*(massPDG3S/massPDG1S);
 
-  //calculate the normalization:
-  printf("===========================\n");
-  printf("NORMALIZATION\n");
-  printf("===========================\n");
+  printf("=========================================\n");
+  printf("Calculate the number of Y's in the sample\n");
+  printf("=========================================\n");
 
   TF1 *CB[kNbSpecies];
   Double_t intCBFit[kNbSpecies]; //integral values of a CB with N=Nfit and fixed alpha, n, sigma, width
@@ -233,30 +224,25 @@ void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
       CB[iUps]->FixParameter(2, sigma1S);
     }
     else if(iUps == 1){
-      CB[iUps]->FixParameter(1, mean1S*(massPDG2S/massPDG1S));
-      CB[iUps]->FixParameter(2, sigma1S*(massPDG2S/massPDG1S));
+      CB[iUps]->FixParameter(1, mean2S);
+      CB[iUps]->FixParameter(2, sigma2S);
     }
     else if(iUps == 2){
-      CB[iUps]->FixParameter(1, mean1S*(massPDG3S/massPDG1S));
-      CB[iUps]->FixParameter(2, sigma1S*(massPDG3S/massPDG1S));
+      CB[iUps]->FixParameter(1, mean3S);
+      CB[iUps]->FixParameter(2, sigma3S);
     }
     CB[iUps]->FixParameter(3, alpha);
     CB[iUps]->FixParameter(4, n);
     intCB[iUps] = CB[iUps]->Integral(range_min, range_max);
   }
 
-  normY1S *= intCB[UPS1S];
-  normY2S *= intCB[UPS2S];
-  normY3S *= intCB[UPS3S];
+  nY[UPS1S] = normY1S * intCB[UPS1S];
+  nY[UPS2S] = normY2S * intCB[UPS2S];
+  nY[UPS3S] = normY3S * intCB[UPS3S];
 
-  printf("the integral of the fitted CB for the %s is: %1.3e --> #%s = %1.3e\n", specName[UPS1S], intCB[UPS1S], specName[UPS1S], normY1S);
-  printf("the integral of the fitted CB for the %s is: %1.3e --> #%s = %1.3e\n", specName[UPS2S], intCB[UPS2S], specName[UPS2S], normY2S);
-  printf("the integral of the fitted CB for the %s is: %1.3e --> #%s = %1.3e\n", specName[UPS3S], intCB[UPS3S], specName[UPS3S], normY3S);
-
-  Double_t mean2S = mean1S*(massPDG2S/massPDG1S);
-  Double_t mean3S = mean1S*(massPDG3S/massPDG1S);
-  Double_t sigma2S = sigma1S*(massPDG2S/massPDG1S);
-  Double_t sigma3S = sigma1S*(massPDG3S/massPDG1S);
+  printf("the integral of the fitted CB for the %s is: %1.3e --> #%s = %1.3e\n", specName[UPS1S], intCB[UPS1S], specName[UPS1S], nY[UPS1S]);
+  printf("the integral of the fitted CB for the %s is: %1.3e --> #%s = %1.3e\n", specName[UPS2S], intCB[UPS2S], specName[UPS2S], nY[UPS2S]);
+  printf("the integral of the fitted CB for the %s is: %1.3e --> #%s = %1.3e\n", specName[UPS3S], intCB[UPS3S], specName[UPS3S], nY[UPS3S]);
 
   //calculate the fraction of BG in a given mass interval
   massMin[UPS1S] = mean1S - nSigma*sigma1S;
@@ -271,21 +257,21 @@ void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
   }
 
   fUps1S =  new TF1("fUps1S", CBFunction, range_min, range_max, 5);
-  fUps1S->SetParameter(0, normY1S / intCB[UPS1S] * binWidth);
+  fUps1S->FixParameter(0, normY1S * binWidth);
   fUps1S->FixParameter(1, mean1S);
   fUps1S->FixParameter(2, sigma1S);
   fUps1S->FixParameter(3, alpha);
   fUps1S->FixParameter(4, n);
 
   fUps2S = new TF1("fUps2S", CBFunction, range_min, range_max, 5);
-  fUps2S->FixParameter(0, normY2S / intCB[UPS2S] * binWidth);
+  fUps2S->FixParameter(0, normY2S * binWidth);
   fUps2S->FixParameter(1, mean2S);
   fUps2S->FixParameter(2, sigma2S);
   fUps2S->FixParameter(3, alpha);
   fUps2S->FixParameter(4, n);
 
   fUps3S = new TF1("fUps3S", CBFunction, range_min, range_max, 5);
-  fUps3S->FixParameter(0, normY3S / intCB[UPS3S] * binWidth);
+  fUps3S->FixParameter(0, normY3S * binWidth);
   fUps3S->FixParameter(1, mean3S);
   fUps3S->FixParameter(2, sigma3S);
   fUps3S->FixParameter(3, alpha);
@@ -312,6 +298,10 @@ void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
     printf("%s: fraction of BG in a +- %1.1f sigma window is %1.3f\n", 
 	   specName[iSpecies], nSigma, fracBG[iSpecies]);
   }
+
+  if(iPTBin > 0 && iRapBin > 0)
+    SaveFitPars(iPTBin, iRapBin);
+
 }
 
 //==============================
@@ -324,6 +314,67 @@ void GetHisto(Char_t *fileNameIn, Int_t iPTBin, Int_t iRapBin){
   hMass->Rebin(2);
   binWidth = hMass->GetBinWidth(1); //valid only for an equal bin histogram!
   printf("binwidth = %1.2e\n", binWidth);
+}
+
+//=========================
+void SaveCBParameters(Int_t iPTBin, Int_t iRapBin, Double_t alpha, Double_t n, Double_t alphaErr, Double_t nErr){
+  
+  Char_t name[100];
+  if(iPTBin == 0 && iRapBin == 0)
+    sprintf(name, "CBParameters.root");
+  else if(iPTBin == 0)
+    sprintf(name, "CBParameters_rap%d.root", iRapBin);
+  else{
+    printf("<SaveCBParameters> can only be called for pT = 0!\n");
+    exit(0);
+  }
+  TFile *fOut = new TFile(name, "RECREATE");
+  TTree *treeOut = new TTree("CBPars", "");
+  Double_t alphaAll = alpha, nAll = n;
+  Double_t alphaAllErr = alphaErr, nAllErr = nErr;
+  treeOut->Branch("alphaAll", &alphaAll, "alphaAll/D");
+  treeOut->Branch("nAll", &nAll, "nAll/D");
+  treeOut->Branch("alphaAllErr", &alphaAllErr, "alphaAllErr/D");
+  treeOut->Branch("nAllErr", &nAllErr, "nAllErr/D");
+  treeOut->Fill();
+  treeOut->Write();
+  fOut->Close();
+}
+
+//=========================
+void SaveFitPars(Int_t iPTBin, Int_t iRapBin){
+
+  Char_t name[100];
+  sprintf(name, "data_Ups_rap%d_pT%d.root", iRapBin, iPTBin);
+  TFile *fOut = new TFile(name, "RECREATE");
+  TTree *treeOut = new TTree("massFitParameters", "");
+  //  TF1 *f1S = fUps1S, *f2S = fUps2S, *f3S = fUps3S;
+  Int_t bufsize = 32000; //default = 32000
+  Int_t splitlevel = 0; //recommended by R. Brun
+  treeOut->Branch("fUps1S", "TF1", &fUps1S, bufsize, splitlevel);
+  treeOut->Branch("fUps2S", "TF1", &fUps2S, bufsize, splitlevel);
+  treeOut->Branch("fUps3S", "TF1", &fUps3S, bufsize, splitlevel);
+  treeOut->Branch("fBG", "TF1", &fBG, bufsize, splitlevel);
+  treeOut->Fill();
+  // //fill in the next 5 events the parameters of the CB functions:
+  // Double_t fPar1S, fPar2S, fPar3S, fParBG;
+  // treeOut->Branch("fPar1S", &fPar1S, "fPar1S/D");
+  // treeOut->Branch("fPar2S", &fPar2S, "fPar2S/D");
+  // treeOut->Branch("fPar3S", &fPar3S, "fPar3S/D");
+  // treeOut->Branch("fParBG", &fParBG, "fParBG/D");
+  // for(int iPar = 0; iPar < 5; iPar++){
+  //   fPar1S = fUps1S->GetParameter(iPar);
+  //   fPar2S = fUps2S->GetParameter(iPar);
+  //   fPar3S = fUps3S->GetParameter(iPar);
+  //   if(iPar < 3)
+  //     fParBG = fBG->GetParameter(iPar);
+  //   else
+  //     fParBG = 999.;
+  //   treeOut->Fill();
+  // }
+  
+  treeOut->Write();
+  fOut->Close();
 }
 
 //=========================
@@ -390,7 +441,6 @@ Double_t fitContinuum(Double_t *x, Double_t *par){
   result *= binWidth; //correct for the bin width
   return result;
 }
-
 
 //==================================
 Double_t DrawContinuum(Double_t *x, Double_t *par){
