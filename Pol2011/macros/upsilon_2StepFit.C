@@ -25,27 +25,31 @@ TF1 *fUps1S, *fUps2S, *fUps3S, *fBG;
 Double_t fracBG[kNbSpecies];
 Double_t nY[kNbSpecies];
 
-void GetHisto(Char_t *fileNameIn, Int_t iPTBin, Int_t iRapBin);
-void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin);
+void GetHisto(Char_t *fileNameIn, Int_t iRapBin, Int_t iPTBin);
+void FitSignalBG(Double_t nSigma, Int_t iRapBin, Int_t iPTBin);
 Double_t fitPolyCrystal3(Double_t *x, Double_t *par);
 Double_t fitContinuum(Double_t *x, Double_t *par);
 Double_t DrawContinuum(Double_t *x, Double_t *par);
-void DrawFit(Double_t nSigma, Int_t iPTBin, Int_t iRapBin);
-void SaveCBParameters(Int_t iPTBin, Int_t iRapBin, Double_t alpha, Double_t n, Double_t alphaErr, Double_t nErr);
-void SaveFitPars(Int_t iPTBin, Int_t iRapBin);
+void DrawFit(Double_t nSigma, Int_t iRapBin, Int_t iPTBin);
+void SaveCBParameters(Int_t iRapBin, Int_t iPTBin, Double_t alpha, Double_t n, Double_t alphaErr, Double_t nErr);
+void SaveFitPars(Int_t iRapBin, Int_t iPTBin);
 //==============================
 void upsilon_2StepFit(Int_t iRapBin = 0,
 		      Int_t iPTBin = 0, 		     
 		      Double_t nSigma = 2.,
 		      Char_t *fileNameIn = "RootFiles/selEvents_data_Ups_2Aug2011.root"){
   
-  GetHisto(fileNameIn, iPTBin, iRapBin);
-  FitSignalBG(nSigma, iPTBin, iRapBin);
-  DrawFit(nSigma, iPTBin, iRapBin);
+  GetHisto(fileNameIn, iRapBin, iPTBin);
+  if(hMass->GetEntries() < 200.){
+    printf("skip processing this bin, because the number of entries is smaller than 200\n");
+    return;
+  }
+  FitSignalBG(nSigma, iRapBin, iPTBin);
+  DrawFit(nSigma, iRapBin, iPTBin);
 }
 
 //===============================
-void DrawFit(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
+void DrawFit(Double_t nSigma, Int_t iRapBin, Int_t iPTBin){
 
   Char_t name[100];
   //prepare the drawing of the individual components:
@@ -112,13 +116,14 @@ void DrawFit(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
 }
 
 //===============================
-void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){	
+void FitSignalBG(Double_t nSigma, Int_t iRapBin, Int_t iPTBin){	
 
   gStyle->SetOptFit(kTRUE);
   gStyle->SetOptStat(kFALSE);
 
   Char_t name[100];
   //1.) perform the fit to the continuum, using the sidebands
+  sprintf(name, "c1_rap%d_pT%d", iRapBin, iPTBin);
   TCanvas *c1 = new TCanvas("c1");
   sprintf(name, "Events in %1.0f MeV", 1000.*binWidth);
   hMass->SetYTitle(name);
@@ -160,12 +165,12 @@ void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
   //fix alpha and n from the fit to all bins
   if(iPTBin > 0 && iRapBin > 0){
 
-    Char_t name[100];
+    Char_t fileName[100];
     if(iRapBin == 0)
-      sprintf(name, "RootFiles/CBParameters.root", iRapBin);
+      sprintf(fileName, "RootFiles/CBParameters.root");
     else
-      sprintf(name, "RootFiles/CBParameters_rap%d.root", iRapBin);
-    TFile *fIn = new TFile(name);
+      sprintf(fileName, "RootFiles/CBParameters_rap%d.root", iRapBin);
+    TFile *fIn = new TFile(fileName);
     TTree *treeIn = (TTree *) gDirectory->Get("CBPars");
     Double_t alphaAll, nAll;
     TBranch *b_alphaAll, *b_nAll;
@@ -201,7 +206,7 @@ void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
   //save alpha and n parameters if fit is 
   //for integrated bins in y and pT:
   if(iPTBin == 0)
-    SaveCBParameters(iPTBin, iRapBin, alpha, n, fRECO->GetParError(6), fRECO->GetParError(5));
+    SaveCBParameters(iRapBin, iPTBin, alpha, n, fRECO->GetParError(6), fRECO->GetParError(5));
 
   Double_t mean2S = mean1S*(massPDG2S/massPDG1S);
   Double_t mean3S = mean1S*(massPDG3S/massPDG1S);
@@ -300,16 +305,16 @@ void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
   }
 
   if(iPTBin > 0 && iRapBin > 0)
-    SaveFitPars(iPTBin, iRapBin);
+    SaveFitPars(iRapBin, iPTBin);
 
 }
 
 //==============================
-void GetHisto(Char_t *fileNameIn, Int_t iPTBin, Int_t iRapBin){
+void GetHisto(Char_t *fileNameIn, Int_t iRapBin, Int_t iPTBin){
 
   TFile *fin = new TFile(fileNameIn);
   Char_t name[100];
-  sprintf(name, "Reco_Onia_mass_pT%d_rap%d", iPTBin, iRapBin);
+  sprintf(name, "Reco_Onia_mass_rap%d_pT%d", iRapBin, iPTBin);
   hMass = (TH1F*) gDirectory->Get(name);
   hMass->Rebin(2);
   binWidth = hMass->GetBinWidth(1); //valid only for an equal bin histogram!
@@ -317,7 +322,7 @@ void GetHisto(Char_t *fileNameIn, Int_t iPTBin, Int_t iRapBin){
 }
 
 //=========================
-void SaveCBParameters(Int_t iPTBin, Int_t iRapBin, Double_t alpha, Double_t n, Double_t alphaErr, Double_t nErr){
+void SaveCBParameters(Int_t iRapBin, Int_t iPTBin, Double_t alpha, Double_t n, Double_t alphaErr, Double_t nErr){
   
   Char_t name[100];
   if(iPTBin == 0 && iRapBin == 0)
@@ -342,7 +347,7 @@ void SaveCBParameters(Int_t iPTBin, Int_t iRapBin, Double_t alpha, Double_t n, D
 }
 
 //=========================
-void SaveFitPars(Int_t iPTBin, Int_t iRapBin){
+void SaveFitPars(Int_t iRapBin, Int_t iPTBin){
 
   Char_t name[100];
   sprintf(name, "RootFiles/data_Ups_rap%d_pT%d.root", iRapBin, iPTBin);
