@@ -51,7 +51,7 @@ void BookHistosReco(){
   for(int iRapBin = 0; iRapBin < onia::kNbRapForPTBins+1; iRapBin++){
     for(int iPTBin = 0; iPTBin < onia::kNbPTBins[iRapBin]+1; iPTBin++){
       //Mass:
-      sprintf(name, "Reco_Onia_mass_pT%d_rap%d", iPTBin, iRapBin);
+      sprintf(name, "Reco_Onia_mass_rap%d_pT%d", iRapBin, iPTBin);
       sprintf(title, ";M [GeV/c^{2}]");
       Reco_Onia_mass[iPTBin][iRapBin] = new TH1F(name, title, nBinsMass, massMin, massMax);
       Reco_Onia_mass[iPTBin][iRapBin]->Sumw2();
