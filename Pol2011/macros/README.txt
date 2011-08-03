@@ -35,7 +35,7 @@ bins.
 The fitted TF1 objects for the signal (3 CB functions) as well as the
 BG function are stored in output files called
 
-   data_Ups_rap1_pT1.root
+   RootFiles/data_Ups_rap1_pT1.root
 
 etc. The defintions of the pT and rapidity bins are defined in
 "../interface/commonVar.h".
@@ -53,7 +53,9 @@ pdflatex massFits.tex
 CopyTreeEntries.C. This macro loops again over the same pT and y bins
 and adds to the previously created output file
 (data_Ups_rap1_pT1.root) the TLorentzVectors of the 2 leptons,
-specific to that pT and y bin.
+specific to that pT and y bin. It furthermore, calculates the width of
+the L and R sideband windows and projects corresponding events into
+the L and R (cosTheta,phi) 2D histos.
 
 
 
