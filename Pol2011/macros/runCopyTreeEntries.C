@@ -2,7 +2,7 @@
 #include "../interface/commonVar.h"
 
 //====================================
-void runCopyTreeEntries(Char_t *fileNameIn = "selEvents_data_Ups_2Aug2011.root"){
+void runCopyTreeEntries(Char_t *fileNameIn = "RootFiles/selEvents_data_Ups_2Aug2011.root"){
 
   gROOT->ProcessLine(".L CopyTreeEntries.C+");
 

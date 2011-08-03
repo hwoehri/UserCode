@@ -37,7 +37,7 @@ void SaveFitPars(Int_t iPTBin, Int_t iRapBin);
 void upsilon_2StepFit(Int_t iRapBin = 0,
 		      Int_t iPTBin = 0, 		     
 		      Double_t nSigma = 2.,
-		      Char_t *fileNameIn = "selEvents_data_Ups_2Aug2011.root"){
+		      Char_t *fileNameIn = "RootFiles/selEvents_data_Ups_2Aug2011.root"){
   
   GetHisto(fileNameIn, iPTBin, iRapBin);
   FitSignalBG(nSigma, iPTBin, iRapBin);
@@ -162,9 +162,9 @@ void FitSignalBG(Double_t nSigma, Int_t iPTBin, Int_t iRapBin){
 
     Char_t name[100];
     if(iRapBin == 0)
-      sprintf(name, "CBParameters.root", iRapBin);
+      sprintf(name, "RootFiles/CBParameters.root", iRapBin);
     else
-      sprintf(name, "CBParameters_rap%d.root", iRapBin);
+      sprintf(name, "RootFiles/CBParameters_rap%d.root", iRapBin);
     TFile *fIn = new TFile(name);
     TTree *treeIn = (TTree *) gDirectory->Get("CBPars");
     Double_t alphaAll, nAll;
@@ -321,9 +321,9 @@ void SaveCBParameters(Int_t iPTBin, Int_t iRapBin, Double_t alpha, Double_t n, D
   
   Char_t name[100];
   if(iPTBin == 0 && iRapBin == 0)
-    sprintf(name, "CBParameters.root");
+    sprintf(name, "RootFiles/CBParameters.root");
   else if(iPTBin == 0)
-    sprintf(name, "CBParameters_rap%d.root", iRapBin);
+    sprintf(name, "RootFiles/CBParameters_rap%d.root", iRapBin);
   else{
     printf("<SaveCBParameters> can only be called for pT = 0!\n");
     exit(0);
@@ -345,7 +345,7 @@ void SaveCBParameters(Int_t iPTBin, Int_t iRapBin, Double_t alpha, Double_t n, D
 void SaveFitPars(Int_t iPTBin, Int_t iRapBin){
 
   Char_t name[100];
-  sprintf(name, "data_Ups_rap%d_pT%d.root", iRapBin, iPTBin);
+  sprintf(name, "RootFiles/data_Ups_rap%d_pT%d.root", iRapBin, iPTBin);
   TFile *fOut = new TFile(name, "RECREATE");
   TTree *treeOut = new TTree("massFitParameters", "");
   //  TF1 *f1S = fUps1S, *f2S = fUps2S, *f3S = fUps3S;

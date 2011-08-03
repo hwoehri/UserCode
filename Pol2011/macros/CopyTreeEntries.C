@@ -3,11 +3,11 @@
 #include "TLorentzVector.h"
 
 void CopyTreeEntries(Int_t iRapBin = 1, Int_t iPTBin = 1,
-		     Char_t *fileNameIn = "selEvents_data_Ups_2Aug2011.root"){
+		     Char_t *fileNameIn = "RootFiles/selEvents_data_Ups_2Aug2011.root"){
 
   Char_t name[100];  
   Char_t fileNameOut[100];
-  sprintf(fileNameOut, "data_Ups_rap%d_pT%d.root", iPTBin, iRapBin);
+  sprintf(fileNameOut, "RootFiles/data_Ups_rap%d_pT%d.root", iPTBin, iRapBin);
   printf("storing events in file %s\n", fileNameOut);
 
   TFile *fin = new TFile(fileNameIn);

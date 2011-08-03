@@ -8,10 +8,7 @@
 void BookHistosReco();
 void WriteHistosReco(Char_t *fNameOut);
 //==========================================
-//usage: root 'runData.C+' or
-//       root 'runData.C+("pol_MC_HLT_Mu0Track0Jpsi.root", kTRUE)' (e.g.) 
-//==========================================
-void runData(Char_t *fNameOut = "selEvents_data_Ups_1Aug2011.root",
+void runData(Char_t *fNameOut = "RootFiles/selEvents_data_Ups_1Aug2011.root",
 	     Bool_t rejectCowboys = kFALSE,
 	     Int_t selDimuType = 4 //0...only GG, 1... only GT, 2... only TT, 3...GG+GT, 4...GG+GT+TT
 	     ){
