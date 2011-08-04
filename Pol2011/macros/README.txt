@@ -57,5 +57,9 @@ specific to that pT and y bin. It furthermore, calculates the width of
 the L and R sideband windows and projects corresponding events into
 the L and R (cosTheta,phi) 2D histos.
 
+3a.) the macro PlotCosThetaPhiBG.C plots the individual (cosTheta,
+phi) distributions of the L and R mass sidebands. The individual
+figures can then be assembled into one pdf file using the file 
+../latex/cosThetaPhi_BG.tex
 
 
