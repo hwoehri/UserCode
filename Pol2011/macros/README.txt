@@ -62,4 +62,17 @@ phi) distributions of the L and R mass sidebands. The individual
 figures can then be assembled into one pdf file using the file 
 ../latex/cosThetaPhi_BG.tex
 
+4.) runTrimEventContent.C is the steering macro for
+TrimEventContent.C. This macro loops over the events in a given pT and
+y bin and stores in the "data" TTree only those events which are
+selected within a certain nSigma window around the signal polemass. It
+also adds the Left and Right Sideband mass windows in a given fraction
+and stores one output BG histogram, as a function of (cosTheta,
+phi). Furthermore, it also projects the (cosTheta, phi) distribution
+in a 2D histogram of the signal events; the fraction of BG in the
+nSigma window around the signal is stored in a 1D histogram. Inputs to
+the macro are the 
+    *) fraction with which the L BG should be added to the right one
+    *) nSigma within which the events should be projected
+    *) which state is being considered: //[0]... 1S, [1]... 2S, [2]... 3S
 
