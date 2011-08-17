@@ -12,7 +12,7 @@ void TrimEventContent(Int_t iRapBin = 1,
 		      ){
 
 
-  printf("fracL = %1.1f, nSigma = %1.1f, iState = %d, rap %d, pT %d\n", fracL, nSigma, nUpsState, iRapBin, iPTBin);
+  printf("\n\n\nfracL = %1.1f, nSigma = %1.1f, iState = %d, rap %d, pT %d\n", fracL, nSigma, nUpsState, iRapBin, iPTBin);
   Char_t name[100], title[100];  
   Char_t fileNameIn[100];
   sprintf(fileNameIn, "RootFiles/data_Ups_rap%d_pT%d.root", iRapBin, iPTBin);
@@ -74,9 +74,9 @@ void TrimEventContent(Int_t iRapBin = 1,
     mass[iState] = fUps[iState]->GetParameter(1);
     sigma[iState] = fUps[iState]->GetParameter(2);
   }
-  printf("1S: mass = %1.3f, sigma = %1.3f\n", mass[UPS1S], sigma[UPS1S]);
-  printf("2S: mass = %1.3f, sigma = %1.3f\n", mass[UPS2S], sigma[UPS2S]);
-  printf("3S: mass = %1.3f, sigma = %1.3f\n", mass[UPS3S], sigma[UPS3S]);
+  printf("1S: mass = %1.3f GeV, sigma = %1.3f GeV\n", mass[UPS1S], sigma[UPS1S]);
+  printf("2S: mass = %1.3f GeV, sigma = %1.3f GeV\n", mass[UPS2S], sigma[UPS2S]);
+  printf("3S: mass = %1.3f GeV, sigma = %1.3f GeV\n", mass[UPS3S], sigma[UPS3S]);
   Double_t poleMass = mass[nUpsState], massMin, massMax;
   massMin = poleMass - nSigma*sigma[nUpsState];
   massMax = poleMass + nSigma*sigma[nUpsState];
@@ -128,4 +128,7 @@ void TrimEventContent(Int_t iRapBin = 1,
     hCosThetaPhiSignal[iFrame]->Write();
   }
   hFracBG->Write();
+
+  fOut->Close();
+  fIn->Close();
 }

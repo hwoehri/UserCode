@@ -2,17 +2,18 @@
 #include "../interface/commonVar.h"
 
 //====================================
-void runTrimEventContent(Double_t fracL = 0.5, Double_t nSigma = 2., 
-			 Int_t nUpsState=0//[0]... 1S, [1]... 2S, [2]... 3S
+void runTrimEventContent(Double_t fracL = 0.5, 
+			 Double_t nSigma = 2.
 			 ){
 
   gROOT->ProcessLine(".L TrimEventContent.C+");
 
-
-  for(int iRap = 1; iRap <= 2; iRap++){
-    Int_t max = onia::kNbPTBins[iRap]+1;
-    for(int iPT = 1; iPT < max; iPT++){
-      TrimEventContent(iRap, iPT, fracL, nSigma, nUpsState);
+  for(int iState = 0; iState < 3; iState++){
+    for(int iRap = 1; iRap <= 2; iRap++){
+      Int_t max = onia::kNbPTBins[iRap]+1;
+      for(int iPT = 1; iPT < max; iPT++){
+	TrimEventContent(iRap, iPT, fracL, nSigma, iState);
+      }
     }
   }
 }
