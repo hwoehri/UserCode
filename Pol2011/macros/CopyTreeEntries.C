@@ -28,17 +28,17 @@ void CopyTreeEntries(Int_t iRapBin = 1,
   TFile *fOut = new TFile(fileNameOut, "UPDATE");
   gStyle->SetPadRightMargin(0.2);
   TTree *treeOut = treeIn->CloneTree(0);
-  TH2F *hCosThetaPhi[onia::kNbFrames][2];
+  TH2D *hCosThetaPhi[onia::kNbFrames][2];
   for(int iFrame = 0; iFrame < onia::kNbFrames; iFrame++){
     sprintf(name, "hCosThetaPhi_%s_L", onia::frameLabel[iFrame]);
     sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", onia::frameLabel[iFrame], onia::frameLabel[iFrame]);
-    hCosThetaPhi[iFrame][L] = new TH2F(name, title, onia::kNbBinsCosT, onia::cosTMin, onia::cosTMax, 
+    hCosThetaPhi[iFrame][L] = new TH2D(name, title, onia::kNbBinsCosT, onia::cosTMin, onia::cosTMax, 
 			       onia::kNbBinsPhiPol, onia::phiPolMin, onia::phiPolMax);
     hCosThetaPhi[iFrame][L]->Sumw2();
     //
     sprintf(name, "hCosThetaPhi_%s_R", onia::frameLabel[iFrame]);
     sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", onia::frameLabel[iFrame], onia::frameLabel[iFrame]);
-    hCosThetaPhi[iFrame][R] = new TH2F(name, title, onia::kNbBinsCosT, onia::cosTMin, onia::cosTMax, 
+    hCosThetaPhi[iFrame][R] = new TH2D(name, title, onia::kNbBinsCosT, onia::cosTMin, onia::cosTMax, 
 			       onia::kNbBinsPhiPol, onia::phiPolMin, onia::phiPolMax);
     hCosThetaPhi[iFrame][R]->Sumw2();
   }
