@@ -245,6 +245,7 @@ void FitSignalBG(Double_t nSigma, Int_t iRapBin, Int_t iPTBin){
   nY[UPS2S] = normY2S * intCB[UPS2S];
   nY[UPS3S] = normY3S * intCB[UPS3S];
 
+  printf("rapidity bin %d, pT bin %d\n", iRapBin, iPTBin);
   printf("the integral of the fitted CB for the %s is: %1.3e --> #%s = %1.3e\n", specName[UPS1S], intCB[UPS1S], specName[UPS1S], nY[UPS1S]);
   printf("the integral of the fitted CB for the %s is: %1.3e --> #%s = %1.3e\n", specName[UPS2S], intCB[UPS2S], specName[UPS2S], nY[UPS2S]);
   printf("the integral of the fitted CB for the %s is: %1.3e --> #%s = %1.3e\n", specName[UPS3S], intCB[UPS3S], specName[UPS3S], nY[UPS3S]);
@@ -296,13 +297,32 @@ void FitSignalBG(Double_t nSigma, Int_t iRapBin, Int_t iPTBin){
   nBG[UPS2S] = fBG->Integral(massMin[UPS2S], massMax[UPS2S]);
   nBG[UPS3S] = fBG->Integral(massMin[UPS3S], massMax[UPS3S]);
 
+  if(iRapBin == 0 || iPTBin == 0)
+    printf("rapidity bin %d, pTBin %d\n", iRapBin, iPTBin);	   
+  else{
+    printf("rapidity bin %d (%1.1f - %1.1f), pT bin %d (%1.0f - %1.0f GeV/c)\n", 
+	   iRapBin, onia::rapForPTRange[iRapBin-1], onia::rapForPTRange[iRapBin], 
+	   iPTBin, onia::pTRange[iRapBin][iPTBin-1], onia::pTRange[iRapBin][iPTBin]);
+  }
+
+  FILE *fInfo = fopen("RootFiles/statistics.txt", "a");
+  if(iRapBin == 0 || iPTBin == 0)
+    fprintf(fInfo, "rapidity bin %d, pTBin %d\n", iRapBin, iPTBin);	   
+  else{
+    fprintf(fInfo, "rapidity bin %d (%1.1f - %1.1f), pT bin %d (%1.0f - %1.0f GeV/c)\n", 
+	   iRapBin, onia::rapForPTRange[iRapBin-1], onia::rapForPTRange[iRapBin], 
+	   iPTBin, onia::pTRange[iRapBin][iPTBin-1], onia::pTRange[iRapBin][iPTBin]);
+  }
   for(int iSpecies = 0; iSpecies < kNbSpecies; iSpecies++){
     fracBG[iSpecies] = nBG[iSpecies] / (nBG[iSpecies] + nUps[iSpecies]);
-    printf("nUps = %1.3f\n", nUps[iSpecies]);
-    printf("nBG = %1.3f\n", nBG[iSpecies]);
+    // printf("nUps = %1.3f\n", nUps[iSpecies]);
+    // printf("nBG = %1.3f\n", nBG[iSpecies]);
     printf("%s: fraction of BG in a +- %1.1f sigma window is %1.3f\n", 
 	   specName[iSpecies], nSigma, fracBG[iSpecies]);
+
+    fprintf(fInfo, "integral of the fitted CB for the %s is (norm factor= %1.3e): %7.0f\n", specName[iSpecies], intCB[iSpecies], nY[iSpecies]);
   }
+  fclose(fInfo);
 
   if(iPTBin > 0 && iRapBin > 0)
     SaveFitPars(iRapBin, iPTBin);
@@ -321,7 +341,7 @@ void GetHisto(Char_t *fileNameIn, Int_t iRapBin, Int_t iPTBin){
   printf("binwidth = %1.2e\n", binWidth);
 }
 
-//=========================
+//==============================
 void SaveCBParameters(Int_t iRapBin, Int_t iPTBin, Double_t alpha, Double_t n, Double_t alphaErr, Double_t nErr){
   
   Char_t name[100];
