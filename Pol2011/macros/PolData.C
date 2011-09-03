@@ -127,8 +127,8 @@ void PolData::Loop(Int_t selDimuType, Bool_t rejectCowboys)
    Reco_StatEv->Fill(5.5);
 
    //reject furthermore all events in which one of the muons has a pT smaller than 3 GeV/c
-   if(pTMuPos < 3.0 || pTMuNeg < 3.0)
-     continue;
+   // if(pTMuPos < 3.0 || pTMuNeg < 3.0)
+   //   continue;
 
    Reco_StatEv->Fill(6.5);
 

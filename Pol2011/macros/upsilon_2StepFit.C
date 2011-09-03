@@ -103,7 +103,7 @@ void DrawFit(Double_t nSigma, Int_t iRapBin, Int_t iPTBin){
   TLatex *tex = new TLatex(8.5, hStack->GetMaximum(), name);
   tex->SetTextSize(0.04); tex->Draw();
   if(iPTBin == 0) sprintf(name, "all p_{T}");
-  else if(iPTBin == 1) sprintf(name, "p_{T} < %1.1f GeV", onia::pTRange[iRapBin][iPTBin]);
+  //  else if(iPTBin == 1) sprintf(name, "p_{T} < %1.1f GeV", onia::pTRange[iRapBin][iPTBin]);
   else sprintf(name, "%1.1f < p_{T} < %1.1f", onia::pTRange[iRapBin][iPTBin-1], onia::pTRange[iRapBin][iPTBin]);
   tex->DrawLatex(8.5, 0.94*hStack->GetMaximum(), name);
 

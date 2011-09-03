@@ -1,5 +1,4 @@
 #include "../interface/rootIncludes.inc"
-//#include "../interface/commonVar.h"
 #include "TLorentzVector.h"
 #include "calcPol.C"
 
@@ -28,22 +27,24 @@ void CopyTreeEntries(Int_t iRapBin = 1,
   TFile *fOut = new TFile(fileNameOut, "UPDATE");
   gStyle->SetPadRightMargin(0.2);
   TTree *treeOut = treeIn->CloneTree(0);
-  TH2D *hCosThetaPhi[onia::kNbFrames][2];
+  TH2D *hBG_cosThetaPhi[onia::kNbFrames][2];
   for(int iFrame = 0; iFrame < onia::kNbFrames; iFrame++){
-    sprintf(name, "hCosThetaPhi_%s_L", onia::frameLabel[iFrame]);
+    //book the 2D (cosTheta, phi) histos for the L and R mass sideband
+    sprintf(name, "hBG_cosThetaPhi_%s_L", onia::frameLabel[iFrame]);
     sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", onia::frameLabel[iFrame], onia::frameLabel[iFrame]);
-    hCosThetaPhi[iFrame][L] = new TH2D(name, title, onia::kNbBinsCosT, onia::cosTMin, onia::cosTMax, 
+    hBG_cosThetaPhi[iFrame][L] = new TH2D(name, title, onia::kNbBinsCosT, onia::cosTMin, onia::cosTMax, 
 			       onia::kNbBinsPhiPol, onia::phiPolMin, onia::phiPolMax);
-    hCosThetaPhi[iFrame][L]->Sumw2();
+    hBG_cosThetaPhi[iFrame][L]->Sumw2();
     //
-    sprintf(name, "hCosThetaPhi_%s_R", onia::frameLabel[iFrame]);
+    sprintf(name, "hBG_cosThetaPhi_%s_R", onia::frameLabel[iFrame]);
     sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", onia::frameLabel[iFrame], onia::frameLabel[iFrame]);
-    hCosThetaPhi[iFrame][R] = new TH2D(name, title, onia::kNbBinsCosT, onia::cosTMin, onia::cosTMax, 
+    hBG_cosThetaPhi[iFrame][R] = new TH2D(name, title, onia::kNbBinsCosT, onia::cosTMin, onia::cosTMax, 
 			       onia::kNbBinsPhiPol, onia::phiPolMin, onia::phiPolMax);
-    hCosThetaPhi[iFrame][R]->Sumw2();
+    hBG_cosThetaPhi[iFrame][R]->Sumw2();
   }
+
   //==============================
-  //reading info from output file:
+  //reading info from input file:
   //===============================
   TTree *treeFitPar = (TTree *) gDirectory->Get("massFitParameters");
   TF1 *fUps[kNbSpecies], *fBG = 0;
@@ -62,10 +63,10 @@ void CopyTreeEntries(Int_t iRapBin = 1,
   printf("1S: mass = %1.3f, sigma = %1.3f\n", mass1S, sigma1S);
   printf("3S: mass = %1.3f, sigma = %1.3f\n", mass3S, sigma3S);
   Double_t massMin[2], massMax[2];
-  massMin[L] = 8.6;
-  massMax[L] = mass1S - 4.*sigma1S;
-  massMin[R] = mass3S + 3.*sigma3S;
-  massMax[R] = 11.4;
+  massMin[L] = onia::massMinL;
+  massMax[L] = mass1S - onia::nSigmaL*sigma1S;
+  massMin[R] = mass3S + onia::nSigmaR*sigma3S;
+  massMax[R] = onia::massMaxR;
   printf("--> L mass window: %1.3f < M < %1.3f GeV\n", massMin[L], massMax[L]);
   printf("--> R mass window: %1.3f < M < %1.3f GeV\n", massMin[R], massMax[R]);
 
@@ -86,7 +87,7 @@ void CopyTreeEntries(Int_t iRapBin = 1,
     if(onia->Pt() > onia::pTRange[iRapBin][iPTBin-1] && onia->Pt() < onia::pTRange[iRapBin][iPTBin] &&
        TMath::Abs(onia->Rapidity()) > onia::rapForPTRange[iRapBin-1] && TMath::Abs(onia->Rapidity()) < onia::rapForPTRange[iRapBin]){
 
-      treeOut->Fill(); //stores TLorenzVectors of the two muons
+      treeOut->Fill(); //stores TLorenzVectors of the two muons in the given pT and rap cell
 
       //store now the cosTheta and phi distributions of the BG:
       onia_mass = onia->M();
@@ -100,15 +101,15 @@ void CopyTreeEntries(Int_t iRapBin = 1,
       calcPol(*lepP, *lepN);
 
       for(int iFrame = 0; iFrame < onia::kNbFrames; iFrame++)
-	hCosThetaPhi[iFrame][index]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
+	hBG_cosThetaPhi[iFrame][index]->Fill(thisCosTh[iFrame], thisPhi[iFrame]);
     }
   }
   fOut->cd();
 
   for(int iFrame = 0; iFrame < onia::kNbFrames; iFrame++)
-    hCosThetaPhi[iFrame][L]->Write();
+    hBG_cosThetaPhi[iFrame][L]->Write();
   for(int iFrame = 0; iFrame < onia::kNbFrames; iFrame++)
-    hCosThetaPhi[iFrame][R]->Write();
+    hBG_cosThetaPhi[iFrame][R]->Write();
   treeOut->Write();  
   fOut->Close();
 }
