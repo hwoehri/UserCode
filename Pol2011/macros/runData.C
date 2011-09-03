@@ -37,8 +37,8 @@ void BookHistosReco(){
   Int_t nBinsMass = 320;
   Double_t massMin = 8.4, massMax = 11.6;
   //pt
-  Int_t nBinsPt = 240;
-  Double_t pTMin = 0., pTMaxOnia = 60.;
+  Int_t nBinsPt = 1000;
+  Double_t pTMin = 0., pTMaxOnia = 100.;
   //rap
   Int_t nBinsRap = 100;
   Double_t rapMin = -2.5, rapMax = 2.5;
@@ -62,6 +62,21 @@ void BookHistosReco(){
   sprintf(title, ";y(#mu#mu);p_{T}^{#mu#mu} [GeV/c]");
   Reco_Onia_rap_pT = new TH2F(name, title, nBinsRap,rapMin,rapMax, nBinsPt,pTMin,pTMaxOnia);
   Reco_Onia_rap_pT->Sumw2();
+
+  for(int iRapBin = 0; iRapBin < onia::kNbRapForPTBins+1; iRapBin++){
+    //pT
+    sprintf(name, "Reco_Onia_pt_rap%d", iRapBin);
+    sprintf(title, ";p_{T}^{#mu#mu} [GeV/c]");
+    Reco_Onia_pt[iRapBin]  = new TH1F(name, title, nBinsPt,pTMin,pTMaxOnia);
+    Reco_Onia_pt[iRapBin]->Sumw2();
+  }
+  for(int iPTBin = 0; iPTBin < onia::kNbPTMaxBins+1; iPTBin++){
+    //rap
+    sprintf(name, "Reco_Onia_rap_pT%d", iPTBin);
+    sprintf(title, ";y(#mu#mu)");
+    Reco_Onia_rap[iPTBin]  = new TH1F(name, title, nBinsRap, rapMin,rapMax);
+    Reco_Onia_rap[iPTBin]->Sumw2();
+  }
 
   //prepare the branches for the output tree
   treeOut = new TTree ("selectedData", "selected events");
@@ -129,7 +144,6 @@ void BookHistosReco(){
 //==========================================
 void WriteHistosReco(Char_t *fNameOut){
 
-
   treeOut->Write();
 
   Reco_StatEv->Write();
@@ -141,6 +155,11 @@ void WriteHistosReco(Char_t *fNameOut){
   }
 
   Reco_Onia_rap_pT->Write();
+  for(int iPTBin = 0; iPTBin < onia::kNbPTMaxBins+1; iPTBin++)
+    Reco_Onia_rap[iPTBin]->Write();
+  for(int iRapBin = 0; iRapBin < onia::kNbRapForPTBins+1; iRapBin++)
+    Reco_Onia_pt[iRapBin]->Write();
+
 
   // //polarization histos: Reco
   // for(int iFrame = 0; iFrame < onia::kNbFrames; iFrame++){
