@@ -12,6 +12,8 @@
 TH1F *Reco_StatEv;
 TH1F *Reco_Onia_mass[onia::kNbPTMaxBins+1][onia::kNbRapForPTBins+1];
 TH2F *Reco_Onia_rap_pT;
+TH1F *Reco_Onia_pt[onia::kNbRapForPTBins+1];
+TH1F *Reco_Onia_rap[onia::kNbPTMaxBins+1];
 TTree *treeOut;
 TLorentzVector *lepP, *lepN;
 
@@ -32,7 +34,7 @@ void PolData::Loop(Int_t selDimuType, Bool_t rejectCowboys)
 
   //loop over the events
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
-  // for (Long64_t jentry=0; jentry<1000000;jentry++) {
+  //for (Long64_t jentry=0; jentry<1000000;jentry++) {
 
     if(jentry % 100000 == 0) printf("event %d\n", (Int_t) jentry);
 
@@ -57,9 +59,9 @@ void PolData::Loop(Int_t selDimuType, Bool_t rejectCowboys)
 
     Int_t trigDecision = -99;
     
-    if(HLT_DoubleMu3_Quarkonium_v1 == 1 ||   //  5e32: 160404 - 161176
-       HLT_DoubleMu3_Upsilon_v1 == 1 ||      //  5e32: 161216 - 163261
-       HLT_Dimuon0_Barrel_Upsilon_v1 == 1 || //  5e32: 163269 - 163869
+    if(//HLT_DoubleMu3_Quarkonium_v1 == 1 ||   //  5e32: 160404 - 161176
+       //HLT_DoubleMu3_Upsilon_v1 == 1 ||      //  5e32: 161216 - 163261
+       //HLT_Dimuon0_Barrel_Upsilon_v1 == 1 || //  5e32: 163269 - 163869
        HLT_Dimuon5_Upsilon_Barrel_v1 == 1 || //  1e33: 165088 - 166967 and 1.4E33: 167039 - 167043
        HLT_Dimuon5_Upsilon_Barrel_v2 == 1 || //  1e33: 166346
        HLT_Dimuon5_Upsilon_Barrel_v3 == 1)   //1.4e33: 167078 - 167913
@@ -74,7 +76,7 @@ void PolData::Loop(Int_t selDimuType, Bool_t rejectCowboys)
     // else if(selDimuType == 3 && JpsiType > 1) //only GG or GT
     //   continue;
 
-    Reco_StatEv->Fill(1.5);//count all events
+    Reco_StatEv->Fill(1.5); //count all events
 
     Double_t onia_mass = onia->M();
     Double_t onia_pt = onia->Pt();
@@ -106,8 +108,10 @@ void PolData::Loop(Int_t selDimuType, Bool_t rejectCowboys)
       continue;
     Reco_StatEv->Fill(4.5);
 
-    if(onia_mass < 8.4 || onia_mass > 11.6)
+    if(onia_mass < 8.4 || onia_mass > 11.6) //all Upsilons triggered
       continue;
+    // if(onia_mass < (9.45 - 2.*0.080) || onia_mass > (9.45 + 2.*0.080)) //Ups(1S) only
+    //   continue;
 
     Reco_StatEv->Fill(5.5);
 
@@ -161,12 +165,17 @@ void PolData::Loop(Int_t selDimuType, Bool_t rejectCowboys)
 
     Reco_Onia_rap_pT->Fill(onia_rap, onia_pt);
     Reco_Onia_mass[0][0]->Fill(onia_mass);
+    Reco_Onia_rap[0]->Fill(onia_rap);
+    Reco_Onia_pt[0]->Fill(onia_pt);
 
-    if(rapIntegratedPTIndex >= 0)
+    if(rapIntegratedPTIndex >= 0){
       Reco_Onia_mass[rapIntegratedPTIndex][0]->Fill(onia_mass);
-    if(rapForPTIndex > 0)
+      Reco_Onia_rap[rapIntegratedPTIndex]->Fill(onia_rap);
+    }
+    if(rapForPTIndex > 0){
       Reco_Onia_mass[0][rapForPTIndex]->Fill(onia_mass);
-
+      Reco_Onia_pt[rapForPTIndex]->Fill(onia_pt);
+    }
     //continue only if we have events within the bins we are interested in
     if(rapIndex < 0){
       // printf("rapIndex %d, rap(onia) = %f\n", rapIndex, onia_rap);
