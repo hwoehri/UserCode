@@ -2,8 +2,10 @@
 Bool_t isMuonInAcceptance(Int_t iCut, Double_t pT, Double_t eta){
 
   //inclusive tracker muons + efficiency triggers only go down to 2 GeV/c:
-  Double_t etaBorder[2][4] = {{0., 1.2, 1.6, 2.1}, {0., 1.2, 1.6, 2.1}}; //LOOSE, TIGHT cuts
-  Double_t pTBorder[2][4] = {{3.5, 3.5, 2.0, 2.0}, {3.8, 3.8, 2.0, 2.0}};
+  Double_t etaBorder[2][4] = {{0., 1.2, 1.6, 2.1}, {0., 1.2, 1.6, 2.1}}; //tracker50, tracker80
+  Double_t pTBorder[2][4] = {{3.5, 3.5, 2.5, 2.5}, {3.8, 3.8, 2.5, 2.5}};
+  // Double_t etaBorder[2][4] = {{0., 1.2, 1.6, 2.4}, {0., 1.2, 1.6, 2.1}}; //tracker50, tracker80
+  // Double_t pTBorder[2][4] = {{3.5, 3.5, 2.0, 2.0}, {3.8, 3.8, 2.0, 2.0}};
 
   // //inclusive tracker muons:
   // Double_t etaBorder[2][4] = {{0., 1.1, 1.65, 2.4}, {0., 1.2, 1.6, 2.25}}; //LOOSE, TIGHT cuts
