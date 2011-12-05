@@ -43,7 +43,8 @@ namespace onia{
 
   //phase space limiting cuts:
   Double_t rapYPS = 1.2;
-  Double_t oniaCtauMax = 1000.; //effectively no cut on lifetime
+  //Double_t oniaCtauMax = 1000.; //effectively no cut on lifetime
+  Double_t oniaCtauMax = 0.1; //effectively no cut on lifetime
   Double_t nSigMass = 1000.;
   /* Double_t nSigMass = 2.; */
   /* Double_t polMassJpsi[kNbRapForPTBins+1] = {3.094, 3.094, 3.094, 3.092, 3.092, 3.092};//[all rap, rap bin 1-5] */
