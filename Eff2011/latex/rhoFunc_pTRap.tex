@@ -1,0 +1,359 @@
+\NeedsTeXFormat{LaTeX2e}[1994/02/01]
+\documentclass[12pt]{article}
+\usepackage{graphicx,rotating,epsfig}
+\addtolength{\textheight}{2.8cm}\addtolength{\textwidth}{1.5cm}
+\addtolength{\hoffset}{-1.cm}\addtolength{\voffset}{-1.6cm} 
+\newlength{\digitwidth} \settowidth{\digitwidth}{\rm 0}
+\newcommand{\cinst}[2]{$^{\mathrm{#1)}}$~#2\par}
+\newcommand{\crefi}[1]{$^{\mathrm{#1)}}$}
+\newcommand{\HRule}{\rule{0.4\linewidth}{0.3mm}}
+\newcommand{\mlab}[1]%
+    {\mbox{}\marginpar{\raggedright\hspace{0pt}\footnotesize #1}}
+\newcommand{\pt}{$p_{\mathrm{T}}$}
+\newcommand{\mt}{$m_{\mathrm{T}}$}
+\newcommand{\DDbar}{$D\bar{D}$}
+\newcommand{\ccbar}{$c\bar{c}$}
+\newcommand{\qqbar}{$q\bar{q}$}
+\newcommand{\et}{$E_{\rm T}$}
+\newcommand{\jpsi}{J/$\psi$}
+\newcommand{\psip}{$\psi^\prime$}
+\newcommand{\cost}{$|\cos \theta|$}
+
+\newcommand{\triggername}{HLT\_DoubleMu10\_Jpsi\_Barrel}
+
+\begin{document}
+
+%%%% comparison of the 1D efficiencies: recoEff %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_recoEff_pT.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_recoEff_y.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_recoEff_phi.pdf}}
+\caption{Comparison of the MC based \jpsi\ reconstruction efficiencies: T\&P
+  versus ``MC truth''.}
+%\label{fig:}
+\end{figure}
+
+%%%% ratio of the 1D efficiencies: recoEff %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_recoEff_pT.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_recoEff_y.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_recoEff_phi.pdf}}
+\caption{Ratio ``MC truth over MC T\&P'' efficiencies for the reconstruction efficiencies.}
+%\label{fig:}
+\end{figure}
+
+%%%% comparison of the 1D efficiencies: trigEff %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_trigEff_pT.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_trigEff_y.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_trigEff_phi.pdf}}
+\caption{Comparison of the MC based \jpsi\ trigger efficiencies: T\&P
+  versus ``MC truth''.}
+%\label{fig:}
+\end{figure}
+
+%%%% ratio of the 1D efficiencies: trigEff %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_trigEff_pT.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_trigEff_y.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_trigEff_phi.pdf}}
+\caption{Ratio ``MC truth over MC T\&P'' efficiencies for the \triggername\ trigger efficiencies.}
+%\label{fig:}
+\end{figure}
+
+%%%% comparison of the 1D efficiencies: totEff %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_totEff_pT.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_totEff_y.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff1D_totEff_phi.pdf}}
+\caption{Comparison of the MC based \jpsi\ efficiencies: T\&P
+  versus ``MC truth''.}
+%\label{fig:}
+\end{figure}
+
+%%%% ratio of the 1D efficiencies: totEff %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_totEff_pT.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_totEff_y.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio_totEff_phi.pdf}}
+\caption{Ratio ``MC truth over MC T\&P'' efficiencies.}
+%\label{fig:}
+\end{figure}
+
+%%%% 2D efficiencies: RECO %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff2D_TnPMC_recoEff_rap0.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff2D_MCTruth_recoEff_rap0.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio2D_recoEff_rap0.pdf}}
+\caption{\pt\ versus $|$y$|$ differential reconstruction efficiencies
+  from MC. Top: T\&P applied to MC, Middle: MC truth; Bottom: ratio
+  MC truth over T\&P MC efficiencies.}
+%\label{fig:}
+\end{figure}
+
+%%%% 2D efficiencies: TRIGGER %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff2D_TnPMC_trigEff_rap0.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff2D_MCTruth_trigEff_rap0.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio2D_trigEff_rap0.pdf}}
+\caption{\pt\ versus $|$y$|$ differential \triggername\ trigger efficiencies
+  from MC. Top: T\&P applied to MC, Middle: MC truth; Bottom: ratio
+  MC truth over T\&P MC efficiencies.}
+%\label{fig:}
+\end{figure}
+
+%%%% 2D efficiencies: totEff %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff2D_TnPMC_totEff_rap0.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/eff2D_MCTruth_totEff_rap0.pdf}}
+\resizebox{0.65\textwidth}{!}{%
+\includegraphics*{../macros/Figures/ratio2D_totEff_rap0.pdf}}
+\caption{\pt\ versus $|$y$|$ differential efficiencies
+  from MC. Top: T\&P applied to MC, Middle: MC truth; Bottom: ratio
+  MC truth over T\&P MC efficiencies.}
+%\label{fig:}
+\end{figure}
+
+%%%% comparison of the 1D efficiencies vs pol variables %%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/trigEff_cosTheta_CS.pdf}
+\includegraphics*{../macros/Figures/trigEff_cosTheta_HX.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/trigEff_phi_CS.pdf}
+\includegraphics*{../macros/Figures/trigEff_phi_HX.pdf}}
+\caption{Comparison of the MC based \jpsi\ trigger efficiencies: T\&P
+  versus ``MC truth'' as a function of $\cos\theta_{\rm CS}$ (top) and
+  $\phi_{\rm CS}$ (bottom), integrated for $10 < p_{\rm T} <
+  25$~GeV/$c$ and  $|y| < 1.2$, for the CS (left) and HX frame (right), respectively.} 
+%\label{fig:}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/rho_trigEff_cosTheta_CS.pdf}
+\includegraphics*{../macros/Figures/rho_trigEff_cosTheta_HX.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/rho_trigEff_phi_CS.pdf}
+\includegraphics*{../macros/Figures/rho_trigEff_phi_HX.pdf}}
+\caption{Comparison of the MC based \jpsi\ trigger efficiencies: T\&P
+  versus ``MC truth'' as a function of $\cos\theta_{\rm CS}$ (top) and
+  $\phi_{\rm CS}$ (bottom), integrated for $10 < p_{\rm T} <
+  25$~GeV/$c$ and  $|y| < 1.2$, for the CS (left) and HX frame (right), respectively.}
+%\label{fig:}
+\end{figure}
+%
+%%%%% comparison of the 1D efficiencies vs pol variables 
+%%%%% pT and y differential, for CS frame
+%
+%\begin{figure}[htbp]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap1_pT5.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap1_pT6.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap1_pT7.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap1_pT8.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap1_pT5.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap1_pT6.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap1_pT7.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap1_pT8.pdf}}
+%\caption{Comparison of the MC based \jpsi\ trigger efficiencies for
+%  $0.0 < |y| < 0.5$, and in the Collins-Soper (CS) frame.}
+%%\label{fig:}
+%\end{figure}
+%\clearpage
+%
+%\begin{figure}[htbp]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap2_pT7.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap2_pT8.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap2_pT9.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap2_pT10.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap2_pT7.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap2_pT8.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap2_pT9.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap2_pT10.pdf}}
+%\caption{Comparison of the MC based \jpsi\ trigger efficiencies for
+%  $0.5 < |y| < 1.0$, and in the Collins-Soper (CS) frame.}
+%%\label{fig:}
+%\end{figure}
+%\clearpage
+%
+%\begin{figure}[htbp]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap3_pT8.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap3_pT9.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap3_pT10.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap3_pT11.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap3_pT8.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap3_pT9.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap3_pT10.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap3_pT11.pdf}}
+%\caption{Comparison of the MC based \jpsi\ trigger efficiencies for
+%  $1.0 < |y| < 1.5$, and in the Collins-Soper (CS) frame.}
+%%\label{fig:}
+%\end{figure}
+%\clearpage
+%
+%\begin{figure}[htbp]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap4_pT10.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap4_pT11.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap4_pT12.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_CS_rap4_pT13.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap4_pT10.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap4_pT11.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap4_pT12.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_CS_rap4_pT13.pdf}}
+%\caption{Comparison of the MC based \jpsi\ trigger efficiencies for
+%  $1.5 < |y| < 2.0$, and in the Collins-Soper (CS) frame.}
+%%\label{fig:}
+%\end{figure}
+%\clearpage
+%
+%%%%% comparison of the 1D efficiencies vs pol variables 
+%%%%% pT and y differential, for HX frame
+%
+%\begin{figure}[htbp]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap1_pT5.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap1_pT6.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap1_pT7.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap1_pT8.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap1_pT5.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap1_pT6.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap1_pT7.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap1_pT8.pdf}}
+%\caption{Comparison of the MC based \jpsi\ trigger efficiencies for
+%  $0.0 < |y| < 0.5$, and in the Helicity (HX) frame.}
+%%\label{fig:}
+%\end{figure}
+%\clearpage
+%
+%\begin{figure}[htbp]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap2_pT7.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap2_pT8.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap2_pT9.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap2_pT10.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap2_pT7.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap2_pT8.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap2_pT9.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap2_pT10.pdf}}
+%\caption{Comparison of the MC based \jpsi\ trigger efficiencies for
+%  $0.5 < |y| < 1.0$, and in the Helicity (HX) frame.}
+%%\label{fig:}
+%\end{figure}
+%\clearpage
+%
+%\begin{figure}[htbp]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap3_pT8.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap3_pT9.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap3_pT10.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap3_pT11.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap3_pT8.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap3_pT9.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap3_pT10.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap3_pT11.pdf}}
+%\caption{Comparison of the MC based \jpsi\ trigger efficiencies for
+%  $1.0 < |y| < 1.5$, and in the Helicity (HX) frame.}
+%%\label{fig:}
+%\end{figure}
+%\clearpage
+%
+%\begin{figure}[htbp]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap4_pT10.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap4_pT11.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap4_pT12.pdf}
+%\includegraphics*{../macros/Figures/trigEff_cosTheta_HX_rap4_pT13.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap4_pT10.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap4_pT11.pdf}}
+%\resizebox{\textwidth}{!}{%
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap4_pT12.pdf}
+%\includegraphics*{../macros/Figures/trigEff_phi_HX_rap4_pT13.pdf}}
+%\caption{Comparison of the MC based \jpsi\ trigger efficiencies for
+%  $1.5 < |y| < 2.0$, and in the Helicity (HX) frame.}
+%%\label{fig:}
+%\end{figure}
+
+
+\end{document}

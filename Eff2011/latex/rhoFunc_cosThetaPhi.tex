@@ -1,0 +1,159 @@
+\NeedsTeXFormat{LaTeX2e}[1994/02/01]
+\documentclass[12pt]{article}
+\usepackage{graphicx,rotating,epsfig}
+\addtolength{\textheight}{2.8cm}\addtolength{\textwidth}{1.5cm}
+\addtolength{\hoffset}{-1.cm}\addtolength{\voffset}{-1.6cm} 
+\newlength{\digitwidth} \settowidth{\digitwidth}{\rm 0}
+\newcommand{\cinst}[2]{$^{\mathrm{#1)}}$~#2\par}
+\newcommand{\crefi}[1]{$^{\mathrm{#1)}}$}
+\newcommand{\HRule}{\rule{0.4\linewidth}{0.3mm}}
+\newcommand{\mlab}[1]%
+    {\mbox{}\marginpar{\raggedright\hspace{0pt}\footnotesize #1}}
+\newcommand{\pt}{$p_{\mathrm{T}}$}
+\newcommand{\mt}{$m_{\mathrm{T}}$}
+\newcommand{\DDbar}{$D\bar{D}$}
+\newcommand{\ccbar}{$c\bar{c}$}
+\newcommand{\qqbar}{$q\bar{q}$}
+\newcommand{\et}{$E_{\rm T}$}
+\newcommand{\jpsi}{J/$\psi$}
+\newcommand{\psip}{$\psi^\prime$}
+\newcommand{\cost}{$|\cos \theta|$}
+%\newcommand{\filename}{trigEff_MCTP}
+%\newcommand{\descr}{``MC T\&P'' trigger efficiency}
+%\newcommand{\filename}{trigEff_MCTruth}
+%\newcommand{\descr}{``MC Truth'' trigger efficiency}
+\newcommand{\filename}{ratio_pol_trigEff}
+\newcommand{\descr}{$\rho(\cos\vartheta,\,\varphi)$ (``MC truth'' / ``MC T\&P'') of the HLT\_Dimuon10\_Jpsi\_Barrel trigger efficiency}
+%\newcommand{\descr}{$\rho(\varphi,\,\vartheta)$ (``MC truth'' / ``MC T\&P'') of the HLT\_DoubleMu0 trigger efficiency}
+%\newcommand{\filename}{ratio_pol_recoEff}
+%\newcommand{\descr}{$\rho(\varphi,\,\vartheta)$ (``MC truth'' / ``MC T\&P'') of the reconstruction efficiency}
+
+
+\begin{document}
+
+%%%%%%%%%% COLLINS - SOPER frame %%%%%%%%%%%%%%%%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_CS_rap1_pT6.pdf}
+\includegraphics*{../macros/Figures/\filename_CS_rap1_pT7.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_CS_rap1_pT8.pdf}
+\includegraphics*{../macros/Figures/\filename_CS_rap1_pT9.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_CS_rap1_pT10.pdf}
+\includegraphics*{../macros/Figures/\filename_CS_rap1_pT11.pdf}}
+\caption{\descr\ in the
+  Collins-Soper (CS) frame, for prompt \jpsi's, at mid-rapidity, $|y| <
+  0.6$.}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_CS_rap2_pT6.pdf}
+\includegraphics*{../macros/Figures/\filename_CS_rap2_pT7.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_CS_rap2_pT8.pdf}
+\includegraphics*{../macros/Figures/\filename_CS_rap2_pT9.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_CS_rap2_pT10.pdf}
+\includegraphics*{../macros/Figures/\filename_CS_rap2_pT11.pdf}}
+\caption{\descr\ in the
+  Collins-Soper (CS) frame, for prompt \jpsi's with $0.6 < |y| < 1.2$.}
+%\label{fig:}
+\end{figure}
+
+%
+%%%%%%%%%%% HELICITY frame %%%%%%%%%%%%%%%%
+%
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_HX_rap1_pT6.pdf}
+\includegraphics*{../macros/Figures/\filename_HX_rap1_pT7.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_HX_rap1_pT8.pdf}
+\includegraphics*{../macros/Figures/\filename_HX_rap1_pT9.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_HX_rap1_pT10.pdf}
+\includegraphics*{../macros/Figures/\filename_HX_rap1_pT11.pdf}}
+\caption{\descr\ in the
+  Helicity (HX) frame, for prompt \jpsi's, at mid-rapidity, $|y| <
+  0.6$.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_HX_rap2_pT6.pdf}
+\includegraphics*{../macros/Figures/\filename_HX_rap2_pT7.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_HX_rap2_pT8.pdf}
+\includegraphics*{../macros/Figures/\filename_HX_rap2_pT9.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_HX_rap2_pT10.pdf}
+\includegraphics*{../macros/Figures/\filename_HX_rap2_pT11.pdf}}
+\caption{\descr\ in the
+  Helicity (HX) frame, for prompt \jpsi's with $0.6 < |y| <
+  1.2$.}
+\end{figure}
+
+%
+%%%%%%%%%%% PERPENDICULAR HELICITY frame %%%%%
+%
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_PHX_rap1_pT6.pdf}
+\includegraphics*{../macros/Figures/\filename_PHX_rap1_pT7.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_PHX_rap1_pT8.pdf}
+\includegraphics*{../macros/Figures/\filename_PHX_rap1_pT9.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_PHX_rap1_pT10.pdf}
+\includegraphics*{../macros/Figures/\filename_PHX_rap1_pT11.pdf}}
+\caption{\descr\ in the
+ perpendicular Helicity (PHX) frame, for prompt \jpsi's, at mid-rapidity, $|y| <
+  0.6$.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_PHX_rap2_pT6.pdf}
+\includegraphics*{../macros/Figures/\filename_PHX_rap2_pT7.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_PHX_rap2_pT8.pdf}
+\includegraphics*{../macros/Figures/\filename_PHX_rap2_pT9.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_PHX_rap2_pT10.pdf}
+\includegraphics*{../macros/Figures/\filename_PHX_rap2_pT11.pdf}}
+\caption{\descr\ in the
+  perpendicular Helicity (PHX) frame, for prompt \jpsi's with $0.6 < |y| <
+  1.2$.}
+\end{figure}
+
+\clearpage
+
+%
+%%%%%%%%%%% last bin all frames %%%%%
+%
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_CS_rap1_pT12.pdf}
+\includegraphics*{../macros/Figures/\filename_CS_rap2_pT12.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_HX_rap1_pT12.pdf}
+\includegraphics*{../macros/Figures/\filename_HX_rap2_pT12.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_PHX_rap1_pT12.pdf}
+\includegraphics*{../macros/Figures/\filename_PHX_rap2_pT12.pdf}}
+\caption{\descr\ in the CS (top), HX (middle) and PHX frame, for prompt \jpsi's at high \pt\ with $|y| < 0.6$ (left) and $0.6 < |y| < 1.2$ (right).}
+\end{figure}
+
+\end{document}
