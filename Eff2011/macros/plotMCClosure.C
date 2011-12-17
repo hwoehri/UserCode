@@ -9,13 +9,18 @@ enum {GEN, GEN_ACC, GEN_ACC_RECO, GEN_ACC_RECO_TRIG, EFFCORR, EFFCORR_RECO};
 TH1D *hCosTheta[eff::kNbFrames][eff::kNbRapForPTBins+1][eff::kNbPTMaxBins+1][kNbSteps];
 TH1D *hPhi[eff::kNbFrames][eff::kNbRapForPTBins+1][eff::kNbPTMaxBins+1][kNbSteps];
 TH1D *hCosTheta_Ratio[eff::kNbFrames][eff::kNbRapForPTBins+1][eff::kNbPTMaxBins+1][kNbSteps];
+TH1D *hPhi_Ratio[eff::kNbFrames][eff::kNbRapForPTBins+1][eff::kNbPTMaxBins+1][kNbSteps];
 
 void LoadHistos(Char_t *fileNameIn);
 void BuildRatio(Int_t iNumerator, Int_t iDenom);
 void PlotHistos();
 void PlotRatioHistos(Int_t iFrame, Int_t iRapBin, Int_t iPTBin, Int_t iNumerator, Int_t iDenom);
 //===============================================
-void plotMCClosure(Char_t *fileNameIn = "MCClosure_HLTDimuon10JpsiBarrel_14Dec2011_SingleMuEff_noDimuVtxEffCorrection.root"){
+void plotMCClosure(Char_t *fileNameIn = "MCClosure_HLTDimuon10JpsiBarrel_16Dec2011_ProdSingleMuEff_woRhoFactor.root"){
+  //Char_t *fileNameIn = "MCClosure_HLTDimuon10JpsiBarrel_16Dec2011_ProdSingleMuEff_withRhoFactor.root"){
+  //Char_t *fileNameIn = "MCClosure_HLTDimuon10JpsiBarrel_15Dec2011_ProdSingleMuEff_withRhoFactor.root"){
+  //Char_t *fileNameIn = "MCClosure_HLTDimuon10JpsiBarrel_14Dec2011_ProdSingleMuEff_noDimuVtxEffCorrection.root"){
+  //Char_t *fileNameIn = "MCClosure_HLTDimuon10JpsiBarrel_14Dec2011_SingleMuEff_noDimuVtxEffCorrection.root"){
   //Char_t *fileNameIn = "MCClosure_HLTDimuon10JpsiBarrel_14Dec2011_ProdSingleMuEff_fitted.root"){
   //Char_t *fileNameIn = "MCClosure_HLTDimuon10JpsiBarrel_14Dec2011_SingleMuEff.root"){
   //Char_t *fileNameIn = "MCClosure_HLTDimuon10JpsiBarrel_14Dec2011_ProdSingleMuEff.root"){
@@ -56,7 +61,8 @@ void PlotRatioHistos(Int_t iFrame, Int_t iRapBin, Int_t iPTBin, Int_t iNumerator
   TH1F *hFrame1 = gPad->DrawFrame(-1., 0.8, 1., 1.2);
   hFrame1->SetXTitle(hCosTheta[iFrame][iRapBin][iPTBin][iNumerator]->GetXaxis()->GetTitle());
   hFrame1->SetYTitle("1/#varepsilon #upoint (RECO + TRIG) / GEN");
-  hCosTheta_Ratio[iFrame][iRapBin][iPTBin][iNumerator]->Draw("e same");
+  hCosTheta_Ratio[iFrame][iRapBin][iPTBin][iNumerator]->SetMarkerStyle(20);
+  hCosTheta_Ratio[iFrame][iRapBin][iPTBin][iNumerator]->Draw("p same");
 
   sprintf(name, "%1.1f < |y| < %1.2f, %1.1f < p_{T} < %1.1f GeV/c", 
 	  eff::rapForPTRange[iRapBin-1], eff::rapForPTRange[iRapBin],
@@ -74,6 +80,37 @@ void PlotRatioHistos(Int_t iFrame, Int_t iRapBin, Int_t iPTBin, Int_t iNumerator
     sprintf(name, "Figures/MCClosure_smearing_cosTheta_%s_rap%d_pT%d.pdf", eff::frameLabel[iFrame], iRapBin, iPTBin);
   c1->Print(name);
 
+
+
+  //phi distribution
+  sprintf(name, "hPhi_Ratio_%d_rap%d_pT%d_%s_%s", iFrame, iRapBin, iPTBin, stepName[iNumerator], stepName[iDenom]);
+  hPhi_Ratio[iFrame][iRapBin][iPTBin][iNumerator] = (TH1D *) hPhi[iFrame][iRapBin][iPTBin][iNumerator]->Clone(name);
+  hPhi_Ratio[iFrame][iRapBin][iPTBin][iNumerator]->Sumw2();
+  hPhi_Ratio[iFrame][iRapBin][iPTBin][iNumerator]->Divide(hPhi[iFrame][iRapBin][iPTBin][iDenom]);
+
+  sprintf(name, "c_Phi_Ratio_%d_rap%d_pT%d_%s_%s", iFrame, iRapBin, iPTBin, stepName[iNumerator], stepName[iDenom]);
+  TCanvas *c2 = new TCanvas(name);
+  TH1F *hFrame2 = gPad->DrawFrame(-180., 0.8, 180., 1.2);
+  hFrame2->SetXTitle(hPhi[iFrame][iRapBin][iPTBin][iNumerator]->GetXaxis()->GetTitle());
+  hFrame2->SetYTitle("1/#varepsilon #upoint (RECO + TRIG) / GEN");
+  hPhi_Ratio[iFrame][iRapBin][iPTBin][iNumerator]->SetMarkerStyle(20);
+  hPhi_Ratio[iFrame][iRapBin][iPTBin][iNumerator]->Draw("p same");
+
+  sprintf(name, "%1.1f < |y| < %1.2f, %1.1f < p_{T} < %1.1f GeV/c", 
+	  eff::rapForPTRange[iRapBin-1], eff::rapForPTRange[iRapBin],
+	  eff::pTRange[iRapBin][iPTBin-1], eff::pTRange[iRapBin][iPTBin]);
+  TLatex *tex2 = new TLatex(-170., 1.15, name);
+  tex2->SetTextSize(0.04);
+  tex2->Draw();
+
+  TLine *line2 = new TLine(-180., 1., 180., 1.);
+  line2->SetLineStyle(3); line2->Draw();
+
+  if(iNumerator == EFFCORR)
+    sprintf(name, "Figures/MCClosure_phi_%s_rap%d_pT%d.pdf", eff::frameLabel[iFrame], iRapBin, iPTBin);
+  else if(iNumerator == EFFCORR_RECO)
+    sprintf(name, "Figures/MCClosure_smearing_phi_%s_rap%d_pT%d.pdf", eff::frameLabel[iFrame], iRapBin, iPTBin);
+  c2->Print(name);
 }
 
 //===============================================

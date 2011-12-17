@@ -4,6 +4,7 @@
 
 void LoadEfficiencies(Int_t iEff, Int_t iEffSample, Bool_t load2DGraph);
 void LoadDimuEfficiency(Int_t iEffSample);
+void LoadRhoFactor();
 void FillHistoFrom2DGraph(Int_t iEff, Int_t iEffSample);
 void ReadInFunction(Int_t iEff, Int_t iEffSample);
 void BookHistos();
@@ -12,6 +13,7 @@ void WriteHistos();
 void runMCClosure(Char_t *fileNameOut = "MCClosure_HLTDimuon10JpsiBarrel_13Dec2011.root",
 		  Int_t effSample = MC, //DATA, MC, MCTRUTH
 		  Bool_t rejectCowboys = kTRUE,
+		  Bool_t useRhoFactor = kTRUE,
 		  Bool_t useFit = kFALSE,
 		  Bool_t use2DGraph = kFALSE,
 		  Char_t *trigLabel = "HLT_Dimuon10_Jpsi_Barrel_v3", 
@@ -37,15 +39,35 @@ void runMCClosure(Char_t *fileNameOut = "MCClosure_HLTDimuon10JpsiBarrel_13Dec20
       ReadInFunction(iEff, effSample);
   }
   LoadDimuEfficiency(effSample);
+  LoadRhoFactor();
   printf("efficiencies loaded\n");
 
   BookHistos();
 
-  tree.Loop(effSample, trigLabel, rejectCowboys, use2DGraph);
+  tree.Loop(effSample, trigLabel, rejectCowboys, useRhoFactor, use2DGraph);
 
   fOut->cd();
   WriteHistos();
   fOut->Close();
+}
+
+//==============================================================
+void LoadRhoFactor(){
+
+  TFile *fIn = new TFile(rhoFFileName);
+  Char_t name[100];
+  for(int iEff = 0; iEff < 3; iEff++){
+    for(int iFrame = 0; iFrame < kNbMaxFrame; iFrame++){
+      for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+  	for(int iPTBin = 6; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+	  sprintf(name, "hRho_pol_%sEff_%s_rap%d_pT%d", effTypeName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
+	  hRho_pol[iEff][iFrame][iRapBin][iPTBin] = (TH2D *) gDirectory->Get(name);
+	  // printf("%s eff: %s, rap %d, pT %d ==> rho factor histo loaded %p\n", 
+	  // 	 effTypeName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin, hRho_pol[iEff][iFrame][iRapBin][iPTBin]);
+	}
+      }
+    }
+  }
 }
 
 //==============================================================

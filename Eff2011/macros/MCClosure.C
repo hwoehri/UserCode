@@ -11,6 +11,15 @@
 #include "TEfficiency.h"
 #include "TGraph2D.h"
 
+//load the rho factor
+Char_t *effTypeName[3] = {"reco", "trig", "tot"};
+enum {RHO_RECO, RHO_TRIG, RHO_TOT};
+//Char_t *rhoFFileName = "rhoFactor_SingleMuEff_noDimuVtxEffCorr_noJpsiVprobCut_15Dec2011.root";
+//Char_t *rhoFFileName = "rhoFactor_ProdSingleMuEff_noDimuVtxEffCorr_noJpsiVprobCut_15Dec2011.root";
+Char_t *rhoFFileName = "rhoFactor_ProdSingleMuEff_16Dec2011.root";
+Int_t const kNbMaxFrame = 3;
+TH2D *hRho_pol[3][kNbMaxFrame][eff::kNbRapForPTBins+1][eff::kNbPTMaxBins+1];
+
 //switch here between a total single muon efficiency:
 Char_t *dimuEffName = "DimuVertexEff";
 Char_t *dimuEffFileName = "/Users/hwoehri/CMS/Work/TnP/2011/Linlin/1Dec2011/DimuonVtxEff_Dimuon0Jpsi_cosTheta_Phi_TrkCuts80_CS_01Dec2011.root";
@@ -19,14 +28,14 @@ enum {SingleMuEff};
 Bool_t useIndivEff = kFALSE;
 Int_t const kNbEff = 1;
 Char_t *effName[kNbEff] = {"SingleMuEff"};
-//Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/8Dec2011/EfficiencyProductDimuon0Jpsi_MuonID-MC_MuonQualRunA_L1L2L3Run1_Trk80Cuts_19Nov2011.root"};
-Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Linlin/7Dec2011/singleMuonEfficiency_ProbeTrackMatched_data_mc_pt_abseta_tracker80Cuts_7Dec2011.root"};//SingleMuEff a la Matt
+Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/8Dec2011/EfficiencyProductDimuon0Jpsi_MuonID-MC_MuonQualRunA_L1L2L3Run1_Trk80Cuts_19Nov2011.root"};
+//Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Linlin/7Dec2011/singleMuonEfficiency_ProbeTrackMatched_data_mc_pt_abseta_tracker80Cuts_7Dec2011.root"};//SingleMuEff a la Matt
 //Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Linlin/2Dec2011/SingleMuEff_Dimuon10Jpsi_ProbeTrackMatched_data_mc_pt_abseta_tracker80Cuts_02Dec2011.root"};//SingleMuEff a la Matt (L1*L2*L3 trigger eff only)
 //Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/7Dec2011/EfficiencyProductDimuon0Jpsi_MuonID-MC_MuonQualRunA_L1L2L3Run1_Trk80Cuts_19Nov2011.root"};
 //Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/23Nov2011/EfficiencyProductDimuon0Jpsi_MuonID-MC_MuonQualRunA_L1L2L3Run1_Trk80Cuts_19Nov2011.root"};
 
-//Char_t *effFileName_Func[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/14Dec2011/fitProd_Trk80Cuts_14Dec2011.root"};
-Char_t *effFileName_Func[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/14Dec2011/fitOne_Trk80Cuts_14Dec2011.root"};
+Char_t *effFileName_Func[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/14Dec2011/fitProd_Trk80Cuts_14Dec2011.root"};
+//Char_t *effFileName_Func[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/14Dec2011/fitOne_Trk80Cuts_14Dec2011.root"};
 
 
 //... or by using the inividual single muon efficiencies
@@ -83,8 +92,9 @@ Double_t GetDimuEfficiency(Int_t iEffSample, Double_t cosTheta, Double_t phi);
 Double_t GetEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt, Bool_t use2DGraph = kFALSE);
 Double_t GetEfficiency_FromParametrization(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt);
 Double_t GetTotSingleMuEff(Bool_t usePTFit, Bool_t use2DGraph, Int_t effSample, Double_t etaMuPos, Double_t pTMuPos, Double_t etaMuNeg, Double_t pTMuNeg, Char_t *trigLabel);
+Double_t GetRhoFactor(Int_t index, Int_t iFrame, Double_t cosTheta, Double_t phi, Int_t iRap, Int_t iPT);
 //==============================================
-void MCClosure::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, Bool_t use2DGraph)
+void MCClosure::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, Bool_t useRhoFactor, Bool_t use2DGraph)
 {
   if (fChain == 0) return;
 
@@ -182,7 +192,6 @@ void MCClosure::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, B
     if(!(isMuonInAcceptance(TIGHT, pTMuPos_Gen, etaMuPos_Gen) && isMuonInAcceptance(TIGHT, pTMuNeg_Gen, etaMuNeg_Gen)))
       continue;
     if(pTMuPos_Gen < 2.5 || pTMuNeg_Gen < 2.5)
-      //if(pTMuPos_Gen < 4.5 || pTMuNeg_Gen < 4.5)
       continue;
     if(fabs(etaMuPos_Gen) > 1.6 || fabs(etaMuNeg_Gen) > 1.6)
       continue;
@@ -192,7 +201,6 @@ void MCClosure::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, B
       hCosTheta[iFrame][rapForPTIndex_Gen][pTIndex_Gen][GEN_ACC]->Fill(thisCosTh[iFrame]);
       hPhi[iFrame][rapForPTIndex_Gen][pTIndex_Gen][GEN_ACC]->Fill(thisPhi[iFrame]);
     }
-
 
     //===============================
     //set up the trigger logic:
@@ -210,13 +218,11 @@ void MCClosure::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, B
     
     if(onia->Pt() < 990. && 
        fabs(onia->Rapidity()) < eff::rapMax && 
-       // JpsiVprob > 0.01 &&
+       JpsiVprob > 0.01 &&
        isMuonInAcceptance(TIGHT, muPos->Pt(), muPos->Eta()) &&
        isMuonInAcceptance(TIGHT, muNeg->Pt(), muNeg->Eta()) &&
        muPos->Pt() > 2.5 &&
        muNeg->Pt() > 2.5 &&
-       // muPos->Pt() > 4.5 &&
-       // muNeg->Pt() > 4.5 &&
        fabs(muPos->Eta()) < 1.6 &&
        fabs(muNeg->Eta()) < 1.6){
       
@@ -243,27 +249,68 @@ void MCClosure::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, B
     //Bool_t usePTFit = kTRUE; //alternative to the T&P histograms use fitted pT differential efficiency
     Bool_t usePTFit = kFALSE; //alternative to the T&P histograms use fitted pT differential efficiency
     Double_t totEff = GetTotSingleMuEff(usePTFit, use2DGraph, effSample, etaMuPos_Gen, pTMuPos_Gen, etaMuNeg_Gen, pTMuNeg_Gen, trigLabel);
-    totEff *= GetDimuEfficiency(effSample, thisCosTh[eff::CS], thisPhi[eff::CS]);
-    hPTRap[EFFCORR]->Fill(fabs(onia_Gen_rap), onia_Gen_pt, 1./totEff);
-    for(int iFrame = 0; iFrame < eff::kNbFrames; iFrame++){
-      hCosTheta[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR]->Fill(thisCosTh[iFrame], 1./totEff);
-      hPhi[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR]->Fill(thisPhi[iFrame], 1./totEff);
-    }
+    //totEff *= GetDimuEfficiency(effSample, thisCosTh[eff::CS], thisPhi[eff::CS]);
 
+    if(useRhoFactor && pTIndex_Gen > 5){
+      Double_t rho[eff::kNbFrames];
+      for(int iFrame = 0; iFrame < kNbMaxFrame; iFrame++){
+	rho[iFrame] = GetRhoFactor(RHO_TOT, iFrame, thisCosTh[iFrame], thisPhi[iFrame], rapForPTIndex_Gen, pTIndex_Gen);
+
+	if(rho[iFrame] > 1e-5){
+	  hCosTheta[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR]->Fill(thisCosTh[iFrame], 1./(totEff*rho[iFrame]));
+	  hPhi[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR]->Fill(thisPhi[iFrame], 1./(totEff*rho[iFrame]));
+	}
+	else{
+	  hCosTheta[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR]->Fill(thisCosTh[iFrame], 1./(totEff*1e-5));
+	  hPhi[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR]->Fill(thisPhi[iFrame], 1./(totEff*1e-5));
+	}
+      }
+      if(rho[eff::CS] > 1e-5)
+	hPTRap[EFFCORR]->Fill(fabs(onia_Gen_rap), onia_Gen_pt, 1./(totEff*rho[eff::CS]));
+      else
+	hPTRap[EFFCORR]->Fill(fabs(onia_Gen_rap), onia_Gen_pt, 1./(totEff*1e-5));
+    }
+    else{
+      hPTRap[EFFCORR]->Fill(fabs(onia_Gen_rap), onia_Gen_pt, 1./totEff);
+      for(int iFrame = 0; iFrame < kNbMaxFrame; iFrame++){
+	hCosTheta[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR]->Fill(thisCosTh[iFrame], 1./totEff);
+	hPhi[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR]->Fill(thisPhi[iFrame], 1./totEff);
+      }
+    }
     //calculate the efficiencies using the RECO variables:
     totEff = GetTotSingleMuEff(usePTFit, use2DGraph, effSample, muPos->Eta(), muPos->Pt(), muNeg->Eta(), muNeg->Pt(), trigLabel);
     calcPol(*muPos, *muNeg);
-    totEff *= GetDimuEfficiency(effSample, thisCosTh[eff::CS], thisPhi[eff::CS]);
+    //totEff *= GetDimuEfficiency(effSample, thisCosTh[eff::CS], thisPhi[eff::CS]);
+    if(useRhoFactor && pTIndex_Gen > 5){
+      Double_t rho[eff::kNbFrames];
+      for(int iFrame = 0; iFrame < kNbMaxFrame; iFrame++){
+	rho[iFrame] = GetRhoFactor(RHO_TOT, iFrame, thisCosTh[iFrame], thisPhi[iFrame], rapForPTIndex_Gen, pTIndex_Gen);
 
-    hPTRap[EFFCORR_RECO]->Fill(fabs(onia->Rapidity()), onia->Pt(), 1./totEff);
-    for(int iFrame = 0; iFrame < eff::kNbFrames; iFrame++){
-      hCosTheta[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR_RECO]->Fill(thisCosTh[iFrame], 1./totEff);
-      hPhi[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR_RECO]->Fill(thisPhi[iFrame], 1./totEff);
+	if(rho[iFrame] > 1e-5){
+	  hCosTheta[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR_RECO]->Fill(thisCosTh[iFrame], 1./(totEff*rho[iFrame]));
+	  hPhi[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR_RECO]->Fill(thisPhi[iFrame], 1./(totEff*rho[iFrame]));
+	}
+	else{
+	  hCosTheta[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR_RECO]->Fill(thisCosTh[iFrame], 1./(totEff*1e-5));
+	  hPhi[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR_RECO]->Fill(thisPhi[iFrame], 1./(totEff*1e-5));
+	}
+      }
+      if(rho[eff::CS] > 1e-5)
+	hPTRap[EFFCORR_RECO]->Fill(fabs(onia_Gen_rap), onia_Gen_pt, 1./(totEff*rho[eff::CS]));
+      else
+	hPTRap[EFFCORR_RECO]->Fill(fabs(onia_Gen_rap), onia_Gen_pt, 1./(totEff*1e-5));
+    }
+    else{
+      hPTRap[EFFCORR_RECO]->Fill(fabs(onia_Gen_rap), onia_Gen_pt, 1./totEff);
+      for(int iFrame = 0; iFrame < kNbMaxFrame; iFrame++){
+	hCosTheta[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR_RECO]->Fill(thisCosTh[iFrame], 1./totEff);
+	hPhi[iFrame][rapForPTIndex_Gen][pTIndex_Gen][EFFCORR_RECO]->Fill(thisPhi[iFrame], 1./totEff);
+      }
     }
   }//loop over entries
 
   printf("nb. of rec. events is %d of a total of %d events\n", (Int_t) countRecEvent, (Int_t) nentries);
-  }
+}
 
 //==============================================================
 Double_t GetEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt, Bool_t use2DGraph){
@@ -430,4 +477,20 @@ Double_t GetTotSingleMuEff(Bool_t usePTFit, Bool_t use2DGraph,
   }
 
   return totEff;
+}
+
+//=======================================
+Double_t GetRhoFactor(Int_t index, Int_t iFrame, Double_t cosTheta, Double_t phi, Int_t iRap, Int_t iPT){
+
+  // printf("index %d, frame %d, cosTheta %1.3f, phi %1.3f, rap %d, pT %d\n",
+  // 	 index, iFrame, cosTheta, phi, iRap, iPT);
+
+  if(fabs(cosTheta) > 1.) return 0.;
+  if(phi < -180. || phi > 180.) return 0.;
+
+  Int_t binX = hRho_pol[index][iFrame][iRap][iPT]->GetXaxis()->FindBin(cosTheta);
+  Int_t binY = hRho_pol[index][iFrame][iRap][iPT]->GetYaxis()->FindBin(phi);
+  Double_t rho = hRho_pol[index][iFrame][iRap][iPT]->GetBinContent(binX, binY);
+
+  return rho;
 }

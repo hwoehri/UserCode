@@ -115,7 +115,7 @@ void MCTruthEff::Loop(Char_t *trigLabel, Bool_t rejectCowboys)
       continue;
     if(pTMuPos_Gen < 2.5 || pTMuNeg_Gen < 2.5)
       continue;
-    if(fabs(etaMuPos_Gen) > 1.6 || fabs(etaMuPos_Gen) > 1.6)
+    if(fabs(etaMuPos_Gen) > 1.6 || fabs(etaMuNeg_Gen) > 1.6)
       continue;
 
     Double_t onia_Gen_mass = onia_Gen->M();
@@ -171,6 +171,10 @@ void MCTruthEff::Loop(Char_t *trigLabel, Bool_t rejectCowboys)
       continue;
     }
 
+    if(rapForPTIndex_Gen == 1 && (fabs(etaMuPos_Gen) > 0.8 || fabs(etaMuNeg_Gen) > 0.8))
+      continue; //fiducial cut for rap bin 1
+
+
     //==============================
     calcPol(*muPos_Gen, *muNeg_Gen);
     //==============================
@@ -190,9 +194,28 @@ void MCTruthEff::Loop(Char_t *trigLabel, Bool_t rejectCowboys)
     }
 
     Bool_t recoPassed = kFALSE, totPassed = kFALSE;
-    if(onia->Pt() < 990. && fabs(onia->Rapidity()) < eff::rapMax && JpsiVprob > 0.01) recoPassed = kTRUE;
-    if(onia->Pt() < 990. && fabs(onia->Rapidity()) < eff::rapMax && JpsiVprob > 0.01 && trigValue == 1) totPassed = kTRUE;
-    
+    if(onia->Pt() < 990. && 
+       fabs(onia->Rapidity()) < eff::rapMax && 
+       JpsiVprob > 0.01 &&
+       isMuonInAcceptance(TIGHT, muPos->Pt(), muPos->Eta()) &&
+       isMuonInAcceptance(TIGHT, muNeg->Pt(), muNeg->Eta()) &&
+       muPos->Pt() > 2.5 &&
+       muNeg->Pt() > 2.5 &&
+       fabs(muPos->Eta()) < 1.6 &&
+       fabs(muNeg->Eta()) < 1.6){
+      recoPassed = kTRUE;
+      if(trigValue == 1)
+	totPassed = kTRUE;
+    }
+
+    // if(fabs(onia->Rapidity()) < 0.6 && (fabs(muPos->Eta()) > 0.8 || fabs(muNeg->Eta()) > 0.8))
+    //   continue; //fiducial cut for rap bin 1
+
+    //    if(onia->Pt() < 990. && fabs(onia->Rapidity()) < eff::rapMax && JpsiVprob > 0.01 && trigValue == 1) totPassed = kTRUE;
+
+    // printf("onia pT=%1.3f, y=%1.3f, muPos pT=%1.3f, y=%1.3f, muNeg pT=%1.3f, y=%1.3f; recoPassed=%d, trigValue=%d, totPassed=%d\n",
+    // 	   onia_Gen_pt, fabs(onia_Gen_rap), pTMuPos_Gen, etaMuPos_Gen, pTMuNeg_Gen, etaMuNeg_Gen, recoPassed, trigValue, totPassed);
+
     recoEff_pT->Fill(recoPassed, onia_Gen_pt);
     recoEff2D_pT_rapNP->Fill(recoPassed, onia_Gen_rap, onia_Gen_pt);
     recoEff2D_pT_rap->Fill(recoPassed, fabs(onia_Gen_rap), onia_Gen_pt);
@@ -201,11 +224,12 @@ void MCTruthEff::Loop(Char_t *trigLabel, Bool_t rejectCowboys)
     totEff2D_pT_rapNP->Fill(totPassed, onia_Gen_rap, onia_Gen_pt);
     totEff2D_pT_rap->Fill(totPassed, fabs(onia_Gen_rap), onia_Gen_pt);
 
-    if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -1.2 && onia_Gen_rap < 1.2){
-	recoEff_y->Fill(recoPassed, onia_Gen_rap);
-	recoEff_phi->Fill(recoPassed, onia_Gen_phi);
-	totEff_y->Fill(totPassed, onia_Gen_rap);
-	totEff_phi->Fill(totPassed, onia_Gen_phi);
+    // if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -1.2 && onia_Gen_rap < 1.2){
+    if(onia_Gen_pt > 10.){
+      recoEff_y->Fill(recoPassed, onia_Gen_rap);
+      recoEff_phi->Fill(recoPassed, onia_Gen_phi);
+      totEff_y->Fill(totPassed, onia_Gen_rap);
+      totEff_phi->Fill(totPassed, onia_Gen_phi);
     }
 
     //fill the eff. histos for all the different frames
@@ -213,8 +237,8 @@ void MCTruthEff::Loop(Char_t *trigLabel, Bool_t rejectCowboys)
 
       //fill some of the histos for the rho factor in the
       //phase space of the real data only
-      if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -1.2 && onia_Gen_rap < 1.2){
-
+      //if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -1.2 && onia_Gen_rap < 1.2){
+      if(onia_Gen_pt > 10.){
       	recoEff_cosTheta[iFrame]->Fill(recoPassed, thisCosTh[iFrame]);
       	recoEff_phiPol[iFrame]->Fill(recoPassed, thisPhi[iFrame]);
       	recoEff2D_cosTheta_phiPol[iFrame]->Fill(recoPassed, thisCosTh[iFrame], thisPhi[iFrame]);
@@ -233,14 +257,13 @@ void MCTruthEff::Loop(Char_t *trigLabel, Bool_t rejectCowboys)
       //histos for neg. and pos. rapidity separately:
       if(rapIndex_Gen >= 0){
 	  recoEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(recoPassed, thisCosTh[iFrame], thisPhi[iFrame]);
-	  totEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(recoPassed, thisCosTh[iFrame], thisPhi[iFrame]);
+	  totEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(totPassed, thisCosTh[iFrame], thisPhi[iFrame]);
       }
       if(pTIndex_Gen > 0 && rapIndex_Gen >= 0){
 	recoEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(recoPassed, thisCosTh[iFrame], thisPhi[iFrame]);
-	totEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(recoPassed, thisCosTh[iFrame], thisPhi[iFrame]);
+	totEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(totPassed, thisCosTh[iFrame], thisPhi[iFrame]);
       }
 
-	
       //histos taking together +y and -y
       recoEff2D_pol_pT_rap[iFrame][0][0]->Fill(recoPassed, thisCosTh[iFrame], thisPhi[iFrame]);
       totEff2D_pol_pT_rap[iFrame][0][0]->Fill(totPassed, thisCosTh[iFrame], thisPhi[iFrame]);
@@ -395,10 +418,13 @@ void MCTruthEff::Loop(Char_t *trigLabel, Bool_t rejectCowboys)
     Double_t etaMuNeg = muNeg->PseudoRapidity();
     Double_t pTMuPos = muPos->Pt();
     Double_t pTMuNeg = muNeg->Pt();
-    Double_t pMuPos = muPos->P();
-    Double_t pMuNeg = muNeg->P();
 
-    if(!(isMuonInAcceptance(LOOSE, pTMuPos, etaMuPos) && isMuonInAcceptance(LOOSE, pTMuNeg, etaMuNeg)))
+    if(!(isMuonInAcceptance(TIGHT, pTMuPos, etaMuPos) && isMuonInAcceptance(TIGHT, pTMuNeg, etaMuNeg)))
+    // if(!(isMuonInAcceptance(LOOSE, pTMuPos, etaMuPos) && isMuonInAcceptance(LOOSE, pTMuNeg, etaMuNeg)))
+      continue;
+    if(pTMuPos < 2.5 || pTMuNeg < 2.5)
+      continue;
+    if(fabs(etaMuPos) > 1.6 || fabs(etaMuNeg) > 1.6)
       continue;
 
     if(fabs(onia->Rapidity()) > eff::rapMax) 
@@ -415,11 +441,14 @@ void MCTruthEff::Loop(Char_t *trigLabel, Bool_t rejectCowboys)
     Bool_t trigPassed = kFALSE;
     if(trigValue == 1) trigPassed = kTRUE;
 
+    // printf("trigPassed=%d\n", trigValue);
+
     trigEff_pT->Fill(trigPassed, onia_pt);
     trigEff2D_pT_rapNP->Fill(trigPassed, onia_rap, onia_pt);
     trigEff2D_pT_rap->Fill(trigPassed, fabs(onia_rap), onia_pt);
 
-    if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -1.2 && onia_Gen_rap < 1.2){
+    //if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -1.2 && onia_Gen_rap < 1.2){
+    if(onia_Gen_pt > 10.){
       trigEff_y->Fill(trigPassed, onia_rap);
       trigEff_phi->Fill(trigPassed, onia_phi);
     }
@@ -466,12 +495,16 @@ void MCTruthEff::Loop(Char_t *trigLabel, Bool_t rejectCowboys)
       continue;
     }
 
+    if(rapForPTIndex == 1 && (fabs(etaMuPos) > 0.8 || fabs(etaMuNeg) > 0.8))
+      continue; //fiducial cut for rap bin 1
+
     //fill the eff. histos for all the different frames
     for(int iFrame = 0; iFrame < eff::kNbFrames; iFrame++){
 
       //fill some of the histos for the rho factor in the
       //phase space of the real data only
-      if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -1.2 && onia_Gen_rap < 1.2){
+      if(onia_Gen_pt > 10.){
+	//if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -1.2 && onia_Gen_rap < 1.2){
 
       	trigEff_cosTheta[iFrame]->Fill(trigPassed, thisCosTh[iFrame]);
       	trigEff_phiPol[iFrame]->Fill(trigPassed, thisPhi[iFrame]);
