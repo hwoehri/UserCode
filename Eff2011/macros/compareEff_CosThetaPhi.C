@@ -2,14 +2,18 @@
 #include "../interface/commonVar.h"
 #include "TEfficiency.h"
 
-Char_t const *trigName = "HLT_DoubleMu10_Jpsi_Barrel";
+//Char_t const *trigName = "HLT_DoubleMu10_Jpsi_Barrel";
+Char_t const *trigName = "HLT_DoubleMu5_Upsilon_Barrel";
 Int_t const kNbMaxFrame = 3;
-Int_t const kNbEff = 3;
-enum {RECO,TRIG,TOT};
-Char_t *effName[kNbEff] = {"reco", "trig", "tot"};
+// Int_t const kNbEff = 3;
+// enum {RECO,TRIG,TOT};
+// Char_t *effName[kNbEff] = {"reco", "trig", "tot"};
 // Int_t const kNbEff = 1;
 // enum {TRIG};
 // Char_t *effName[kNbEff] = {"trig"};
+Int_t const kNbEff = 1;
+enum {TOT};
+Char_t *effName[kNbEff] = {"tot"};
 
 Int_t const kNbVar = 3;
 Char_t *varName[kNbVar] = {"pT", "y", "phi"};
@@ -97,8 +101,41 @@ void PlotRatio_DeltaPhiM2(Int_t iEff, Int_t iRapBin, Int_t iPTBin);
 void PlotRatio_DeltaEtaM2(Int_t iEff, Int_t iRapBin, Int_t iPTBin);
 void PlotRatio_DistM2(Int_t iEff, Int_t iRapBin, Int_t iPTBin);
 //=======================
-void compareEff_CosThetaPhi(Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon10JpsiBarrel_16Dec2011.root",
-			    Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_16Dec2011_ProdSingleMuEff.root"){
+//WARNING: when changing from J/psi to Upsilon, adjust pTBinMin and pTBinMax!
+void compareEff_CosThetaPhi(Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_13March2012_newPTBins.root",
+			    Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_13March2012_MCTruthEff_FineBins200MeV_newPTBins.root"){
+			    // Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_23Jan2012.root", 
+			    // Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_7Feb2012_ProdSingleMuEff.root"){
+			    // Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_23Jan2012.root", 
+			    // Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_6Feb2012_SingleMuEff.root"){
+			    // Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon10JpsiBarrel_23Jan2012.root", 
+			    // Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_23Jan2012_MCTruthEff_FineBins200MeV.root"){
+			    // Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_23Jan2012.root", 
+			    // Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_23Jan2012_MCTruthEff_FineBins200MeV.root"){
+			    // Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_22Jan2012.root", 
+			    // Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_22Jan2012_MCTruthEff_FineBins200MeV.root"){
+			    // Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_21Jan2012.root", 
+			    // Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_21Jan2012_MCTruthEff_FineBins200MeV.root"){
+			    // Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_20Jan2012.root", 
+			    // Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_20Jan2012_MCTruthEff_FineBins200MeV.root"){
+			    // Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_18Jan2011.root", 
+			    // Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_18Jan2011_MCTruthEff_FineBins100MeV.root"){
+			    // Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon10JpsiBarrel_18Jan2011.root", 
+			    // Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_18Jan2011_MCTruthEff_FineBins100MeV.root"){
+			    // Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon10JpsiBarrel_17Jan2011.root", 
+			    // Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_17Jan2011_MCTruthEff_FineBins100MeVand0p1Eta.root"){
+                            //Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon10JpsiBarrel_16Dec2011.root", 
+			    //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_17Jan2011_MCTruthEff_FineBins100MeV.root"){
+			    //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_17Jan2011_MCTruthEff.root"){
+                            //Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_19Dec2011.root",
+			    //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_19Dec2011_ProdSingleMuEff.root"){
+			    //Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon10JpsiBarrel_17Dec2011_VeryTightPSCuts.root")}
+			    //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_18Dec2011_ProdSingleMuEff_DataEff.root"){
+			    //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_17Dec2011_ProdSingleMuEff_VeryTightPSCuts.root"){
+                            //Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon10JpsiBarrel_16Dec2011.root",
+                            //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_17Dec2011_ProdSingleMuEff_noTrackingIneff.root"){
+			    //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_17Dec2011_SingleMuEff.root"){
+			    //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_16Dec2011_ProdSingleMuEff.root"){
 			    //Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon10JpsiBarrel_12Dec2011.root",
 			    //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_SingleMuEff_noDimuVtxEffCorr_noJpsiVprobCut_15Dec2011.root"){	
 			    //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon10JpsiBarrel_ProdSingleMuEff_noDimuVtxEffCorr_noJpsiVprobCut_15Dec2011.root"){	
@@ -145,8 +182,15 @@ void compareEff_CosThetaPhi(Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon10Jps
 
   printf("loading polarization related efficiencies\n");
 
-  //  for(int iEff = 0; iEff < kNbEff; iEff++){
-  for(int iEff = 2; iEff < kNbEff; iEff++){
+  // Int_t pTBinMin[4] = {6, 6, 6, 10};//Jpsi
+  // Int_t pTBinMax[4] = {13, 13, 13, 14};//Jpsi
+  // Int_t pTBinMin[4] = {1, 1, 1, 10}; //Ups, until 13 March
+  // Int_t pTBinMax[4] = {13, 13, 13, 14}; //Ups, until 13 March
+  Int_t pTBinMin[4] = {1, 1, 1, 10}; //Ups
+  Int_t pTBinMax[4] = {12, 12, 12, 12}; //Ups
+  
+  for(int iEff = 0; iEff < kNbEff; iEff++){
+  //for(int iEff = 2; iEff < kNbEff; iEff++){
     LoadPolEfficiencies(fileNameMCTruth, iEff, TRUTH);
     LoadPolEfficiencies(fileNameTPEff,   iEff, TnP);
     printf("first pass done\n");
@@ -155,8 +199,6 @@ void compareEff_CosThetaPhi(Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon10Jps
       PlotEffPol(iEff, iFrame);
       PlotRhoPol(iEff, iFrame);
 
-      Int_t pTBinMin[4] = {6, 6, 6, 10};
-      Int_t pTBinMax[4] = {12, 12, 12, 14};
       for(int iRapBin = 1; iRapBin <= 2; iRapBin++){
       	for(int iPTBin = pTBinMin[iRapBin-1]; iPTBin <= pTBinMax[iRapBin-1]; iPTBin++){
       	  PlotEffPol_pT_rap(iEff, iFrame, iRapBin, iPTBin);
@@ -196,12 +238,11 @@ void compareEff_CosThetaPhi(Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon10Jps
   for(int iEff = 0; iEff < kNbEff; iEff++){
     for(int iFrame = 0; iFrame < kNbMaxFrame; iFrame++){
       for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
-  	//  	for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++)
-  	for(int iPTBin = 6; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+	for(int iPTBin = pTBinMin[iRapBin-1]; iPTBin <= pTBinMax[iRapBin-1]; iPTBin++){
   	  PlotRatio2D_CosThetaPhi(iEff, iFrame, iRapBin, iPTBin);
 	  if(hRho_pol[iEff][iFrame][iRapBin][iPTBin])
-	    hRho_pol[iEff][iFrame][iRapBin][iPTBin]->Write();
-	}
+  	    hRho_pol[iEff][iFrame][iRapBin][iPTBin]->Write();
+  	}
       }
     }
   }
@@ -1002,14 +1043,16 @@ void LoadTPEfficiencies(Char_t *fileNameIn, Int_t iEff){
   Char_t name[100];
   for(int iVar = 0; iVar < kNbVar; iVar++){
     sprintf(name, "%sEff_%s", effName[iEff], varName[iVar]);
-    printf("taking %s\n", name);
+    printf("taking %s ...\t", name);
     gEffMCTP1D[iEff][iVar] = (TEfficiency *) gDirectory->Get(name);
+    printf("%p\n", gEffMCTP1D[iEff][iVar]);
     sprintf(name, "%sEffMCTP_%s", effName[iEff], varName[iVar]);
     gEffMCTP1D[iEff][iVar]->SetName(name);
 
     //copy the values into a histogram:
     hPassed[iVar] = (TH1D *) gEffMCTP1D[iEff][iVar]->GetPassedHistogram();
     hPassed[iVar]->Sumw2(); 
+    printf("%s has %d passed entries\n", name, hPassed[iVar]->GetEntries());
     hTot[iVar] = (TH1D *) gEffMCTP1D[iEff][iVar]->GetTotalHistogram();
     hTot[iVar]->Sumw2();
     sprintf(name, "h%sEffMCTP_%s", effName[iEff], varName[iVar]);
@@ -1019,15 +1062,16 @@ void LoadTPEfficiencies(Char_t *fileNameIn, Int_t iEff){
   }
 
   sprintf(name, "%sEff2D_pT_rap", effName[iEff]);
-  printf("taking %s\n", name);
+  printf("taking %s ...\t", name);
   gEffMCTP2D[iEff][ABSETA] = (TEfficiency *) gDirectory->Get(name);
+  printf("%p\n", gEffMCTP2D[iEff][ABSETA]);
   sprintf(name, "%sEffMCTP2D_pT_rap", effName[iEff]);
   gEffMCTP2D[iEff][ABSETA]->SetName(name);
-  
   //copy the values into a histogram:
   // TH2D *hPassed2D, *hTot2D;
   hPassed2D = (TH2D *) gEffMCTP2D[iEff][ABSETA]->GetPassedHistogram();
   hPassed2D->Sumw2();
+  printf("%s has %d passed entries\n", name, hPassed2D->GetEntries());
   hTot2D = (TH2D *) gEffMCTP2D[iEff][ABSETA]->GetTotalHistogram();
   hTot2D->Sumw2();
   sprintf(name, "h%sEffMCTP2D_pT_rap", effName[iEff]);
@@ -1044,6 +1088,7 @@ void LoadTPEfficiencies(Char_t *fileNameIn, Int_t iEff){
   // TH2D *hPassed2D_2, *hTot2D_2;
   hPassed2D_2 = (TH2D *) gEffMCTP2D[iEff][ETA]->GetPassedHistogram();
   hPassed2D_2->Sumw2();
+  printf("%s has %d passed entries\n", name, hPassed2D_2->GetEntries());
   hTot2D_2 = (TH2D *) gEffMCTP2D[iEff][ETA]->GetTotalHistogram();
   hTot2D_2->Sumw2();
   sprintf(name, "h%sEffMCTP2D_pT_rapNP", effName[iEff]);
@@ -1071,6 +1116,7 @@ void LoadTPEfficiencies(Char_t *fileNameIn, Int_t iEff){
 
   	hPassed2D_pol[iEff][iFrame][iRapBin][iPTBin] = (TH2D *) gEff_pol_MCTP[iEff][iFrame][iRapBin][iPTBin]->GetPassedHistogram();
   	hPassed2D_pol[iEff][iFrame][iRapBin][iPTBin]->Sumw2();
+	printf("%s has %d passed entries\n", name, hPassed2D_pol[iEff][iFrame][iRapBin][iPTBin]->GetEntries());
   	hTot2D_pol[iEff][iFrame][iRapBin][iPTBin] = (TH2D *) gEff_pol_MCTP[iEff][iFrame][iRapBin][iPTBin]->GetTotalHistogram();
   	hTot2D_pol[iEff][iFrame][iRapBin][iPTBin]->Sumw2();
   	sprintf(name, "h%sEffMCTP_cosThetaPhi_phiFolded_%s_pT%d_rap%d", effName[iEff], eff::frameLabel[iFrame], iPTBin, iRapBin);
@@ -1284,6 +1330,7 @@ void LoadMCTruthEff(Char_t *fileNameIn, Int_t iEff){
     hEffMCTruth1D[iEff][iVar]->Divide(hPassed[iVar], hTot[iVar], 1., 1., "B");
     hEffMCTruth1D[iEff][iVar]->SetTitle("");
   }
+  printf("1D histos done...\n");
 
   sprintf(name, "%sEff2D_pT_rap", effName[iEff]);
   gEffMCTruth2D[iEff][ABSETA] = (TEfficiency *) gDirectory->Get(name);
@@ -1294,7 +1341,7 @@ void LoadMCTruthEff(Char_t *fileNameIn, Int_t iEff){
   gEffMCTruth2D[iEff][ETA] = (TEfficiency *) gDirectory->Get(name);
   sprintf(name, "%sEffMCTruth2D_pT_rapNP", effName[iEff]);
   gEffMCTruth2D[iEff][ETA]->SetName(name);
-  
+
   //copy the values into a histogram:
   // TH2D *hPassed2D, *hTot2D;
   hPassed2D = (TH2D *) gEffMCTruth2D[iEff][ABSETA]->GetPassedHistogram();
@@ -1318,6 +1365,8 @@ void LoadMCTruthEff(Char_t *fileNameIn, Int_t iEff){
   hEffMCTruth2D[iEff][ETA]->SetTitle("");
   hEffMCTruth2D[iEff][ETA]->SetMaximum(1.);
 
+  printf("2D histos done... \n");
+
   // TH2D *hPassed2D_pol[kNbEff][eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
   // TH2D *hTot2D_pol[kNbEff][eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
   //load the cosTheta and phi 2D maps:
@@ -1334,6 +1383,7 @@ void LoadMCTruthEff(Char_t *fileNameIn, Int_t iEff){
  	//no folding in phi and cosTheta
         sprintf(name, "%sEff2D_Onia_%s_pT%d_rap%d", effName[iEff], eff::frameLabel[iFrame], iPTBin, iRapBin);
 	gEff_pol_MCTruth[iEff][iFrame][iRapBin][iPTBin] = (TEfficiency *) gDirectory->Get(name);
+	printf("got %s\n", name);
 	sprintf(name, "%sEffMCTruth_cosThetaPhi_%s_pT%d_rap%d", effName[iEff], eff::frameLabel[iFrame], iPTBin, iRapBin);
 	gEff_pol_MCTruth[iEff][iFrame][iRapBin][iPTBin]->SetName(name);
 
@@ -1354,6 +1404,8 @@ void LoadMCTruthEff(Char_t *fileNameIn, Int_t iEff){
       }
     }
   }
+
+  printf("2D histos for different frames, rap and pT bins done\n");
 
   //for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++)// {
   //   for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
@@ -1469,7 +1521,7 @@ void LoadPolEfficiencies(Char_t *fileName, Int_t iEff, Int_t iEffType){
     gEffMCTP_cosTheta[iEffType][iEff][iFrame] = (TEfficiency *) gDirectory->Get(name);
     sprintf(name, "%sEff_cosTheta_%s_%s", effName[iEff], eff::frameLabel[iFrame], effTypeLabel[iEffType]);
     gEffMCTP_cosTheta[iEffType][iEff][iFrame]->SetName(name);
-    printf("%s has %1.0f / %1.0f entries\n", eff::frameLabel[iFrame],
+    printf("%s has %1.0f / %1.0f entries\n", gEffMCTP_cosTheta[iEffType][iEff][iFrame]->GetName(),
 	   gEffMCTP_cosTheta[iEffType][iEff][iFrame]->GetPassedHistogram()->GetEntries(),
 	   gEffMCTP_cosTheta[iEffType][iEff][iFrame]->GetTotalHistogram()->GetEntries());
 
@@ -1667,7 +1719,7 @@ void PlotRhoPol(Int_t iEff, Int_t iFrame){
 
     // printf("Np1 = %1.3f +- %1.3f, Np2 = %1.3f +- %1.3f, Nf1 = %1.3f +- %1.3f, Nf2 = %1.3f +- %1.3f\n",
     // 	   Np1, errNp1, Np2, errNp2, Nf1, errNf1, Nf2, errNf2);
-    if((Np1+Nf1) > 0 && (Np2+Nf2) > 0){
+    if((Np1+Nf1) > 0 && (Np2+Nf2) > 0 && Np1*errNp1 > 0 && Np2*errNp2 > 0){
       errEff1 = Np1/pow(Np1+Nf1,2) * sqrt(pow(Nf1/Np1*errNp1,2) + pow(errNf1,2));
       errEff2 = Np2/pow(Np2+Nf2,2) * sqrt(pow(Nf2/Np2*errNp2,2) + pow(errNf2,2));
 
@@ -1716,7 +1768,6 @@ void PlotRhoPol(Int_t iEff, Int_t iFrame){
   // hPassed1->SetMarkerStyle(20);
   // hPassed1->Draw("p same");
 
-
   TH1D *hRho2 = (TH1D *) ((TH1D *) gEffMCTP_cosTheta[TRUTH][iEff][iFrame]->GetPassedHistogram())->Clone(name);
   hRho2->Reset();
   for(int iBinsX = 1; iBinsX <= hRho2->GetNbinsX(); iBinsX++){
@@ -1731,7 +1782,7 @@ void PlotRhoPol(Int_t iEff, Int_t iFrame){
 
     // printf("Np1 = %1.3f +- %1.3f, Np2 = %1.3f +- %1.3f, Nf1 = %1.3f +- %1.3f, Nf2 = %1.3f +- %1.3f\n",
     // 	   Np1, errNp1, Np2, errNp2, Nf1, errNf1, Nf2, errNf2);
-    if((Np1+Nf1) > 0 && (Np2+Nf2) > 0){
+    if((Np1+Nf1) > 0 && (Np2+Nf2) > 0 && Np1*errNp1 > 0 && Np2*errNp2 > 0){
       errEff1 = Np1/pow(Np1+Nf1,2) * sqrt(pow(Nf1/Np1*errNp1,2) + pow(errNf1,2));
       errEff2 = Np2/pow(Np2+Nf2,2) * sqrt(pow(Nf2/Np2*errNp2,2) + pow(errNf2,2));
 
@@ -1752,7 +1803,6 @@ void PlotRhoPol(Int_t iEff, Int_t iFrame){
     hRho2->SetBinContent(iBinsX, rho);
     hRho2->SetBinError(iBinsX, errRho);
    }
-  
 
   hRho2->SetMarkerStyle(20);
   hRho2->Draw("p same");
@@ -1770,67 +1820,6 @@ void PlotRhoPol(Int_t iEff, Int_t iFrame){
 void PlotRhoPol_pT_rap(Int_t iEff, Int_t iFrame, Int_t iRapBin, Int_t iPTBin){
 
   Char_t name[100];
-
-  sprintf(name, "cRho_%s_%s_rap%d_pt%d_phi", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
-  TCanvas *c1 = new TCanvas(name, name);
-  TH1F *hFrame1 = gPad->DrawFrame(-180, 0.8, 180., 1.2);
-  hFrame1->SetXTitle(gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetXaxis()->GetTitle());
-  sprintf(name, "#rho (%s efficiency)", effName[iEff]);
-  hFrame1->SetYTitle(name);
-  // TH1D *hPassed1 = (TH1D*) gEffMCTP_phiPol[TRUTH][iEff][iFrame]->GetPassedHistogram();
-  // TH1D *hTotal1 = (TH1D*) gEffMCTP_phiPol[TRUTH][iEff][iFrame]->GetTotalHistogram();
-  // TH1D *hPassed2 =  (TH1D*) gEffMCTP_phiPol[TnP][iEff][iFrame]->GetPassedHistogram();
-  // TH1D *hTotal2 =  (TH1D*) gEffMCTP_phiPol[TnP][iEff][iFrame]->GetTotalHistogram();
-  // hPassed2->Divide(hPassed2,hTotal2,1.,1.,"b");
-  // hPassed1->Divide(hPassed2);
-
-  Double_t Np1, Np2, Nf1, Nf2;
-  Double_t errNp1, errNp2, errNf1, errNf2;
-  Double_t eff1, eff2, errEff1, errEff2, rho, errRho;
-  sprintf(name, "rho_%s_%s_rap%d_pt%d_phi", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
-  TH1D *hRho = (TH1D *) ((TH1D *) gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram())->Clone(name);
-  hRho->Reset();
-  for(int iBinsX = 1; iBinsX <= hRho->GetNbinsX(); iBinsX++){
-
-    Np1 = gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
-    Np2 = gEffMCTP_phiPol_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
-    Nf1 = gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np1;
-    Nf2 = gEffMCTP_phiPol_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np2;
-    errNp1 = sqrt(Np1);    errNp2 = sqrt(Np2);
-    errNf1 = sqrt(Nf1);    errNf2 = sqrt(Nf2);
-
-    if((Np1+Nf1) > 0 && (Np2+Nf2) > 0){
-      // printf("Np1 = %1.3f +- %1.3f, Np2 = %1.3f +- %1.3f, Nf1 = %1.3f +- %1.3f, Nf2 = %1.3f +- %1.3f\n",
-      // 	   Np1, errNp1, Np2, errNp2, Nf1, errNf1, Nf2, errNf2);
-      errEff1 = Np1/pow(Np1+Nf1,2) * sqrt(pow(Nf1/Np1*errNp1,2) + pow(errNf1,2));
-      errEff2 = Np2/pow(Np2+Nf2,2) * sqrt(pow(Nf2/Np2*errNp2,2) + pow(errNf2,2));
-
-      eff1 = Np1/(Np1+Nf1);
-      eff2 = Np2/(Np2+Nf2);
-      rho =  eff1 / eff2;
-
-      errRho = rho * sqrt(pow(errEff1/eff1,2) + pow(errEff2/eff2,2));
-      printf("eff1 = %1.3e +- %1.3e; eff2 = %1.3e +- %1.3e; rho = %1.3f +- %1.3f\n",
-	     eff1, errEff1, eff2, errEff2, rho, errRho);
-    }
-    else{
-      rho = 0.;
-      errRho = 0.;
-    }
-    // hPassed1->SetBinError(iBinsX, errRho);
-    hRho->SetBinContent(iBinsX, rho);
-    hRho->SetBinError(iBinsX, errRho);
-   }
-  
-
-  hRho->SetMarkerStyle(20);
-  hRho->Draw("p same");
-
-  TLine *line1 = new TLine(-180., 1., 180., 1.);
-  line1->SetLineStyle(3); line1->Draw();
-
-  sprintf(name, "Figures/rho_%sEff_phi_%s_rap%d_pt%d.pdf", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
-  c1->Print(name);
 
   //=========================================
   sprintf(name, "cRho_%s_%s_rap%d_pt%d_cosTheta", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
@@ -1850,7 +1839,9 @@ void PlotRhoPol_pT_rap(Int_t iEff, Int_t iFrame, Int_t iRapBin, Int_t iPTBin){
   // hPassed1->SetMarkerStyle(20);
   // hPassed1->Draw("p same");
 
-
+  Double_t Np1, Np2, Nf1, Nf2;
+  Double_t errNp1, errNp2, errNf1, errNf2;
+  Double_t eff1, eff2, errEff1, errEff2, rho, errRho;
   sprintf(name, "rho_%s_%s_rap%d_pt%d_cosTheta", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
   TH1D *hRho2 = (TH1D *) ((TH1D *) gEffMCTP_cosTheta_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram())->Clone(name);
   hRho2->Reset();
@@ -1871,11 +1862,17 @@ void PlotRhoPol_pT_rap(Int_t iEff, Int_t iFrame, Int_t iRapBin, Int_t iPTBin){
 
       eff1 = Np1/(Np1+Nf1);
       eff2 = Np2/(Np2+Nf2);
-      rho =  eff1 / eff2;
+      if(eff1 > 0 && eff2 > 0){
+	rho =  eff1 / eff2;
 
-      errRho = rho * sqrt(pow(errEff1/eff1,2) + pow(errEff2/eff2,2));
-      printf("eff1 = %1.3e +- %1.3e; eff2 = %1.3e +- %1.3e; rho = %1.3f +- %1.3f\n",
-	     eff1, errEff1, eff2, errEff2, rho, errRho);
+	errRho = rho * sqrt(pow(errEff1/eff1,2) + pow(errEff2/eff2,2));
+	printf("eff1 = %1.3e +- %1.3e; eff2 = %1.3e +- %1.3e; rho = %1.3f +- %1.3f\n",
+	       eff1, errEff1, eff2, errEff2, rho, errRho);
+      }
+      else{
+	rho = 0.;
+	errRho = 0.;
+      }
     }
     else{
       rho = 0.;
@@ -1887,14 +1884,116 @@ void PlotRhoPol_pT_rap(Int_t iEff, Int_t iFrame, Int_t iRapBin, Int_t iPTBin){
     hRho2->SetBinError(iBinsX, errRho);
    }
   
-
   hRho2->SetMarkerStyle(20);
   hRho2->Draw("p same");
+
+   TF1 *fit = new TF1("fit", "[0]  + (1+[1]*x*x)", -1, 1);
+  //TF1 *fit = new TF1("fit", "[0] + (1./(3.+[1]) * (1+[1]*x*x))", -1, 1);
+  fit->SetParameter(0,1.);
+  fit->SetParameter(1,0.3);
+  fit->SetLineWidth(1);
+  hRho2->Fit("fit", "0+");
+  fit = hRho2->GetFunction("fit");
+  fit->Draw("same");
+  Double_t lambdaTheta = fit->GetParameter(1);
+
+  sprintf(name, "#lambda_{#theta}^{eff} = %1.2f", lambdaTheta);
+  TLatex *tex2 = new TLatex(-0.9, 0.82, name);
+  tex2->SetTextSize(0.05); tex2->Draw();
+  sprintf(name, "%1.1f < |y| < %1.1f, %1.0f < p_{T} < %1.0f GeV/c", 
+	  eff::rapForPTRange[iRapBin-1], eff::rapForPTRange[iRapBin], 
+	  eff::pTRange[iRapBin][iPTBin-1], eff::pTRange[iRapBin][iPTBin]);
+  tex2->DrawLatex(-0.9, 1.17, name);
 
   TLine *line2 = new TLine(-1., 1., 1., 1.);
   line2->SetLineStyle(3); line2->Draw();
 
   sprintf(name, "Figures/rho_%sEff_cosTheta_%s_rap%d_pt%d.pdf", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
   c2->Print(name);
+
+  //======================================================
+
+  sprintf(name, "cRho_%s_%s_rap%d_pt%d_phi", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
+  TCanvas *c1 = new TCanvas(name, name);
+  TH1F *hFrame1 = gPad->DrawFrame(-180, 0.8, 180., 1.2);
+  hFrame1->SetXTitle(gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetXaxis()->GetTitle());
+  sprintf(name, "#rho (%s efficiency)", effName[iEff]);
+  hFrame1->SetYTitle(name);
+  // TH1D *hPassed1 = (TH1D*) gEffMCTP_phiPol[TRUTH][iEff][iFrame]->GetPassedHistogram();
+  // TH1D *hTotal1 = (TH1D*) gEffMCTP_phiPol[TRUTH][iEff][iFrame]->GetTotalHistogram();
+  // TH1D *hPassed2 =  (TH1D*) gEffMCTP_phiPol[TnP][iEff][iFrame]->GetPassedHistogram();
+  // TH1D *hTotal2 =  (TH1D*) gEffMCTP_phiPol[TnP][iEff][iFrame]->GetTotalHistogram();
+  // hPassed2->Divide(hPassed2,hTotal2,1.,1.,"b");
+  // hPassed1->Divide(hPassed2);
+
+  sprintf(name, "rho_%s_%s_rap%d_pt%d_phi", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
+  TH1D *hRho = (TH1D *) ((TH1D *) gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram())->Clone(name);
+  hRho->Reset();
+  for(int iBinsX = 1; iBinsX <= hRho->GetNbinsX(); iBinsX++){
+
+    Np1 = gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
+    Np2 = gEffMCTP_phiPol_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
+    Nf1 = gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np1;
+    Nf2 = gEffMCTP_phiPol_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np2;
+    errNp1 = sqrt(Np1);    errNp2 = sqrt(Np2);
+    errNf1 = sqrt(Nf1);    errNf2 = sqrt(Nf2);
+
+    if((Np1+Nf1) > 0 && (Np2+Nf2) > 0){
+      // printf("Np1 = %1.3f +- %1.3f, Np2 = %1.3f +- %1.3f, Nf1 = %1.3f +- %1.3f, Nf2 = %1.3f +- %1.3f\n",
+      // 	   Np1, errNp1, Np2, errNp2, Nf1, errNf1, Nf2, errNf2);
+      errEff1 = Np1/pow(Np1+Nf1,2) * sqrt(pow(Nf1/Np1*errNp1,2) + pow(errNf1,2));
+      errEff2 = Np2/pow(Np2+Nf2,2) * sqrt(pow(Nf2/Np2*errNp2,2) + pow(errNf2,2));
+
+      eff1 = Np1/(Np1+Nf1);
+      eff2 = Np2/(Np2+Nf2);
+      if(eff1 > 0 && eff2 > 0){
+	rho =  eff1 / eff2;
+
+	errRho = rho * sqrt(pow(errEff1/eff1,2) + pow(errEff2/eff2,2));
+	printf("eff1 = %1.3e +- %1.3e; eff2 = %1.3e +- %1.3e; rho = %1.3f +- %1.3f\n",
+	       eff1, errEff1, eff2, errEff2, rho, errRho);
+      }
+      else{
+	rho = 0.;
+	errRho = 0.;
+      }
+    }
+    else{
+      rho = 0.;
+      errRho = 0.;
+    }
+    // hPassed1->SetBinError(iBinsX, errRho);
+    hRho->SetBinContent(iBinsX, rho);
+    hRho->SetBinError(iBinsX, errRho);
+   }
+  
+
+  hRho->SetMarkerStyle(20);
+  hRho->Draw("p same");
+
+
+  TF1 *fit2 = new TF1("fit2", "[0]  + (1.+((2.*[1])/(3.+[2])*cos(2.*x/180.*3.1415926535897931)))", -180., 180.);
+  fit2->SetParameter(0,-1.);
+  fit2->SetParameter(1,0.3); //lambda_phi
+  fit2->FixParameter(2,lambdaTheta);
+  fit2->SetLineWidth(1);
+  hRho->Fit("fit2", "0+");
+  fit2 = hRho->GetFunction("fit2");
+  fit2->Draw("same");
+  Double_t lambdaPhi = fit2->GetParameter(1);
+
+  sprintf(name, "#lambda_{#phi}^{eff} = %1.2f", lambdaPhi);
+  TLatex *tex1 = new TLatex(-170., 0.82, name);
+  tex1->SetTextSize(0.05); tex1->Draw();
+  sprintf(name, "%1.1f < |y| < %1.1f, %1.0f < p_{T} < %1.0f GeV/c", 
+	  eff::rapForPTRange[iRapBin-1], eff::rapForPTRange[iRapBin], 
+	  eff::pTRange[iRapBin][iPTBin-1], eff::pTRange[iRapBin][iPTBin]);
+  tex1->DrawLatex(-170., 1.15, name);
+
+  TLine *line1 = new TLine(-180., 1., 180., 1.);
+  line1->SetLineStyle(3); line1->Draw();
+
+  sprintf(name, "Figures/rho_%sEff_phi_%s_rap%d_pt%d.pdf", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
+  c1->Print(name);
 
 }
