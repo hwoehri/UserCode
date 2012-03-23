@@ -1,0 +1,25 @@
+1.) Follow the instructions of
+https://espace.cern.ch/cms-quarkonia/onia-polarization/Generating%20Events/Detector%20simulation%20for%201E33.aspx 
+
+2.) untar muFixedMuFreeGun_17Jan2012.tgz and compile with "scramv1 b"
+
+3.) generate events by launching "launch_jobs.sh",
+which uses the generator script muFreeMuFixedGun_GEN-RECO.py 
+--> Generation, Simulation, Reconstruction and Triggering is done in
+one setp
+
+4.) The PAT tuple can be produced from the previously generated AOD
+file by
+cd HeavyFlavorAnalysis/Onia2MuMu/test/
+./launch_jobs.sh
+the steering itself is done through the script onia2MuMuPATMC_cfg.py
+which can be directly executed
+
+5.) the PAT tuples can be analyzed with
+launch_analyzer.sh
+which uses the script jpsianalyzerpat_MC1E33-3E33_cfg.py (or any of
+the other jpsianalyzerpat* scripts).
+
+
+
+
