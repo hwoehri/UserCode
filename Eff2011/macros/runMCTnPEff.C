@@ -2,62 +2,116 @@
 #include "MCTnPEff.C"
 #include "TEfficiency.h"
 
-void LoadEfficiencies(Int_t iEff, Int_t iEffSample);
+void LoadEfficiencies(Int_t iEff, Int_t iEffSample, Bool_t load2DGraph, Bool_t useTEfficiency);
+void LoadDimuEfficiency(Int_t iEffSample);
+void FillHistoFrom2DGraph(Int_t iEff, Int_t iEffSample);
 void BookHistos();
 void WriteHistos();
 //======================================
-void runMCTnPEff(Char_t *fileNameOut = "MCTnPEff_HLTDimuon10JpsiBarrel_12Nov2011.root",
+void runMCTnPEff(Char_t *fileNameOut = "MCTnPEff_HLTDimuon5UpsilonBarrel_19Dec2011.root",
+		 Int_t resonance = UPS, //JPSI, PSIP, UPS
 		 Int_t effSample = MC, //DATA, MC, MCTRUTH
 		 Bool_t rejectCowboys = kTRUE,
-		 Char_t *trigLabel = "HLT_Dimuon10_Jpsi_Barrel_v3", 
-		 Char_t *fileNameIn = "/Users/hwoehri/CMS/Work/Data2011/FlatGen/PGun_HLT1E33_3E33_TTree.root"
+		 Bool_t useTEfficiency = kFALSE,//needed for the MCTruth efficiencies
+		 Bool_t use2DGraph = kFALSE
 		 ){
 
-  TFile *fIn = new TFile(fileNameIn);
-  TTree *treeData = (TTree*)fIn->Get("data");
+// void runMCTnPEff(Char_t *fileNameOut = "MCTnPEff_HLTDimuon10JpsiBarrel_12Nov2011.root",
+// 		 Int_t effSample = MC, //DATA, MC, MCTRUTH
+// 		 Bool_t rejectCowboys = kTRUE,
+//  		 Bool_t useTEfficiency = kFALSE,//needed for the MCTruth efficiencies
+// 		 Bool_t use2DGraph = kFALSE,
+// 		 Char_t *trigLabel = "HLT_Dimuon10_Jpsi_Barrel_v3"
+// 		 ){
+
+  gStyle->SetOptStat(0);
+  gStyle->SetPadRightMargin(0.15);
+
+  TChain *treeData = new TChain("data");
+  if(resonance == JPSI){
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_JpsiLowPt_PGun_HLT1E33_3E33.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_Jpsi_Pt9_21_PGun_HLT_1E33_3E33.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_JpsiLowPt_PGun_HLT_1E33_3E33_2.root");
+  }
+  else if(resonance == UPS){
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_1.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_2.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_3.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_4.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_5.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_6.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_7.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_8.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_9.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_10.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_11.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_12.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_13.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_14.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_15.root");
+  }
 
   TFile *fOut = new TFile(fileNameOut, "RECREATE");
 
   printf("initializing tree\n");
   MCTnPEff tree(treeData);  printf("...done\n");
 
-  for(int iEff = 0; iEff < kNbEff; iEff++)
-    LoadEfficiencies(iEff, effSample);
+  for(int iEff = 0; iEff < kNbEff; iEff++){
+    LoadEfficiencies(iEff, effSample, use2DGraph, useTEfficiency);
+    if(use2DGraph)
+      FillHistoFrom2DGraph(iEff, effSample);
+  }
+  //  LoadDimuEfficiency(effSample);
+  LoadDimuEfficiency(1); //H: data not implemented!
   printf("efficiencies loaded\n");
 
   BookHistos();
 
-  tree.Loop(effSample, trigLabel, rejectCowboys);
+  tree.Loop(effSample, resonance, rejectCowboys, use2DGraph, useTEfficiency);
 
   fOut->cd();
   WriteHistos();
   fOut->Close();
 }
+//==============================================================
+void LoadDimuEfficiency(Int_t iEffSample){
+
+  TFile *fIn = new TFile(dimuEffFileName);
+  Char_t name[100];
+  //store the central value of the efficiencies
+  sprintf(name, "hEff_%s_central", effSampleName[iEffSample]);
+  hDiMuEff[iEffSample][CENTRAL] = (TH2D *) gDirectory->Get(name);
+  sprintf(name, "h%s_%s", dimuEffName, effSampleName[iEffSample]);
+  hDiMuEff[iEffSample][CENTRAL]->SetName(name);
+  printf("%s, histo %p\n", dimuEffName, hDiMuEff[iEffSample][CENTRAL]->GetName());
+}
 
 //==============================================================
-void LoadEfficiencies(Int_t iEff, Int_t iEffSample){
+void LoadEfficiencies(Int_t iEff, Int_t iEffSample, Bool_t use2DGraph, Bool_t useTEfficiency){
 
   TFile *fIn = new TFile(effFileNames[iEff]);
   Char_t name[100];
-  // if(iEff < TMgivenHLT){
-    //store the central value of the efficiencies
+  //store the central value of the efficiencies
+  if(!useTEfficiency){
     sprintf(name, "hEff_%s_central", effSampleName[iEffSample]);
     hMuEff[iEff][iEffSample][CENTRAL] = (TH2D *) gDirectory->Get(name);
     sprintf(name, "h%s_%s", effName[iEff], effSampleName[iEffSample]);
     hMuEff[iEff][iEffSample][CENTRAL]->SetName(name);
-    printf("%s, histo %p\n", effName[iEff], hMuEff[iEff][iEffSample][CENTRAL]->GetName());
-  // }
-  // else{//eff for a TM given an HLT muon
-  //   sprintf(name, "trigEff2D_pT_eta_BOTH");
-  //   TEfficiency *eff = (TEfficiency *) gDirectory->Get(name);
-  //   TH2D *hPassed = (TH2D *) eff->GetPassedHistogram();
-  //   TH2D *hTot = (TH2D *) eff->GetTotalHistogram();
-  //   sprintf(name, "h%s_%s", effName[iEff], effSampleName[iEffSample]);
-  //   hMuEff[iEff][iEffSample][CENTRAL] = (TH2D *) hPassed->Clone(name);
-  //   hMuEff[iEff][iEffSample][CENTRAL]->Divide(hTot);
-  //   printf("%s, histo %p\n", effName[iEff], hMuEff[iEff][iEffSample][CENTRAL]->GetName());
-  // }
-
+    printf("%s, histo %s\n", effName[iEff], hMuEff[iEff][iEffSample][CENTRAL]->GetName());
+  }
+  else{
+    sprintf(name, "totEff_%s_pT_eta", effSampleName[iEffSample]);
+    tMuEff[iEff][iEffSample] = (TEfficiency *) gDirectory->Get(name);    
+    printf("%s --> %p\n", name, tMuEff[iEff][iEffSample]);
+  }
+  if(use2DGraph){
+    sprintf(name, "gEff2D_%s", effSampleName[iEffSample]);
+    gEff2D[iEff][iEffSample] = (TGraph2D *) gDirectory->Get(name);
+    sprintf(name, "gEff2D%s_%s", effName[iEff], effSampleName[iEffSample]);
+    gEff2D[iEff][iEffSample]->SetName(name);
+    printf("2D graph loaded: %s\n", gEff2D[iEff][iEffSample]->GetName());
+  }
   //load also the pT differential efficiencies from a fit
   // if(iEff == MuIDEff || iEff == MuQualEff || iEff == L1L2Eff || iEff == L3Eff){
   //   for(int iEta = 0; iEta < kNbEtaBins[iEff]; iEta++){
@@ -191,18 +245,18 @@ void BookHistos(){
 
 	sprintf(name, "recoEff2D_Onia_%s_pT%d_NPrap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	recoEff2D_pol_pT_rapNP[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
-								eff::kNbBinsPhiPol, eff::phiPolMin, eff::phiPolMax);
+	recoEff2D_pol_pT_rapNP[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT2D, eff::cosTMin, eff::cosTMax,
+								eff::kNbBinsPhiPol2D, eff::phiPolMin, eff::phiPolMax);
 
 	sprintf(name, "trigEff2D_Onia_%s_pT%d_NPrap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	trigEff2D_pol_pT_rapNP[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
-								eff::kNbBinsPhiPol, eff::phiPolMin, eff::phiPolMax);
+	trigEff2D_pol_pT_rapNP[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT2D, eff::cosTMin, eff::cosTMax,
+								eff::kNbBinsPhiPol2D, eff::phiPolMin, eff::phiPolMax);
 
 	sprintf(name, "totEff2D_Onia_%s_pT%d_NPrap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	totEff2D_pol_pT_rapNP[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
-								eff::kNbBinsPhiPol, eff::phiPolMin, eff::phiPolMax);
+	totEff2D_pol_pT_rapNP[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT2D, eff::cosTMin, eff::cosTMax,
+								eff::kNbBinsPhiPol2D, eff::phiPolMin, eff::phiPolMax);
 
 	// //all events
 	// sprintf(name, "hGen2D_Onia_%s_pT%d_NPrap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
@@ -242,18 +296,18 @@ void BookHistos(){
 	//(1) no folding in phi and cosTheta
 	sprintf(name, "recoEff2D_Onia_%s_pT%d_rap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	recoEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
-								 eff::kNbBinsPhiPol, eff::phiPolMin, eff::phiPolMax);
+	recoEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT2D, eff::cosTMin, eff::cosTMax,
+								 eff::kNbBinsPhiPol2D, eff::phiPolMin, eff::phiPolMax);
 
 	sprintf(name, "trigEff2D_Onia_%s_pT%d_rap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	trigEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
-								 eff::kNbBinsPhiPol, eff::phiPolMin, eff::phiPolMax);
+	trigEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT2D, eff::cosTMin, eff::cosTMax,
+								 eff::kNbBinsPhiPol2D, eff::phiPolMin, eff::phiPolMax);
 
 	sprintf(name, "totEff2D_Onia_%s_pT%d_rap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	totEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
-								 eff::kNbBinsPhiPol, eff::phiPolMin, eff::phiPolMax);
+	totEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT2D, eff::cosTMin, eff::cosTMax,
+								 eff::kNbBinsPhiPol2D, eff::phiPolMin, eff::phiPolMax);
 	//(2) 4-folding in phi
 	sprintf(name, "recoEff2D_Onia_phiFolded_%s_pT%d_rap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
@@ -648,4 +702,81 @@ void WriteHistos(){
   totEff2D_pT_rapNP->Write();  totEff2D_pT_rap->Write();
   
   hCorrRECO->Write();
+}
+
+//=======================================
+void FillHistoFrom2DGraph(Int_t iEff, Int_t iEffSample){
+
+  Int_t nEff = 10001;
+  TH2D*  hEvalEff1D;
+  TH2D*  hEvalEff2D;
+  char hEvalEffName[200];
+  char EffType[200];
+
+  TFile *fInEff = new TFile(effFileNames[iEff]);
+  sprintf(EffType, "hEff_%s_central", effSampleName[iEffSample]);
+  TH2F* hEff = (TH2F*) fInEff->Get(EffType);
+
+  int pTBinsNew = 2000;
+  int etaBinsNew = 200;
+  hEvalEff1D   = new TH2D("hEvalEff1D", ";|#eta|;p_{T} [GeV/c]", etaBinsNew, hEff->GetXaxis()->GetXmin(),1.6, pTBinsNew,  hEff->GetYaxis()->GetXmin(), 100);
+  hEvalEff2D   = new TH2D("hEvalEff2D", ";|#eta|;p_{T} [GeV/c]", etaBinsNew, hEff->GetXaxis()->GetXmin(),1.6, pTBinsNew,  hEff->GetYaxis()->GetXmin(), 100);
+
+  double eff, effBuffer;
+  char graphName[200], graphName2D[200];
+  sprintf(graphName2D, "gEff2D_%s", effSampleName[iEffSample]);
+  TGraph2D *graph2D = (TGraph2D *) gDirectory->Get(graphName2D);
+
+  for(int etaBin=0;etaBin<etaBinsNew;etaBin++){//x
+  
+    int currentEtaBin = hEff->GetXaxis()->FindBin(hEvalEff1D->GetXaxis()->GetBinCenter(etaBin+1));
+    sprintf(graphName,"gEff_%s_PT_AETA%d", effSampleName[iEffSample], currentEtaBin-1);
+    TGraphAsymmErrors *graph =  (TGraphAsymmErrors*) gDirectory->Get(graphName);
+    double pTMaxCenter=-999.;
+    double EtaConst=-999.;
+    double pTcenterGraphM1=-999.;
+    double eps = 1.e-5;
+    for(int pTBinGraph=0;pTBinGraph<100;pTBinGraph++){
+      double pTcenterGraph;
+      double effGraph;
+      graph->GetPoint(pTBinGraph,pTcenterGraph,effGraph);
+      if(TMath::Abs(pTcenterGraph-pTcenterGraphM1) < eps) {
+	pTMaxCenter=pTcenterGraph;
+	EtaConst=effGraph; 
+	break;
+      }
+      pTcenterGraphM1=pTcenterGraph;
+    }
+    
+    for(int pTBin=0;pTBin<pTBinsNew;pTBin++){
+      eff = graph->Eval(hEvalEff1D->GetYaxis()->GetBinCenter(pTBin+1));
+      if(eff<0.) eff=0.;
+      if(hEvalEff1D->GetYaxis()->GetBinCenter(pTBin+1)>pTMaxCenter) eff=EtaConst;
+      hEvalEff1D->SetBinContent(etaBin+1,pTBin+1,eff); effBuffer=eff;
+      //      eff = graph2D->Interpolate(hEvalEff1D->GetYaxis()->GetBinCenter(pTBin+1),hEvalEff1D->GetXaxis()->GetBinCenter(etaBin+1));
+      eff = graph2D->Interpolate(hEvalEff1D->GetXaxis()->GetBinCenter(etaBin+1), hEvalEff1D->GetYaxis()->GetBinCenter(pTBin+1));
+      if(eff < eps && currentEtaBin ==1) eff=effBuffer;
+      if(eff < eps && hEvalEff1D->GetYaxis()->GetBinCenter(pTBin+1)>pTMaxCenter*0.5) eff=effBuffer;
+      if(eff < eps) eff=0.;
+      hEvalEff2D->SetBinContent(etaBin+1,pTBin+1,eff);
+    }
+  }
+  // sprintf(hEvalEffName,"%s/EvalHisto1D.root",dirstruct);
+  // hEvalEff1D->SaveAs(hEvalEffName);
+  // sprintf(hEvalEffName,"%s/EvalHisto2D.root",dirstruct);
+//  hEvalEff2D->SaveAs(hEvalEffName);
+
+
+  // TH2D* hEvalEff = (TH2D*)hEvalEff1D->Clone("hEvalEff");
+  // if(nEff > 10000) hEvalEff = (TH2D*)hEvalEff2D->Clone("hEvalEff");
+
+  Char_t name[100];
+  sprintf(name, "hEffSmoothed_%s_%s", effName[iEff], effSampleName[iEffSample]);
+  hMuEff_smoothed[iEff][iEffSample] = (TH2D*) hEvalEff1D->Clone(name);
+  if(nEff > 10000) 
+    hMuEff_smoothed[iEff][iEffSample] = (TH2D*) hEvalEff2D->Clone(name);
+
+  hMuEff_smoothed[iEff][iEffSample]->Draw("colz");
+  // sprintf(name, "Figures/effHisto_smoothed_%s_%s.pdf", effName[iEff], effSampleName[iEffSample]);
+  // gPad->Print(name);
 }

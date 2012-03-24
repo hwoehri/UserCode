@@ -18,7 +18,14 @@ enum {SingleMuEff};
 Bool_t useIndivEff = kFALSE;
 Int_t const kNbEff = 1;
 Char_t *effName[kNbEff] = {"SingleMuEff"};
-Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/8Dec2011/EfficiencyProductDimuon0Jpsi_MuonID-MC_MuonQualRunA_L1L2L3Run1_Trk80Cuts_19Nov2011.root"};//SingleMuEff a la Matt
+Char_t *effFileNames[kNbEff] = {"singleMuTruthEff_18Jan2012_40GeVrap1_2pT100GeV_EtaCut_FineBins200MeV.root"};//singleMu MCTruth efficiency
+//Char_t *effFileNames[kNbEff] = {"singleMuTruthEff_17Jan2012_40GeVrap1_2pT100GeV_EtaCut_FineBins100MeVand0p1Eta.root"};//singleMu MCTruth efficiency
+//Char_t *effFileNames[kNbEff] = {"singleMuTruthEff_17Jan2012_40GeVrap1_2pT100GeV_EtaCut_FineBins100MeV.root"};//singleMu MCTruth efficiency
+//Char_t *effFileNames[kNbEff] = {"singleMuTruthEff_17Jan2012_40GeVrap1_2pT100GeV_EtaCut_FineBins250MeV.root"};//singleMu MCTruth efficiency
+//Char_t *effFileNames[kNbEff] = {"singleMuTruthEff_17Jan2012_40GeVrap1_2pT100GeV_EtaCut.root"};//singleMu MCTruth efficiency
+//Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/8Dec2011/EfficiencyProductDimuon0Jpsi_MuonID-MC_MuonQualRunA_L1L2L3Run1_Trk80Cuts_19Nov2011.root"};
+//Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/6Feb2012/EfficiencyProduct_combinedMC_Trk80Cuts_6Feb2011.root"};
+//Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/6Feb2012/singleMuonEff_combinedMC_Trk80Cuts_6Feb2011.root"};//SingleMuEff a la Matt
 //Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Linlin/7Dec2011/singleMuonEfficiency_ProbeTrackMatched_data_mc_pt_abseta_tracker80Cuts_7Dec2011.root"};//SingleMuEff a la Matt
 //Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Linlin/2Dec2011/SingleMuEff_Dimuon10Jpsi_ProbeTrackMatched_data_mc_pt_abseta_tracker80Cuts_02Dec2011.root"};//SingleMuEff a la Matt (L1*L2*L3 trigger eff only)
 //Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/7Dec2011/EfficiencyProductDimuon0Jpsi_MuonID-MC_MuonQualRunA_L1L2L3Run1_Trk80Cuts_19Nov2011.root"};
@@ -39,14 +46,17 @@ Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/8Dec2011/
 // 				"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/1Nov2011/L1L2Dimuon0Jpsi_pt_abseta_seagulls_run1_TrkCuts_20Oct2011_corrected.root",
 // 				"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/1Nov2011/L3Dimuon0Jpsi_pt_abseta_seagulls_TrkCuts_20Oct2011_corrected.root"};
 enum {MuIDEff, MuQualEff, L1L2Eff, L3Eff};
-Int_t const kNbEffSample = 2;
-enum {DATA, MC};
-Char_t *effSampleName[kNbEffSample] = {"DATA", "MC"};
+Int_t const kNbEffSample = 3;
+enum {DATA, MC, MCTRUTH};
+Char_t *effSampleName[kNbEffSample] = {"DATA", "MC", "MCTRUTH"};
+//
+enum {JPSI, PSIP, UPS};
 //
 enum {CENTRAL, UPPER, LOWER};
 TH2D *hMuEff[kNbEff][kNbEffSample][3];
 TH2D *hMuEff_smoothed[kNbEff][kNbEffSample];
 TH2D *hDiMuEff[kNbEffSample][3];
+TEfficiency *tMuEff[kNbEff][kNbEffSample];
 Int_t const kNbMaxEtaBins = 10;
 Int_t const kNbEtaBins[kNbEff] = {10};//number of TGraphs with parametrized pT diff. efficiencies
 // Float_t binsEta[kNbEff][kNbMaxEtaBins+1] = {{0, 0.2, 0.3, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 2.1, 2.4},
@@ -166,14 +176,20 @@ TH1D *trigEff_distM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TH1D *totEff_distM2_pT_rap[eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
 TH2F *hCorrRECO;
-
+Double_t pTMin = 5.;//5... Upsilon; 10... Jpsi
 Double_t GetDimuEfficiency(Int_t iEffSample, Double_t cosTheta, Double_t phi);
 Double_t GetEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt, Bool_t use2DGraph = kFALSE);
+Double_t GetTEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt);
 Double_t GetEfficiency_FromParametrization(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt);
 //==============================================
-void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, Bool_t use2DGraph)
+void MCTnPEff::Loop(Int_t effSample, Int_t resonance, Bool_t rejectCowboys, Bool_t use2DGraph, Bool_t useTEfficiency)
 {
   if (fChain == 0) return;
+
+  if(resonance == JPSI)
+    pTMin = 10.;
+  else if(resonance == UPS)
+    pTMin = 5.;
 
   Long64_t nentries = fChain->GetEntries();
   Long64_t nb = 0;
@@ -196,6 +212,7 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, Bo
     //fill the corresponding histograms
     //===================================================================
     Double_t etaMuPos_Gen = muPos_Gen->PseudoRapidity();
+
     Double_t etaMuNeg_Gen = muNeg_Gen->PseudoRapidity();
     Double_t pTMuPos_Gen = muPos_Gen->Pt();
     Double_t pTMuNeg_Gen = muNeg_Gen->Pt();
@@ -208,12 +225,25 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, Bo
       if((phiMuNeg_Gen - phiMuPos_Gen) < 0.)
 	continue;
     
-    //if(!(isMuonInAcceptance(LOOSE, pTMuPos_Gen, etaMuPos_Gen) && isMuonInAcceptance(LOOSE, pTMuNeg_Gen, etaMuNeg_Gen)))
-    if(!(isMuonInAcceptance(TIGHT, pTMuPos_Gen, etaMuPos_Gen) && isMuonInAcceptance(TIGHT, pTMuNeg_Gen, etaMuNeg_Gen)))
-      continue;
-    if(pTMuPos_Gen < 2.5 || pTMuNeg_Gen < 2.5)
-      continue;
-    if(fabs(etaMuPos_Gen) > 1.6 || fabs(etaMuNeg_Gen) > 1.6)
+    // //if(!(isMuonInAcceptance(LOOSE, pTMuPos_Gen, etaMuPos_Gen) && isMuonInAcceptance(LOOSE, pTMuNeg_Gen, etaMuNeg_Gen)))
+    // if(!(isMuonInAcceptance(TIGHT, pTMuPos_Gen, etaMuPos_Gen) && isMuonInAcceptance(TIGHT, pTMuNeg_Gen, etaMuNeg_Gen)))
+    //   continue;
+    // // if(pTMuPos_Gen < 2.5 || pTMuNeg_Gen < 2.5)
+    // //   continue;
+    // if(fabs(etaMuPos_Gen) > 1.6 || fabs(etaMuNeg_Gen) > 1.6)
+    //   continue;
+
+    Bool_t decisionPos = kFALSE, decisionNeg = kFALSE;
+    //positive muon
+    if(TMath::Abs(etaMuPos_Gen)<1.2 && pTMuPos_Gen>4.5) decisionPos=kTRUE;
+    if(TMath::Abs(etaMuPos_Gen)>1.2 && TMath::Abs(etaMuPos_Gen)<1.4 && pTMuPos_Gen>3.5) decisionPos=kTRUE;
+    if(TMath::Abs(etaMuPos_Gen)>1.4 && TMath::Abs(etaMuPos_Gen)<1.6 && pTMuPos_Gen>3.) decisionPos=kTRUE;
+    //negative muon
+    if(TMath::Abs(etaMuNeg_Gen)<1.2 && pTMuNeg_Gen>4.5) decisionNeg=kTRUE;
+    if(TMath::Abs(etaMuNeg_Gen)>1.2 && TMath::Abs(etaMuNeg_Gen)<1.4 && pTMuNeg_Gen>3.5) decisionNeg=kTRUE;
+    if(TMath::Abs(etaMuNeg_Gen)>1.4 && TMath::Abs(etaMuNeg_Gen)<1.6 && pTMuNeg_Gen>3.) decisionNeg=kTRUE;
+
+    if(!decisionPos || !decisionNeg)
       continue;
 
     Double_t onia_Gen_mass = onia_Gen->M();
@@ -285,12 +315,20 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, Bo
       //totEff = 1.0 * 1.0;
 
       if(usePTFit){	
-	totEff *= GetEfficiency_FromParametrization(SingleMuEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
-	totEff *= GetEfficiency_FromParametrization(SingleMuEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	if(!useTEfficiency){
+	  totEff *= GetEfficiency_FromParametrization(SingleMuEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+	  totEff *= GetEfficiency_FromParametrization(SingleMuEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	}
       }
       else{
-	totEff *= GetEfficiency(SingleMuEff, effSample, etaMuPos_Gen, pTMuPos_Gen, use2DGraph);
-	totEff *= GetEfficiency(SingleMuEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen, use2DGraph);
+	if(!useTEfficiency){
+	  totEff *= GetEfficiency(SingleMuEff, effSample, etaMuPos_Gen, pTMuPos_Gen, use2DGraph);
+	  totEff *= GetEfficiency(SingleMuEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen, use2DGraph);
+	}
+	else{
+	  totEff *= GetTEfficiency(SingleMuEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+	  totEff *= GetTEfficiency(SingleMuEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	}
       }
       // //dimuon vertexing cut NOT included in the (single) muon quality cuts...
       // if(JpsiVprob < 0.01)
@@ -341,11 +379,15 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, Bo
       incrementTrig = kFALSE;
       if(incrementReco){
 
-	if(strncmp("HLT_Dimuon10_Jpsi_Barrel", trigLabel, 24) == 0){
+	//if(strncmp("HLT_Dimuon10_Jpsi_Barrel", trigLabel, 24) == 0 || strncmp("HLT_Dimuon5_Upsilon_Barrel", trigLabel, 26) == 0){
 	  //HLT_Dimuon10_Jpsi_Barrel_v3... 1.4E33
 	  //HLT_Dimuon10_Jpsi_Barrel_v5... no cowboys
 	  //HLT_Dimuon10_Jpsi_Barrel_v6... L1DoubleMu0_HighQ
 	  //HLT_Dimuon13_Jpsi_Barrel_v1... L1DoubleMu0_HighQ
+	  //HLT_Dimuon5_Upsilon_Barrel_v3... 1.4E33
+	  //HLT_Dimuon5_Upsilon_Barrel_v5... no cowboys
+	  //HLT_Dimuon7_Upsilon_Barrel_v1... L1DoubleMu0_HighQ
+	  //HLT_Dimuon9_Upsilon_Barrel_v1... L1DoubleMu0_HighQ
 
 	  if(usePTFit){
 	    epsL1L2Trig_Pos = GetEfficiency_FromParametrization(L1L2Eff, effSample, etaMuPos_Gen, pTMuPos_Gen);
@@ -360,7 +402,7 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, Bo
 	    epsL3Trig_Neg   = GetEfficiency(L3Eff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
 	  }
 	  trigEff = epsL1L2Trig_Pos * epsL3Trig_Pos * epsL1L2Trig_Neg * epsL3Trig_Neg;
-	}
+	  //}
       }
       if(trigEff > randNb)
 	incrementTrig = kTRUE;
@@ -380,7 +422,7 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, Bo
     if(useIndivEff){
       recoEff_pT->Fill(incrementReco, onia_Gen_pt);
       // if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -2.0 && onia_Gen_rap < 2.0){
-      if(onia_Gen_pt > 10.){
+      if(onia_Gen_pt > pTMin){
 	recoEff_y->Fill(incrementReco, onia_Gen_rap);
 	recoEff_phi->Fill(incrementReco, onia_Gen_phi);
       }
@@ -390,7 +432,7 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, Bo
       //      if(incrementReco){ //calculate the trigger efficiency only for events that pass RECO
 	trigEff_pT->Fill(incrementTrig, onia_Gen_pt);
 	//if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -2.0 && onia_Gen_rap < 2.0){
-	if(onia_Gen_pt > 10.){
+	if(onia_Gen_pt > pTMin){
 	  trigEff_y->Fill(incrementTrig, onia_Gen_rap);
 	  trigEff_phi->Fill(incrementTrig, onia_Gen_phi);
 	}
@@ -400,8 +442,9 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, Bo
     }
 
     totEff_pT->Fill(incrementTot, onia_Gen_pt);
+
     //if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -2.0 && onia_Gen_rap < 2.0){
-    if(onia_Gen_pt > 10.){
+    if(onia_Gen_pt > pTMin){
       totEff_y->Fill(incrementTot, onia_Gen_rap);
       totEff_phi->Fill(incrementTot, onia_Gen_phi);
     }
@@ -412,7 +455,7 @@ void MCTnPEff::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, Bo
     for(int iFrame = 0; iFrame < eff::kNbFrames; iFrame++){
 
       //if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -2.0 && onia_Gen_rap < 2.0){
-      if(onia_Gen_pt > 10.){
+      if(onia_Gen_pt > pTMin){
 	if(useIndivEff){
 	  recoEff_cosTheta[iFrame]->Fill(incrementReco, thisCosTh[iFrame]);
 	  recoEff_phiPol[iFrame]->Fill(incrementReco, thisPhi[iFrame]);
@@ -555,9 +598,9 @@ Double_t GetEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt, 
   if(fabs(eta) > 2.4) return 0.; //no acceptance beyond 2.4
 
   if(iEff >= kNbEff)
-    printf("%d not a valid efficiency!!!\n", iEff);
+    printf("<GetEfficiency> %d not a valid efficiency!!!\n", iEff);
   if(iEffSample >= kNbEffSample)
-    printf("%d not a valid efficiency sample!!!\n", iEffSample);
+    printf("<GetEfficiency> %d not a valid efficiency sample!!!\n", iEffSample);
 
   Int_t binX, binY;
   Double_t eff;
@@ -586,6 +629,28 @@ Double_t GetEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt, 
 
   return eff;
 }
+
+//==============================================================
+Double_t GetTEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt){
+
+  if(fabs(eta) > 2.4) return 0.; //no acceptance beyond 2.4
+
+  if(iEff >= kNbEff)
+    printf("<GetTEfficiency> %d not a valid efficiency!!!\n", iEff);
+  if(iEffSample != MCTRUTH)
+    printf("<GetTEfficiency> %d not a valid efficiency sample!!!\n", iEffSample);
+
+  Int_t binX, binY;
+  Double_t eff;
+  Int_t globalBin = tMuEff[iEff][iEffSample]->FindFixBin(fabs(eta), pt);
+  eff = tMuEff[iEff][iEffSample]->GetEfficiency(globalBin);
+
+  if(eff > 1.) eff = 1.;
+  else if(eff < 0.) eff = 0.;
+
+  return eff;
+}
+
 //==============================================================
 Double_t GetDimuEfficiency(Int_t iEffSample, Double_t cosTheta, Double_t phi){
 
@@ -593,7 +658,7 @@ Double_t GetDimuEfficiency(Int_t iEffSample, Double_t cosTheta, Double_t phi){
   if(phi < -180. || phi > 180.) return 0.;
 
   if(iEffSample >= kNbEffSample)
-    printf("%d not a valid efficiency sample!!!\n", iEffSample);
+    printf("<GetDimuEfficiency> %d not a valid efficiency sample!!!\n", iEffSample);
 
   Int_t binX = hDiMuEff[iEffSample][CENTRAL]->GetXaxis()->FindBin(cosTheta);
   Int_t binY = hDiMuEff[iEffSample][CENTRAL]->GetYaxis()->FindBin(phi);
@@ -611,9 +676,9 @@ Double_t GetEfficiency_FromParametrization(Int_t iEff, Int_t iEffSample, Double_
   if(fabs(eta) > 2.4) return 0.; //no acceptance beyond 2.4
 
   if(iEff >= kNbEff)
-    printf("%d not a valid efficiency!!!\n", iEff);
+    printf("<GetEfficiency_FromParametrization> %d not a valid efficiency!!!\n", iEff);
   if(iEffSample >= kNbEffSample)
-    printf("%d not a valide efficiency sample!!!\n", iEffSample);
+    printf("<GetEfficiency_FromParametrization> %d not a valide efficiency sample!!!\n", iEffSample);
 
   Int_t etaBin = -1;
   // for(int iEta = 0; iEta < kNbEtaBins; iEta++){
@@ -631,5 +696,4 @@ Double_t GetEfficiency_FromParametrization(Int_t iEff, Int_t iEffSample, Double_
   //  printf("%s: eta %f --> mapped into bin %d... efficiency for pt = %f GeV/c is %f\n", effName[iEff], eta, etaBin, pt, eff);
 
   return eff;
-
 }
