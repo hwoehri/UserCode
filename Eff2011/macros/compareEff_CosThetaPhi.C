@@ -47,6 +47,10 @@ TEfficiency *gEffMCTP2D_cosTheta_phiPol[2][kNbEff][eff::kNbFrames];
 TEfficiency *gEffMCTP_phiPol_pT_rap[2][kNbEff][eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *gEffMCTP_cosTheta_pT_rap[2][kNbEff][eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
+//uncertainties of real data:
+TH1D *hUncData_CosT[eff::kNbFrames][eff::kNbRapForPTBins+1][eff::kNbPTMaxBins+1];
+TH1D *hUncData_Phi[eff::kNbFrames][eff::kNbRapForPTBins+1][eff::kNbPTMaxBins+1];
+
 //deltaR and deltaPhi vs deltaEta:
 TEfficiency *gEff_deltaR_MCTruth[kNbEff][eff::kNbRapForPTBins+1][eff::kNbPTMaxBins+1];
 TH1D *hEff_deltaR_MCTruth[kNbEff][eff::kNbRapForPTBins+1][eff::kNbPTMaxBins+1];
@@ -78,6 +82,7 @@ TH2D *hTot2D_pol[kNbEff][eff::kNbFrames][eff::kNbRapForPTBins+1][eff::kNbPTMaxBi
 void LoadMCTruthEff(Char_t *fileNameIn, Int_t iEff);
 void LoadTPEfficiencies(Char_t *fileNameIn, Int_t iEff);
 void LoadPolEfficiencies(Char_t *fileName, Int_t iEff, Int_t iEffType);
+void LoadDataUncertainties(Char_t *fileName);
 void Plot1DEff(Int_t iEff, Int_t iVar);
 void PlotRatio1D(Int_t iEff, Int_t iVar);
 void Plot2DEff(Int_t iEff, Int_t iRap);
@@ -102,8 +107,23 @@ void PlotRatio_DeltaEtaM2(Int_t iEff, Int_t iRapBin, Int_t iPTBin);
 void PlotRatio_DistM2(Int_t iEff, Int_t iRapBin, Int_t iPTBin);
 //=======================
 //WARNING: when changing from J/psi to Upsilon, adjust pTBinMin and pTBinMax!
-void compareEff_CosThetaPhi(Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_13March2012_newPTBins.root",
-			    Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_13March2012_MCTruthEff_FineBins200MeV_newPTBins.root"){
+// Int_t pTBinMin[4] = {6, 6, 6, 10};//Jpsi
+// Int_t pTBinMax[4] = {13, 13, 13, 14};//Jpsi
+// Int_t pTBinMin[4] = {1, 1, 1, 10}; //Ups, until 13 March
+// Int_t pTBinMax[4] = {13, 13, 13, 14}; //Ups, until 13 March
+Int_t pTBinMin[4] = {1, 1, 1, 10}; //Ups
+Int_t pTBinMax[4] = {12, 12, 12, 12}; //Ups
+
+void compareEff_CosThetaPhi(Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_21March2012_TPVCuts.root",
+			    Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_25March2012_MCTruthEff_FineBins200MeV_TPVCuts_EachEvUsed10x.root"){
+                            //Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_21March2012_TPVCuts.root",
+			    //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_21March2012_MCTruthEff_FineBins200MeV_TPVCuts.root"){
+			    //Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_21March2012_Tracker80.root",
+			    //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_21March2012_MCTruthEff_FineBins200MeV_Tracker80.root"){
+			    //Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_19March2012_TPVCuts.root",
+			    //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_19March2012_MCTruthEff_FineBins200MeV_TPVCuts.root"){
+                            //Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_13March2012_newPTBins.root",
+                            //Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_13March2012_MCTruthEff_FineBins200MeV_newPTBins.root"){
 			    // Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_23Jan2012.root", 
 			    // Char_t *fileNameTPEff = "MCTnPEff_HLTDimuon5UpsilonBarrel_7Feb2012_ProdSingleMuEff.root"){
 			    // Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5UpsilonBarrel_23Jan2012.root", 
@@ -182,12 +202,10 @@ void compareEff_CosThetaPhi(Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5Upsi
 
   printf("loading polarization related efficiencies\n");
 
-  // Int_t pTBinMin[4] = {6, 6, 6, 10};//Jpsi
-  // Int_t pTBinMax[4] = {13, 13, 13, 14};//Jpsi
-  // Int_t pTBinMin[4] = {1, 1, 1, 10}; //Ups, until 13 March
-  // Int_t pTBinMax[4] = {13, 13, 13, 14}; //Ups, until 13 March
-  Int_t pTBinMin[4] = {1, 1, 1, 10}; //Ups
-  Int_t pTBinMax[4] = {12, 12, 12, 12}; //Ups
+  //(2a) loading the statistical uncertainties from the data
+  //     to be plugged onto the cosTheta and phi distributions
+  //LoadDataUncertainties("/Users/hwoehri/CMS/Work/Polarization/Valentin/13March2012/AngDistHist_Ups1S.root"); //Tracker80
+  LoadDataUncertainties("/Users/hwoehri/CMS/Work/Polarization/Valentin/17March2012/AngDistHist_Ups1S.root"); //TPV cuts
   
   for(int iEff = 0; iEff < kNbEff; iEff++){
   //for(int iEff = 2; iEff < kNbEff; iEff++){
@@ -196,11 +214,14 @@ void compareEff_CosThetaPhi(Char_t *fileNameMCTruth = "MCTruthEff_HLTDimuon5Upsi
     printf("first pass done\n");
 
     for(int iFrame = 0; iFrame < kNbMaxFrame; iFrame++){
+      //for(int iFrame = 0; iFrame < 1; iFrame++){
       PlotEffPol(iEff, iFrame);
       PlotRhoPol(iEff, iFrame);
 
       for(int iRapBin = 1; iRapBin <= 2; iRapBin++){
-      	for(int iPTBin = pTBinMin[iRapBin-1]; iPTBin <= pTBinMax[iRapBin-1]; iPTBin++){
+       	for(int iPTBin = pTBinMin[iRapBin-1]; iPTBin <= pTBinMax[iRapBin-1]; iPTBin++){
+      // for(int iRapBin = 1; iRapBin <= 1; iRapBin++){
+      // 	for(int iPTBin = pTBinMin[iRapBin-1]; iPTBin <= pTBinMin[iRapBin-1]; iPTBin++){
       	  PlotEffPol_pT_rap(iEff, iFrame, iRapBin, iPTBin);
       	  PlotRhoPol_pT_rap(iEff, iFrame, iRapBin, iPTBin);
       	}
@@ -484,6 +505,47 @@ void PlotRatio2D_CosThetaPhi(Int_t iEff, Int_t iFrame, Int_t iRapBin, Int_t iPTB
   hRho_pol[iEff][iFrame][iRapBin][iPTBin]->SetMinimum(0.75);
   hRho_pol[iEff][iFrame][iRapBin][iPTBin]->SetMaximum(1.25);
 
+  //set error bars correctly:
+  Double_t Np1, Np2, Nf1, Nf2;
+  Double_t errNp1, errNp2, errNf1, errNf2;
+  Double_t eff1, eff2, errEff1, errEff2, rho, errRho;
+  // //assigning the error bar from statistics in MC:
+  // for(int iBinsX = 1; iBinsX <= hRho2->GetNbinsX(); iBinsX++){
+
+  //   Np1 = gEffMCTP_cosTheta_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
+  //   Np2 = gEffMCTP_cosTheta_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
+  //   Nf1 = gEffMCTP_cosTheta_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np1;
+  //   Nf2 = gEffMCTP_cosTheta_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np2;
+  //   errNp1 = sqrt(Np1);    errNp2 = sqrt(Np2);
+  //   errNf1 = sqrt(Nf1);    errNf2 = sqrt(Nf2);
+
+  //   // printf("Np1 = %1.3f +- %1.3f, Np2 = %1.3f +- %1.3f, Nf1 = %1.3f +- %1.3f, Nf2 = %1.3f +- %1.3f\n",
+  //   // 	   Np1, errNp1, Np2, errNp2, Nf1, errNf1, Nf2, errNf2);
+  //   if((Np1+Nf1) > 0 && (Np2+Nf2) > 0){
+  //     errEff1 = Np1/pow(Np1+Nf1,2) * sqrt(pow(Nf1/Np1*errNp1,2) + pow(errNf1,2));
+  //     errEff2 = Np2/pow(Np2+Nf2,2) * sqrt(pow(Nf2/Np2*errNp2,2) + pow(errNf2,2));
+
+  //     eff1 = Np1/(Np1+Nf1);
+  //     eff2 = Np2/(Np2+Nf2);
+  //     if(eff1 > 0 && eff2 > 0){
+  // 	rho =  eff1 / eff2;
+
+  // 	errRho = rho * sqrt(pow(errEff1/eff1,2) + pow(errEff2/eff2,2));
+  // 	printf("eff1 = %1.3e +- %1.3e; eff2 = %1.3e +- %1.3e; rho = %1.3f +- %1.3f\n",
+  // 	       eff1, errEff1, eff2, errEff2, rho, errRho);
+  //     }
+  //     else{
+  // 	rho = 0.;
+  // 	errRho = 0.;
+  //     }
+  //   }
+  //   else{
+  //     rho = 0.;
+  //     errRho = 0.;
+  //   }
+
+
+
   if(iPTBin == 0) 
     sprintf(name, "J/#psi: %1.2f <|y|< %1.2f, all p_{T}", eff::rapForPTRange[iRapBin-1], eff::rapForPTRange[iRapBin]);
   else if(iPTBin == eff::kNbPTBins[iRapBin]+1)//H: 
@@ -497,6 +559,7 @@ void PlotRatio2D_CosThetaPhi(Int_t iEff, Int_t iFrame, Int_t iRapBin, Int_t iPTB
 
   sprintf(name, "Figures/ratio_pol_%sEff_%s_rap%d_pT%d.pdf", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
   c1->Print(name);
+
 
 }
 
@@ -1052,7 +1115,7 @@ void LoadTPEfficiencies(Char_t *fileNameIn, Int_t iEff){
     //copy the values into a histogram:
     hPassed[iVar] = (TH1D *) gEffMCTP1D[iEff][iVar]->GetPassedHistogram();
     hPassed[iVar]->Sumw2(); 
-    printf("%s has %d passed entries\n", name, hPassed[iVar]->GetEntries());
+    printf("%s has %1.0f passed entries\n", name, hPassed[iVar]->GetEntries());
     hTot[iVar] = (TH1D *) gEffMCTP1D[iEff][iVar]->GetTotalHistogram();
     hTot[iVar]->Sumw2();
     sprintf(name, "h%sEffMCTP_%s", effName[iEff], varName[iVar]);
@@ -1708,7 +1771,8 @@ void PlotRhoPol(Int_t iEff, Int_t iFrame){
   sprintf(name, "rho_%s_phi_%s", effName[iEff], eff::frameLabel[iFrame]);
   TH1D *hRho = (TH1D *) ((TH1D *) gEffMCTP_phiPol[TRUTH][iEff][iFrame]->GetPassedHistogram())->Clone(name);
   hRho->Reset();
-  for(int iBinsX = 1; iBinsX <= hRho->GetNbinsX(); iBinsX++){
+  //assigning the error from the statistics in MC:
+  for(int iBinsX = 1; iBinsX <= hRho->GetNbinsX(); iBinsX++) {
 
     Np1 = gEffMCTP_phiPol[TRUTH][iEff][iFrame]->GetPassedHistogram()->GetBinContent(iBinsX);
     Np2 = gEffMCTP_phiPol[TnP][iEff][iFrame]->GetPassedHistogram()->GetBinContent(iBinsX);
@@ -1729,7 +1793,7 @@ void PlotRhoPol(Int_t iEff, Int_t iFrame){
 
       errRho = rho * sqrt(pow(errEff1/eff1,2) + pow(errEff2/eff2,2));
       printf("eff1 = %1.3e +- %1.3e; eff2 = %1.3e +- %1.3e; rho = %1.3f +- %1.3f\n",
-	     eff1, errEff1, eff2, errEff2, rho, errRho);
+   	     eff1, errEff1, eff2, errEff2, rho, errRho);
     }
     else{
       rho = 0.;
@@ -1737,9 +1801,9 @@ void PlotRhoPol(Int_t iEff, Int_t iFrame){
     }
     // hPassed1->SetBinError(iBinsX, errRho);
     hRho->SetBinContent(iBinsX, rho);
-    hRho->SetBinError(iBinsX, errRho);
+    hRho->SetBinError(iBinsX, errRho); //automatically calculated from statistics in MC
+
    }
-  
 
   hRho->SetMarkerStyle(20);
   hRho->Draw("p same");
@@ -1845,44 +1909,76 @@ void PlotRhoPol_pT_rap(Int_t iEff, Int_t iFrame, Int_t iRapBin, Int_t iPTBin){
   sprintf(name, "rho_%s_%s_rap%d_pt%d_cosTheta", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
   TH1D *hRho2 = (TH1D *) ((TH1D *) gEffMCTP_cosTheta_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram())->Clone(name);
   hRho2->Reset();
+  //assigning the error bar from statistics in MC:
+  // for(int iBinsX = 1; iBinsX <= hRho2->GetNbinsX(); iBinsX++){
+
+  //   Np1 = gEffMCTP_cosTheta_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
+  //   Np2 = gEffMCTP_cosTheta_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
+  //   Nf1 = gEffMCTP_cosTheta_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np1;
+  //   Nf2 = gEffMCTP_cosTheta_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np2;
+  //   errNp1 = sqrt(Np1);    errNp2 = sqrt(Np2);
+  //   errNf1 = sqrt(Nf1);    errNf2 = sqrt(Nf2);
+
+  //   // printf("Np1 = %1.3f +- %1.3f, Np2 = %1.3f +- %1.3f, Nf1 = %1.3f +- %1.3f, Nf2 = %1.3f +- %1.3f\n",
+  //   // 	   Np1, errNp1, Np2, errNp2, Nf1, errNf1, Nf2, errNf2);
+  //   if((Np1+Nf1) > 0 && (Np2+Nf2) > 0){
+  //     errEff1 = Np1/pow(Np1+Nf1,2) * sqrt(pow(Nf1/Np1*errNp1,2) + pow(errNf1,2));
+  //     errEff2 = Np2/pow(Np2+Nf2,2) * sqrt(pow(Nf2/Np2*errNp2,2) + pow(errNf2,2));
+
+  //     eff1 = Np1/(Np1+Nf1);
+  //     eff2 = Np2/(Np2+Nf2);
+  //     if(eff1 > 0 && eff2 > 0){
+  // 	rho =  eff1 / eff2;
+
+  // 	errRho = rho * sqrt(pow(errEff1/eff1,2) + pow(errEff2/eff2,2));
+  // 	printf("eff1 = %1.3e +- %1.3e; eff2 = %1.3e +- %1.3e; rho = %1.3f +- %1.3f\n",
+  // 	       eff1, errEff1, eff2, errEff2, rho, errRho);
+  //     }
+  //     else{
+  // 	rho = 0.;
+  // 	errRho = 0.;
+  //     }
+  //   }
+  //   else{
+  //     rho = 0.;
+  //     errRho = 0.;
+  //   }
+
+  //assigning uncertainties from statistics in data:
+  Double_t relStatErrData;
+  Int_t binID;
   for(int iBinsX = 1; iBinsX <= hRho2->GetNbinsX(); iBinsX++){
 
     Np1 = gEffMCTP_cosTheta_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
     Np2 = gEffMCTP_cosTheta_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
     Nf1 = gEffMCTP_cosTheta_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np1;
     Nf2 = gEffMCTP_cosTheta_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np2;
-    errNp1 = sqrt(Np1);    errNp2 = sqrt(Np2);
-    errNf1 = sqrt(Nf1);    errNf2 = sqrt(Nf2);
 
-    // printf("Np1 = %1.3f +- %1.3f, Np2 = %1.3f +- %1.3f, Nf1 = %1.3f +- %1.3f, Nf2 = %1.3f +- %1.3f\n",
-    // 	   Np1, errNp1, Np2, errNp2, Nf1, errNf1, Nf2, errNf2);
+    rho = 0.; errRho = 0.;
+
     if((Np1+Nf1) > 0 && (Np2+Nf2) > 0){
-      errEff1 = Np1/pow(Np1+Nf1,2) * sqrt(pow(Nf1/Np1*errNp1,2) + pow(errNf1,2));
-      errEff2 = Np2/pow(Np2+Nf2,2) * sqrt(pow(Nf2/Np2*errNp2,2) + pow(errNf2,2));
 
       eff1 = Np1/(Np1+Nf1);
       eff2 = Np2/(Np2+Nf2);
-      if(eff1 > 0 && eff2 > 0){
+      if(eff2 > 0){
+
 	rho =  eff1 / eff2;
 
-	errRho = rho * sqrt(pow(errEff1/eff1,2) + pow(errEff2/eff2,2));
+	binID = hUncData_CosT[iFrame][iRapBin][iPTBin]->GetXaxis()->FindBin(gEffMCTP_cosTheta_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinCenter(iBinsX));
+	if(hUncData_CosT[iFrame][iRapBin][iPTBin]->GetBinContent(binID) > 0){
+	  relStatErrData = hUncData_CosT[iFrame][iRapBin][iPTBin]->GetBinError(binID) / hUncData_CosT[iFrame][iRapBin][iPTBin]->GetBinContent(binID);
+	  printf("data %1.3f +- %1.3f\n", hUncData_CosT[iFrame][iRapBin][iPTBin]->GetBinContent(binID), hUncData_CosT[iFrame][iRapBin][iPTBin]->GetBinError(binID));
+
+	  errRho = relStatErrData * rho;
+	}
+
 	printf("eff1 = %1.3e +- %1.3e; eff2 = %1.3e +- %1.3e; rho = %1.3f +- %1.3f\n",
 	       eff1, errEff1, eff2, errEff2, rho, errRho);
       }
-      else{
-	rho = 0.;
-	errRho = 0.;
-      }
-    }
-    else{
-      rho = 0.;
-      errRho = 0.;
-    }
-
-    // hPassed1->SetBinError(iBinsX, errRho);
-    hRho2->SetBinContent(iBinsX, rho);
-    hRho2->SetBinError(iBinsX, errRho);
-   }
+      hRho2->SetBinContent(iBinsX, rho);
+      hRho2->SetBinError(iBinsX, errRho);
+    } 
+  }
   
   hRho2->SetMarkerStyle(20);
   hRho2->Draw("p same");
@@ -1896,8 +1992,9 @@ void PlotRhoPol_pT_rap(Int_t iEff, Int_t iFrame, Int_t iRapBin, Int_t iPTBin){
   fit = hRho2->GetFunction("fit");
   fit->Draw("same");
   Double_t lambdaTheta = fit->GetParameter(1);
+  Double_t lambdaThetaErr = fit->GetParError(1);
 
-  sprintf(name, "#lambda_{#theta}^{eff} = %1.2f", lambdaTheta);
+  sprintf(name, "#lambda_{#theta}^{eff} = %1.2f #pm %1.2f", lambdaTheta, lambdaThetaErr);
   TLatex *tex2 = new TLatex(-0.9, 0.82, name);
   tex2->SetTextSize(0.05); tex2->Draw();
   sprintf(name, "%1.1f < |y| < %1.1f, %1.0f < p_{T} < %1.0f GeV/c", 
@@ -1929,48 +2026,78 @@ void PlotRhoPol_pT_rap(Int_t iEff, Int_t iFrame, Int_t iRapBin, Int_t iPTBin){
   sprintf(name, "rho_%s_%s_rap%d_pt%d_phi", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
   TH1D *hRho = (TH1D *) ((TH1D *) gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram())->Clone(name);
   hRho->Reset();
-  for(int iBinsX = 1; iBinsX <= hRho->GetNbinsX(); iBinsX++){
+  //assigning an uncertainty from statistics in MC:
+  //for(int iBinsX = 1; iBinsX <= hRho->GetNbinsX(); iBinsX++) {
+
+   //  Np1 = gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
+   //  Np2 = gEffMCTP_phiPol_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
+   //  Nf1 = gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np1;
+   //  Nf2 = gEffMCTP_phiPol_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np2;
+   //  errNp1 = sqrt(Np1);    errNp2 = sqrt(Np2);
+   //  errNf1 = sqrt(Nf1);    errNf2 = sqrt(Nf2);
+
+   //  if((Np1+Nf1) > 0 && (Np2+Nf2) > 0){
+   //    // printf("Np1 = %1.3f +- %1.3f, Np2 = %1.3f +- %1.3f, Nf1 = %1.3f +- %1.3f, Nf2 = %1.3f +- %1.3f\n",
+   //    // 	   Np1, errNp1, Np2, errNp2, Nf1, errNf1, Nf2, errNf2);
+   //    errEff1 = Np1/pow(Np1+Nf1,2) * sqrt(pow(Nf1/Np1*errNp1,2) + pow(errNf1,2));
+   //    errEff2 = Np2/pow(Np2+Nf2,2) * sqrt(pow(Nf2/Np2*errNp2,2) + pow(errNf2,2));
+
+   //    eff1 = Np1/(Np1+Nf1);
+   //    eff2 = Np2/(Np2+Nf2);
+   //    if(eff1 > 0 && eff2 > 0){
+   // 	rho =  eff1 / eff2;
+
+   // 	errRho = rho * sqrt(pow(errEff1/eff1,2) + pow(errEff2/eff2,2));
+   // 	printf("eff1 = %1.3e +- %1.3e; eff2 = %1.3e +- %1.3e; rho = %1.3f +- %1.3f\n",
+   // 	       eff1, errEff1, eff2, errEff2, rho, errRho);
+   //    }
+   //    else{
+   // 	rho = 0.;
+   // 	errRho = 0.;
+   //    }
+   //  }
+   //  else{
+   //    rho = 0.;
+   //    errRho = 0.;
+   //  }
+   //  // hPassed1->SetBinError(iBinsX, errRho);
+   //  hRho->SetBinContent(iBinsX, rho);
+   //  hRho->SetBinError(iBinsX, errRho);
+   // }
+
+  //assigning the error from real data:
+  for(int iBinsX = 1; iBinsX <= hRho->GetNbinsX(); iBinsX++) {
 
     Np1 = gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
     Np2 = gEffMCTP_phiPol_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetPassedHistogram()->GetBinContent(iBinsX);
     Nf1 = gEffMCTP_phiPol_pT_rap[TRUTH][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np1;
     Nf2 = gEffMCTP_phiPol_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinContent(iBinsX) - Np2;
-    errNp1 = sqrt(Np1);    errNp2 = sqrt(Np2);
-    errNf1 = sqrt(Nf1);    errNf2 = sqrt(Nf2);
 
     if((Np1+Nf1) > 0 && (Np2+Nf2) > 0){
-      // printf("Np1 = %1.3f +- %1.3f, Np2 = %1.3f +- %1.3f, Nf1 = %1.3f +- %1.3f, Nf2 = %1.3f +- %1.3f\n",
-      // 	   Np1, errNp1, Np2, errNp2, Nf1, errNf1, Nf2, errNf2);
-      errEff1 = Np1/pow(Np1+Nf1,2) * sqrt(pow(Nf1/Np1*errNp1,2) + pow(errNf1,2));
-      errEff2 = Np2/pow(Np2+Nf2,2) * sqrt(pow(Nf2/Np2*errNp2,2) + pow(errNf2,2));
 
       eff1 = Np1/(Np1+Nf1);
       eff2 = Np2/(Np2+Nf2);
       if(eff1 > 0 && eff2 > 0){
-	rho =  eff1 / eff2;
-
-	errRho = rho * sqrt(pow(errEff1/eff1,2) + pow(errEff2/eff2,2));
-	printf("eff1 = %1.3e +- %1.3e; eff2 = %1.3e +- %1.3e; rho = %1.3f +- %1.3f\n",
-	       eff1, errEff1, eff2, errEff2, rho, errRho);
+   	rho =  eff1 / eff2;
+	
+	binID = hUncData_Phi[iFrame][iRapBin][iPTBin]->GetXaxis()->FindBin(gEffMCTP_phiPol_pT_rap[TnP][iEff][iFrame][iPTBin][iRapBin]->GetTotalHistogram()->GetBinCenter(iBinsX));
+	if(hUncData_Phi[iFrame][iRapBin][iPTBin]->GetBinContent(binID) > 0){
+	  relStatErrData = hUncData_Phi[iFrame][iRapBin][iPTBin]->GetBinError(binID) / hUncData_Phi[iFrame][iRapBin][iPTBin]->GetBinContent(binID);
+	  errRho = relStatErrData * rho;
+	}
+	else{
+	  rho = 0.;
+	  errRho = 0.;
+	}
       }
-      else{
-	rho = 0.;
-	errRho = 0.;
-      }
+      
+      hRho->SetBinContent(iBinsX, rho);
+      hRho->SetBinError(iBinsX, errRho);
     }
-    else{
-      rho = 0.;
-      errRho = 0.;
-    }
-    // hPassed1->SetBinError(iBinsX, errRho);
-    hRho->SetBinContent(iBinsX, rho);
-    hRho->SetBinError(iBinsX, errRho);
-   }
-  
+  }
 
   hRho->SetMarkerStyle(20);
   hRho->Draw("p same");
-
 
   TF1 *fit2 = new TF1("fit2", "[0]  + (1.+((2.*[1])/(3.+[2])*cos(2.*x/180.*3.1415926535897931)))", -180., 180.);
   fit2->SetParameter(0,-1.);
@@ -1981,8 +2108,9 @@ void PlotRhoPol_pT_rap(Int_t iEff, Int_t iFrame, Int_t iRapBin, Int_t iPTBin){
   fit2 = hRho->GetFunction("fit2");
   fit2->Draw("same");
   Double_t lambdaPhi = fit2->GetParameter(1);
+  Double_t lambdaPhiErr = fit2->GetParError(1);
 
-  sprintf(name, "#lambda_{#phi}^{eff} = %1.2f", lambdaPhi);
+  sprintf(name, "#lambda_{#phi}^{eff} = %1.2f #pm %1.2f", lambdaPhi, lambdaPhiErr);
   TLatex *tex1 = new TLatex(-170., 0.82, name);
   tex1->SetTextSize(0.05); tex1->Draw();
   sprintf(name, "%1.1f < |y| < %1.1f, %1.0f < p_{T} < %1.0f GeV/c", 
@@ -1996,4 +2124,24 @@ void PlotRhoPol_pT_rap(Int_t iEff, Int_t iFrame, Int_t iRapBin, Int_t iPTBin){
   sprintf(name, "Figures/rho_%sEff_phi_%s_rap%d_pt%d.pdf", effName[iEff], eff::frameLabel[iFrame], iRapBin, iPTBin);
   c1->Print(name);
 
+}
+
+//===============================================
+void LoadDataUncertainties(Char_t *fileName){
+
+  Char_t name[100];
+  TFile *f = new TFile(fileName);
+  for(int iFrame = 0; iFrame < kNbMaxFrame; iFrame++){
+    for(int iRapBin = 1; iRapBin <= 2; iRapBin++){
+      for(int iPTBin = pTBinMin[iRapBin-1]; iPTBin <= pTBinMax[iRapBin-1]; iPTBin++){
+	
+	sprintf(name, "Proj_%s_costh_rap%d_pT%d", eff::frameLabel[iFrame], iRapBin, iPTBin);
+	hUncData_CosT[iFrame][iRapBin][iPTBin] = (TH1D *) gDirectory->Get(name);
+
+	printf("statistics in data %p\n", hUncData_CosT[iFrame][iRapBin][iPTBin]);
+	sprintf(name, "Proj_%s_phi_rap%d_pT%d", eff::frameLabel[iFrame], iRapBin, iPTBin);
+	hUncData_Phi[iFrame][iRapBin][iPTBin] = (TH1D *) gDirectory->Get(name);
+      }
+    }
+  }
 }
