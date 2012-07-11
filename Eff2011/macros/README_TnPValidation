@@ -1,0 +1,33 @@
+In order to conduct the T&P validation test the following steps need to be done:
+ 
+1.) run the script "macros/singleMuTruthEff.C+" which stores in an output
+root file the RECO, TRIG and TOTAL single muon efficiencies, on the
+basis of the special "single muon particle gun" events. The individual
+efficiencies (as a function of eta, pT and phi) are available in the
+TEfficiency format. For the TOTAL efficiencies as a function of pT,
+also TGraphAsymmErrors are available, which take into account the bin
+centre of the events. That is calculated at the end of the macro in
+the routine "CalcWeightedAverage". The weighted average is built on
+the basis of the RECO+TRIG events (not on the basis of the events that
+satisfy the acceptance cuts! That is different w.r.t. the T&P approach
+and could be trivially changed). If this is also interesting for the
+RECO and TRIG efficiencies, it would need to be implemented.
+
+Note that in step 3.) currently the TGraphAsymmErrors are used for
+further processing and not the TEfficiency objects.
+
+2.) Get the latest factorized T&P efficiencies from the dropbox as
+well as the "All-in-one-T&P efficiencies" previously studied. (The
+latter one is not needed, but the code of step 3 was not upgraded to
+ignore it...).
+
+3.) Execute the macro "macros/compareEff.C+" after adjusting the paths to the
+input files in the routine "LoadEfficiencies". This builds the ratio
+of the T&P and Truth efficiencies, bin by bin, optionally after
+linearly extrapolating the efficiency from the MC truth efficiency to
+the centre of gravity found in the T&P efficiencies.
+
+4.) change into ../latex and execute "pdflatex compEff.tex". That will
+automatically read the figures produced in Step 3 and assemble them in
+an output PDF file.
+
