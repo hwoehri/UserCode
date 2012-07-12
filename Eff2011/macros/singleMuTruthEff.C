@@ -93,7 +93,7 @@ void FillHistos(Bool_t startFromTrack){
     Double_t etaGen = pMu_Gen->Eta();
     Double_t phiGen = pMu_Gen->Phi();
 
-    // if(!(isMuonInAcceptance(TIGHT, ptGen, etaGen)) && !(isMuonInAcceptance(TIGHT, pMu_Gen_Fixed->Pt(), pMu_Gen_Fixed->Eta()))) //take only muons in the fiducial area
+    // if(!(isMuonInAcceptance(TIGHT, ptGen, etaGen)) || !(isMuonInAcceptance(TIGHT, pMu_Gen_Fixed->Pt(), pMu_Gen_Fixed->Eta()))) //take only muons in the fiducial area
     //   continue;
     // if(etaGen > 1.6 || pMu_Gen_Fixed->Eta() > 1.6)
     //   continue;
@@ -127,7 +127,10 @@ void FillHistos(Bool_t startFromTrack){
     Double_t phiMuNeg_Gen = pMu_Gen->Phi();//negative muon
     Double_t phiMuPos_Gen = pMu_Fixed->Phi();//positive muon
 
-    if((phiMuNeg_Gen - phiMuPos_Gen) < 0.) //reject cowboys
+    Double_t deltaPhi = phiMuNeg_Gen - phiMuPos_Gen;
+    if(deltaPhi > TMath::Pi()) deltaPhi -= 2.*TMath::Pi();
+    else if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
+    if(deltaPhi < 0.) //reject cowboys
       continue;
 
     // if(HLT_Dimuon10_Jpsi_Barrel_v3 == 1 || HLT_Dimuon10_Jpsi_Barrel_v3 == -2) //1.4E33
