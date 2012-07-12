@@ -50,7 +50,7 @@ Int_t const kNbEffSample = 3;
 enum {DATA, MC, MCTRUTH};
 Char_t *effSampleName[kNbEffSample] = {"DATA", "MC", "MCTRUTH"};
 //
-enum {JPSI, PSIP, UPS};
+enum {JPSI, PSIP, UPS1S, UPS2S, UPS3S};
 //
 enum {CENTRAL, UPPER, LOWER};
 TH2D *hMuEff[kNbEff][kNbEffSample][3];
@@ -182,13 +182,13 @@ Double_t GetEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt, 
 Double_t GetTEfficiency(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt);
 Double_t GetEfficiency_FromParametrization(Int_t iEff, Int_t iEffSample, Double_t eta, Double_t pt);
 //==============================================
-void MCTnPEff::Loop(Int_t effSample, Int_t resonance, Bool_t rejectCowboys, Bool_t use2DGraph, Bool_t useTEfficiency)
+void MCTnPEff::Loop(Int_t effSample, Int_t resonance, Bool_t rejectCowboys, Bool_t use2DGraph, Bool_t useTEfficiency, Int_t useEventNTimes)
 {
   if (fChain == 0) return;
 
   if(resonance == JPSI)
     pTMin = 10.;
-  else if(resonance == UPS)
+  else if(resonance == UPS1S || resonance == UPS2S || resonance == UPS3S)
     pTMin = 5.;
 
   Long64_t nentries = fChain->GetEntries();
@@ -221,10 +221,14 @@ void MCTnPEff::Loop(Int_t effSample, Int_t resonance, Bool_t rejectCowboys, Bool
     Double_t phiMuPos_Gen = muPos_Gen->Phi();
     Double_t phiMuNeg_Gen = muNeg_Gen->Phi();
 
-    if(rejectCowboys)
-      if((phiMuNeg_Gen - phiMuPos_Gen) < 0.)
+    Double_t deltaPhi = phiMuNeg_Gen - phiMuPos_Gen;
+    if(rejectCowboys){
+      if(deltaPhi > TMath::Pi()) deltaPhi -= 2.*TMath::Pi();
+      else if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
+      if(deltaPhi < 0.) //reject cowboys
 	continue;
-    
+    }
+
     // //if(!(isMuonInAcceptance(LOOSE, pTMuPos_Gen, etaMuPos_Gen) && isMuonInAcceptance(LOOSE, pTMuNeg_Gen, etaMuNeg_Gen)))
     // if(!(isMuonInAcceptance(TIGHT, pTMuPos_Gen, etaMuPos_Gen) && isMuonInAcceptance(TIGHT, pTMuNeg_Gen, etaMuNeg_Gen)))
     //   continue;
@@ -306,80 +310,83 @@ void MCTnPEff::Loop(Int_t effSample, Int_t resonance, Bool_t rejectCowboys, Bool
     // Bool_t usePTFit = kTRUE; //alternative to the T&P histograms use fitted pT differential efficiency
     Bool_t usePTFit = kFALSE; //alternative to the T&P histograms use fitted pT differential efficiency
 
-    Double_t randNb = gRandom->Uniform();
+    Double_t randNb = 0.;
     Double_t totEff = 0.;
-    
-    if(!useIndivEff){
 
-      totEff = 0.99*0.99; //tracking efficiency
-      //totEff = 1.0 * 1.0;
+    for(int iN = 0; iN < useEventNTimes; iN++){
 
-      if(usePTFit){	
-	if(!useTEfficiency){
-	  totEff *= GetEfficiency_FromParametrization(SingleMuEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
-	  totEff *= GetEfficiency_FromParametrization(SingleMuEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
-	}
-      }
-      else{
-	if(!useTEfficiency){
-	  totEff *= GetEfficiency(SingleMuEff, effSample, etaMuPos_Gen, pTMuPos_Gen, use2DGraph);
-	  totEff *= GetEfficiency(SingleMuEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen, use2DGraph);
+      randNb = gRandom->Uniform();
+      if(!useIndivEff){
+      
+	totEff = 0.99*0.99; //tracking efficiency
+	//totEff = 1.0 * 1.0;
+      
+	if(usePTFit){
+	  if(!useTEfficiency){
+	    totEff *= GetEfficiency_FromParametrization(SingleMuEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+	    totEff *= GetEfficiency_FromParametrization(SingleMuEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	  }
 	}
 	else{
-	  totEff *= GetTEfficiency(SingleMuEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
-	  totEff *= GetTEfficiency(SingleMuEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	  if(!useTEfficiency){
+	    totEff *= GetEfficiency(SingleMuEff, effSample, etaMuPos_Gen, pTMuPos_Gen, use2DGraph);
+	    totEff *= GetEfficiency(SingleMuEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen, use2DGraph);
+	  }
+	  else{
+	    totEff *= GetTEfficiency(SingleMuEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+	    totEff *= GetTEfficiency(SingleMuEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	  }
 	}
-      }
-      // //dimuon vertexing cut NOT included in the (single) muon quality cuts...
-      // if(JpsiVprob < 0.01)
-      // 	totEff = 0.;
-    }
-    else{
-      Double_t epsTrack_Pos = 0.99;
-      Double_t epsTrack_Neg = 0.99;
-      // Double_t epsTrack_Pos  = 1.0;
-      // Double_t epsTrack_Neg = 1.0;
-      Double_t epsMuonID_Pos, epsQual_Pos, epsMuonID_Neg, epsQual_Neg;
-      if(usePTFit){
-	epsMuonID_Pos = GetEfficiency_FromParametrization(MuIDEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
-	epsQual_Pos   = GetEfficiency_FromParametrization(MuQualEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
-	epsMuonID_Neg = GetEfficiency_FromParametrization(MuIDEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
-	epsQual_Neg   = GetEfficiency_FromParametrization(MuQualEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	// //dimuon vertexing cut NOT included in the (single) muon quality cuts...
+	// if(JpsiVprob < 0.01)
+	// 	totEff = 0.;
       }
       else{
-	epsMuonID_Pos = GetEfficiency(MuIDEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
-	epsQual_Pos   = GetEfficiency(MuQualEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
-	epsMuonID_Neg = GetEfficiency(MuIDEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
-	epsQual_Neg   = GetEfficiency(MuQualEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
-      }
-      Double_t recoEff_Pos = epsTrack_Pos * epsMuonID_Pos * epsQual_Pos;
-      Double_t recoEff_Neg = epsTrack_Neg * epsMuonID_Neg * epsQual_Neg;
-      Double_t recoEff = recoEff_Pos * recoEff_Neg;
+	Double_t epsTrack_Pos = 0.99;
+	Double_t epsTrack_Neg = 0.99;
+	// Double_t epsTrack_Pos  = 1.0;
+	// Double_t epsTrack_Neg = 1.0;
+	Double_t epsMuonID_Pos, epsQual_Pos, epsMuonID_Neg, epsQual_Neg;
+	if(usePTFit){
+	  epsMuonID_Pos = GetEfficiency_FromParametrization(MuIDEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+	  epsQual_Pos   = GetEfficiency_FromParametrization(MuQualEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+	  epsMuonID_Neg = GetEfficiency_FromParametrization(MuIDEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	  epsQual_Neg   = GetEfficiency_FromParametrization(MuQualEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	}
+	else{
+	  epsMuonID_Pos = GetEfficiency(MuIDEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+	  epsQual_Pos   = GetEfficiency(MuQualEff, effSample, etaMuPos_Gen, pTMuPos_Gen);
+	  epsMuonID_Neg = GetEfficiency(MuIDEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	  epsQual_Neg   = GetEfficiency(MuQualEff, effSample, etaMuNeg_Gen, pTMuNeg_Gen);
+	}
+	Double_t recoEff_Pos = epsTrack_Pos * epsMuonID_Pos * epsQual_Pos;
+	Double_t recoEff_Neg = epsTrack_Neg * epsMuonID_Neg * epsQual_Neg;
+	Double_t recoEff = recoEff_Pos * recoEff_Neg;
+	
+	// //dimuon vertexing cut NOT included in the (single) muon quality cuts...
+	// if(JpsiVprob < 0.01)
+	// 	recoEff = 0.;
+	
+	//the indiv. histograms will be filled depending on the
+	//assigned probability
+	if(recoEff > randNb)
+	  incrementReco = kTRUE;
+	else
+	  incrementReco = kFALSE;
 
-      // //dimuon vertexing cut NOT included in the (single) muon quality cuts...
-      // if(JpsiVprob < 0.01)
-      // 	recoEff = 0.;
+	//test: check whether this particular event was really reconstructed...
+	Bool_t recoPassed = kFALSE;
+	//      if(onia->Pt() < 990. && fabs(onia->Rapidity()) < eff::rapMax && JpsiVprob > 0.01) recoPassed = kTRUE;
+	if(onia->Pt() < 990. && fabs(onia->Rapidity()) < eff::rapMax) recoPassed = kTRUE;
+	hCorrRECO->Fill(recoPassed, incrementReco);
 
-      //the indiv. histograms will be filled depending on the
-      //assigned probability
-      if(recoEff > randNb)
-	incrementReco = kTRUE;
-      else
-	incrementReco = kFALSE;
+	Double_t epsL1L2Trig_Pos, epsL3Trig_Pos, epsL1L2Trig_Neg, epsL3Trig_Neg;
+	Double_t trigEff = 0.;
+	// if(recoPassed){//check the trigger efficiency only for those events that pass RECO
+	incrementTrig = kFALSE;
+	if(incrementReco){
 
-      //test: check whether this particular event was really reconstructed...
-      Bool_t recoPassed = kFALSE;
-      //      if(onia->Pt() < 990. && fabs(onia->Rapidity()) < eff::rapMax && JpsiVprob > 0.01) recoPassed = kTRUE;
-      if(onia->Pt() < 990. && fabs(onia->Rapidity()) < eff::rapMax) recoPassed = kTRUE;
-      hCorrRECO->Fill(recoPassed, incrementReco);
-
-      Double_t epsL1L2Trig_Pos, epsL3Trig_Pos, epsL1L2Trig_Neg, epsL3Trig_Neg;
-      Double_t trigEff = 0.;
-      // if(recoPassed){//check the trigger efficiency only for those events that pass RECO
-      incrementTrig = kFALSE;
-      if(incrementReco){
-
-	//if(strncmp("HLT_Dimuon10_Jpsi_Barrel", trigLabel, 24) == 0 || strncmp("HLT_Dimuon5_Upsilon_Barrel", trigLabel, 26) == 0){
+	  //if(strncmp("HLT_Dimuon10_Jpsi_Barrel", trigLabel, 24) == 0 || strncmp("HLT_Dimuon5_Upsilon_Barrel", trigLabel, 26) == 0){
 	  //HLT_Dimuon10_Jpsi_Barrel_v3... 1.4E33
 	  //HLT_Dimuon10_Jpsi_Barrel_v5... no cowboys
 	  //HLT_Dimuon10_Jpsi_Barrel_v6... L1DoubleMu0_HighQ
@@ -403,33 +410,33 @@ void MCTnPEff::Loop(Int_t effSample, Int_t resonance, Bool_t rejectCowboys, Bool
 	  }
 	  trigEff = epsL1L2Trig_Pos * epsL3Trig_Pos * epsL1L2Trig_Neg * epsL3Trig_Neg;
 	  //}
-      }
-      if(trigEff > randNb)
-	incrementTrig = kTRUE;
+	}
+	if(trigEff > randNb)
+	  incrementTrig = kTRUE;
+	else
+	  incrementTrig = kFALSE;
+
+	totEff = trigEff * recoEff;
+      }//useIndivEff
+      // //account for the dimuon vertexing efficiency:
+      // totEff *= GetDimuEfficiency(effSample, thisCosTh[eff::CS], thisPhi[eff::CS]);
+
+      if(totEff > randNb) 
+	incrementTot = kTRUE;
       else
-	incrementTrig = kFALSE;
+	incrementTot = kFALSE;
 
-      totEff = trigEff * recoEff;
-    }
-    // //account for the dimuon vertexing efficiency:
-    // totEff *= GetDimuEfficiency(effSample, thisCosTh[eff::CS], thisPhi[eff::CS]);
-
-    if(totEff > randNb) 
-      incrementTot = kTRUE;
-    else
-      incrementTot = kFALSE;
-
-    if(useIndivEff){
-      recoEff_pT->Fill(incrementReco, onia_Gen_pt);
-      // if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -2.0 && onia_Gen_rap < 2.0){
-      if(onia_Gen_pt > pTMin){
-	recoEff_y->Fill(incrementReco, onia_Gen_rap);
-	recoEff_phi->Fill(incrementReco, onia_Gen_phi);
-      }
-      recoEff2D_pT_rapNP->Fill(incrementReco, onia_Gen_rap, onia_Gen_pt);
-      recoEff2D_pT_rap->Fill(incrementReco, fabs(onia_Gen_rap), onia_Gen_pt);
+      if(useIndivEff){
+	recoEff_pT->Fill(incrementReco, onia_Gen_pt);
+	// if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -2.0 && onia_Gen_rap < 2.0){
+	if(onia_Gen_pt > pTMin){
+	  recoEff_y->Fill(incrementReco, onia_Gen_rap);
+	  recoEff_phi->Fill(incrementReco, onia_Gen_phi);
+	}
+	recoEff2D_pT_rapNP->Fill(incrementReco, onia_Gen_rap, onia_Gen_pt);
+	recoEff2D_pT_rap->Fill(incrementReco, fabs(onia_Gen_rap), onia_Gen_pt);
     
-      //      if(incrementReco){ //calculate the trigger efficiency only for events that pass RECO
+	//      if(incrementReco){ //calculate the trigger efficiency only for events that pass RECO
 	trigEff_pT->Fill(incrementTrig, onia_Gen_pt);
 	//if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -2.0 && onia_Gen_rap < 2.0){
 	if(onia_Gen_pt > pTMin){
@@ -439,154 +446,154 @@ void MCTnPEff::Loop(Int_t effSample, Int_t resonance, Bool_t rejectCowboys, Bool
 	trigEff2D_pT_rapNP->Fill(incrementTrig, onia_Gen_rap, onia_Gen_pt);
 	trigEff2D_pT_rap->Fill(incrementTrig, fabs(onia_Gen_rap), onia_Gen_pt);
 	//}
-    }
+      }
 
-    totEff_pT->Fill(incrementTot, onia_Gen_pt);
-
-    //if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -2.0 && onia_Gen_rap < 2.0){
-    if(onia_Gen_pt > pTMin){
-      totEff_y->Fill(incrementTot, onia_Gen_rap);
-      totEff_phi->Fill(incrementTot, onia_Gen_phi);
-    }
-    totEff2D_pT_rapNP->Fill(incrementTot, onia_Gen_rap, onia_Gen_pt);
-    totEff2D_pT_rap->Fill(incrementTot, fabs(onia_Gen_rap), onia_Gen_pt);
-
-    //fill the eff. histos for all the different frames
-    for(int iFrame = 0; iFrame < eff::kNbFrames; iFrame++){
+      totEff_pT->Fill(incrementTot, onia_Gen_pt);
 
       //if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -2.0 && onia_Gen_rap < 2.0){
       if(onia_Gen_pt > pTMin){
-	if(useIndivEff){
-	  recoEff_cosTheta[iFrame]->Fill(incrementReco, thisCosTh[iFrame]);
-	  recoEff_phiPol[iFrame]->Fill(incrementReco, thisPhi[iFrame]);
-	  recoEff2D_cosTheta_phiPol[iFrame]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
-	  
-	  recoEff_phiPol_pT_rap[iFrame][0][0]->Fill(incrementReco, thisPhi[iFrame]);
-	  recoEff_cosTheta_pT_rap[iFrame][0][0]->Fill(incrementReco, thisCosTh[iFrame]);
-	  
-	  // if(incrementReco){
-	  trigEff_cosTheta[iFrame]->Fill(incrementTrig, thisCosTh[iFrame]);
-	  trigEff_phiPol[iFrame]->Fill(incrementTrig, thisPhi[iFrame]);
-	  trigEff2D_cosTheta_phiPol[iFrame]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
-	  
-	  trigEff_phiPol_pT_rap[iFrame][0][0]->Fill(incrementTrig, thisPhi[iFrame]);
-	  trigEff_cosTheta_pT_rap[iFrame][0][0]->Fill(incrementTrig, thisCosTh[iFrame]);
-	  // }
-	}
-
-	totEff_cosTheta[iFrame]->Fill(incrementTot, thisCosTh[iFrame]);
-	totEff_phiPol[iFrame]->Fill(incrementTot, thisPhi[iFrame]);
-	totEff2D_cosTheta_phiPol[iFrame]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
-
-	totEff_phiPol_pT_rap[iFrame][0][0]->Fill(incrementTot, thisPhi[iFrame]);
-	totEff_cosTheta_pT_rap[iFrame][0][0]->Fill(incrementTot, thisCosTh[iFrame]);
+	totEff_y->Fill(incrementTot, onia_Gen_rap);
+	totEff_phi->Fill(incrementTot, onia_Gen_phi);
       }
-      //histos for neg. and pos. rapidity separately:
-      if(rapIndex_Gen >= 0){
-
-	if(useIndivEff){
-	  recoEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
-	  // if(incrementReco)
-	    trigEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
-	}
-	totEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
-      }
-      if(pTIndex_Gen > 0 && rapIndex_Gen >= 0){
-
-	if(useIndivEff){
-	  recoEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
-	  // if(incrementReco)
-	    trigEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
-	}
-	totEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
-      }
-	
-      //histos taking together +y and -y
-      if(useIndivEff){
-	recoEff2D_pol_pT_rap[iFrame][0][0]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
-	// if(incrementReco)
-	  trigEff2D_pol_pT_rap[iFrame][0][0]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
-      }
-      totEff2D_pol_pT_rap[iFrame][0][0]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
-      if(rapIntegratedPTIndex_Gen > 0){
-	if(useIndivEff){
-	  recoEff2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
-	  // if(incrementReco)
-	  trigEff2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
-	}
-	totEff2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
-      }
-      if(rapForPTIndex_Gen > 0){
-	if(useIndivEff){
-	  recoEff2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
-	  // if(incrementReco)
-	    trigEff2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
-	}
-	totEff2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
-      }
-      if(pTIndex_Gen > 0 && rapForPTIndex_Gen > 0){
-	if(useIndivEff){
-	  recoEff2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
-	  recoEff_phiPol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementReco, thisPhi[iFrame]);
-	  recoEff_cosTheta_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementReco, thisCosTh[iFrame]);
-
-	  // if(incrementReco)
-	  trigEff2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
-
-	  trigEff_phiPol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTrig, thisPhi[iFrame]);
-	  trigEff_cosTheta_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTrig, thisCosTh[iFrame]);
-	}
-	totEff2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
-
-	totEff_phiPol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTot, thisPhi[iFrame]);
-	totEff_cosTheta_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTot, thisCosTh[iFrame]);
-      }
-
+      totEff2D_pT_rapNP->Fill(incrementTot, onia_Gen_rap, onia_Gen_pt);
+      totEff2D_pT_rap->Fill(incrementTot, fabs(onia_Gen_rap), onia_Gen_pt);
       
-      //histos taking together +y and -y and phi 4-folding
-      Double_t phiFolded = thisPhi[iFrame];
-      Double_t thetaAdjusted = thisCosTh[iFrame];
-      if(thisPhi[iFrame] > -90. && thisPhi[iFrame] < 0.)
-	phiFolded *= -1;
-      else if(thisPhi[iFrame] > 90 && thisPhi[iFrame] < 180){
-	phiFolded = 180. - thisPhi[iFrame];
-	thetaAdjusted *= -1;
-      }
-      else if(thisPhi[iFrame] > -180. && thisPhi[iFrame] < -90.){
-	phiFolded = 180. + thisPhi[iFrame];
-	thetaAdjusted *= -1;
-      }
-      if(useIndivEff){
-	recoEff2D_pol_pT_rap_phiFolded[iFrame][0][0]->Fill(incrementReco, thetaAdjusted, phiFolded);
-	// if(incrementReco)
+      //fill the eff. histos for all the different frames
+      for(int iFrame = 0; iFrame < eff::kNbFrames; iFrame++){
+
+	//if(onia_Gen_pt > 10. && onia_Gen_pt < 25. && onia_Gen_rap > -2.0 && onia_Gen_rap < 2.0){
+	if(onia_Gen_pt > pTMin){
+	  if(useIndivEff){
+	    recoEff_cosTheta[iFrame]->Fill(incrementReco, thisCosTh[iFrame]);
+	    recoEff_phiPol[iFrame]->Fill(incrementReco, thisPhi[iFrame]);
+	    recoEff2D_cosTheta_phiPol[iFrame]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
+	    
+	    recoEff_phiPol_pT_rap[iFrame][0][0]->Fill(incrementReco, thisPhi[iFrame]);
+	    recoEff_cosTheta_pT_rap[iFrame][0][0]->Fill(incrementReco, thisCosTh[iFrame]);
+	  
+	    // if(incrementReco){
+	    trigEff_cosTheta[iFrame]->Fill(incrementTrig, thisCosTh[iFrame]);
+	    trigEff_phiPol[iFrame]->Fill(incrementTrig, thisPhi[iFrame]);
+	    trigEff2D_cosTheta_phiPol[iFrame]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
+	    
+	    trigEff_phiPol_pT_rap[iFrame][0][0]->Fill(incrementTrig, thisPhi[iFrame]);
+	    trigEff_cosTheta_pT_rap[iFrame][0][0]->Fill(incrementTrig, thisCosTh[iFrame]);
+	    // }
+	  }
+
+	  totEff_cosTheta[iFrame]->Fill(incrementTot, thisCosTh[iFrame]);
+	  totEff_phiPol[iFrame]->Fill(incrementTot, thisPhi[iFrame]);
+	  totEff2D_cosTheta_phiPol[iFrame]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
+	  
+	  totEff_phiPol_pT_rap[iFrame][0][0]->Fill(incrementTot, thisPhi[iFrame]);
+	  totEff_cosTheta_pT_rap[iFrame][0][0]->Fill(incrementTot, thisCosTh[iFrame]);
+	}
+	//histos for neg. and pos. rapidity separately:
+	if(rapIndex_Gen >= 0){
+
+	  if(useIndivEff){
+	    recoEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
+	    // if(incrementReco)
+	    trigEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
+	  }
+	  totEff2D_pol_pT_rapNP[iFrame][0][rapIndex_Gen]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
+	}
+	if(pTIndex_Gen > 0 && rapIndex_Gen >= 0){
+	  
+	  if(useIndivEff){
+	    recoEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
+	    // if(incrementReco)
+	    trigEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
+	  }
+	  totEff2D_pol_pT_rapNP[iFrame][pTIndex_Gen][rapIndex_Gen]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
+	}
+	
+	//histos taking together +y and -y
+	if(useIndivEff){
+	  recoEff2D_pol_pT_rap[iFrame][0][0]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
+	  // if(incrementReco)
+	  trigEff2D_pol_pT_rap[iFrame][0][0]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
+	}
+	totEff2D_pol_pT_rap[iFrame][0][0]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
+	if(rapIntegratedPTIndex_Gen > 0){
+	  if(useIndivEff){
+	    recoEff2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
+	    // if(incrementReco)
+	    trigEff2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
+	  }
+	  totEff2D_pol_pT_rap[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
+	}
+	if(rapForPTIndex_Gen > 0){
+	  if(useIndivEff){
+	    recoEff2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
+	    // if(incrementReco)
+	    trigEff2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
+	  }
+	  totEff2D_pol_pT_rap[iFrame][0][rapForPTIndex_Gen]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
+	}
+	if(pTIndex_Gen > 0 && rapForPTIndex_Gen > 0){
+	  if(useIndivEff){
+	    recoEff2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementReco, thisCosTh[iFrame], thisPhi[iFrame]);
+	    recoEff_phiPol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementReco, thisPhi[iFrame]);
+	    recoEff_cosTheta_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementReco, thisCosTh[iFrame]);
+	    
+	    // if(incrementReco)
+	    trigEff2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTrig, thisCosTh[iFrame], thisPhi[iFrame]);
+	    
+	    trigEff_phiPol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTrig, thisPhi[iFrame]);
+	    trigEff_cosTheta_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTrig, thisCosTh[iFrame]);
+	  }
+	  totEff2D_pol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTot, thisCosTh[iFrame], thisPhi[iFrame]);
+	  
+	  totEff_phiPol_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTot, thisPhi[iFrame]);
+	  totEff_cosTheta_pT_rap[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTot, thisCosTh[iFrame]);
+	}
+
+	//histos taking together +y and -y and phi 4-folding
+	Double_t phiFolded = thisPhi[iFrame];
+	Double_t thetaAdjusted = thisCosTh[iFrame];
+	if(thisPhi[iFrame] > -90. && thisPhi[iFrame] < 0.)
+	  phiFolded *= -1;
+	else if(thisPhi[iFrame] > 90 && thisPhi[iFrame] < 180){
+	  phiFolded = 180. - thisPhi[iFrame];
+	  thetaAdjusted *= -1;
+	}
+	else if(thisPhi[iFrame] > -180. && thisPhi[iFrame] < -90.){
+	  phiFolded = 180. + thisPhi[iFrame];
+	  thetaAdjusted *= -1;
+	}
+	if(useIndivEff){
+	  recoEff2D_pol_pT_rap_phiFolded[iFrame][0][0]->Fill(incrementReco, thetaAdjusted, phiFolded);
+	  // if(incrementReco)
 	  trigEff2D_pol_pT_rap_phiFolded[iFrame][0][0]->Fill(incrementTrig, thetaAdjusted, phiFolded);
-      }
-      totEff2D_pol_pT_rap_phiFolded[iFrame][0][0]->Fill(incrementTot, thetaAdjusted, phiFolded);
-      if(rapIntegratedPTIndex_Gen > 0){
-	if(useIndivEff){
-	  recoEff2D_pol_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(incrementReco, thetaAdjusted, phiFolded);
-	  // if(incrementReco)
+	}
+	totEff2D_pol_pT_rap_phiFolded[iFrame][0][0]->Fill(incrementTot, thetaAdjusted, phiFolded);
+	if(rapIntegratedPTIndex_Gen > 0){
+	  if(useIndivEff){
+	    recoEff2D_pol_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(incrementReco, thetaAdjusted, phiFolded);
+	    // if(incrementReco)
 	    trigEff2D_pol_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(incrementTrig, thetaAdjusted, phiFolded);
+	  }
+	  totEff2D_pol_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(incrementTot, thetaAdjusted, phiFolded);
 	}
-	totEff2D_pol_pT_rap_phiFolded[iFrame][rapIntegratedPTIndex_Gen][0]->Fill(incrementTot, thetaAdjusted, phiFolded);
-      }
-      if(rapForPTIndex_Gen > 0){
-	if(useIndivEff){
-	  recoEff2D_pol_pT_rap_phiFolded[iFrame][0][rapForPTIndex_Gen]->Fill(incrementReco, thetaAdjusted, phiFolded);
-	  // if(incrementReco)
+	if(rapForPTIndex_Gen > 0){
+	  if(useIndivEff){
+	    recoEff2D_pol_pT_rap_phiFolded[iFrame][0][rapForPTIndex_Gen]->Fill(incrementReco, thetaAdjusted, phiFolded);
+	    // if(incrementReco)
 	    trigEff2D_pol_pT_rap_phiFolded[iFrame][0][rapForPTIndex_Gen]->Fill(incrementTrig, thetaAdjusted, phiFolded);
+	  }
+	  totEff2D_pol_pT_rap_phiFolded[iFrame][0][rapForPTIndex_Gen]->Fill(incrementTot, thetaAdjusted, phiFolded);
 	}
-	totEff2D_pol_pT_rap_phiFolded[iFrame][0][rapForPTIndex_Gen]->Fill(incrementTot, thetaAdjusted, phiFolded);
-      }
-      if(pTIndex_Gen > 0 && rapForPTIndex_Gen > 0){
-	if(useIndivEff){
-	  recoEff2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementReco, thetaAdjusted, phiFolded);
-	  // if(incrementReco)
+	if(pTIndex_Gen > 0 && rapForPTIndex_Gen > 0){
+	  if(useIndivEff){
+	    recoEff2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementReco, thetaAdjusted, phiFolded);
+	    // if(incrementReco)
 	    trigEff2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTrig, thetaAdjusted, phiFolded);
-	}
-	totEff2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTot, thetaAdjusted, phiFolded);
-      }
-    }
+	  }
+	  totEff2D_pol_pT_rap_phiFolded[iFrame][pTIndex_Gen][rapForPTIndex_Gen]->Fill(incrementTot, thetaAdjusted, phiFolded);
+	} 
+      }//frame
+    }//useEventNTimes
   }//loop over entries
 
   printf("nb. of rec. events is %d of a total of %d events\n", (Int_t) countRecEvent, (Int_t) nentries);

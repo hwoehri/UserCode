@@ -16,7 +16,8 @@ Char_t *effTypeName[3] = {"reco", "trig", "tot"};
 enum {RHO_RECO, RHO_TRIG, RHO_TOT};
 //Char_t *rhoFFileName = "rhoFactor_SingleMuEff_noDimuVtxEffCorr_noJpsiVprobCut_15Dec2011.root";
 //Char_t *rhoFFileName = "rhoFactor_ProdSingleMuEff_noDimuVtxEffCorr_noJpsiVprobCut_15Dec2011.root";
-Char_t *rhoFFileName = "rhoFactor_ProdSingleMuEff_16Dec2011.root";
+//Char_t *rhoFFileName = "rhoFactor_ProdSingleMuEff_16Dec2011.root";
+Char_t *rhoFFileName = "rhoFactor_SingleMuEff_17Dec2011.root";
 Int_t const kNbMaxFrame = 3;
 TH2D *hRho_pol[3][kNbMaxFrame][eff::kNbRapForPTBins+1][eff::kNbPTMaxBins+1];
 
@@ -28,8 +29,8 @@ enum {SingleMuEff};
 Bool_t useIndivEff = kFALSE;
 Int_t const kNbEff = 1;
 Char_t *effName[kNbEff] = {"SingleMuEff"};
-Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/8Dec2011/EfficiencyProductDimuon0Jpsi_MuonID-MC_MuonQualRunA_L1L2L3Run1_Trk80Cuts_19Nov2011.root"};
-//Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Linlin/7Dec2011/singleMuonEfficiency_ProbeTrackMatched_data_mc_pt_abseta_tracker80Cuts_7Dec2011.root"};//SingleMuEff a la Matt
+//Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/8Dec2011/EfficiencyProductDimuon0Jpsi_MuonID-MC_MuonQualRunA_L1L2L3Run1_Trk80Cuts_19Nov2011.root"};
+Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Linlin/7Dec2011/singleMuonEfficiency_ProbeTrackMatched_data_mc_pt_abseta_tracker80Cuts_7Dec2011.root"};//SingleMuEff a la Matt
 //Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Linlin/2Dec2011/SingleMuEff_Dimuon10Jpsi_ProbeTrackMatched_data_mc_pt_abseta_tracker80Cuts_02Dec2011.root"};//SingleMuEff a la Matt (L1*L2*L3 trigger eff only)
 //Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/7Dec2011/EfficiencyProductDimuon0Jpsi_MuonID-MC_MuonQualRunA_L1L2L3Run1_Trk80Cuts_19Nov2011.root"};
 //Char_t *effFileNames[kNbEff] = {"/Users/hwoehri/CMS/Work/TnP/2011/Ilse/23Nov2011/EfficiencyProductDimuon0Jpsi_MuonID-MC_MuonQualRunA_L1L2L3Run1_Trk80Cuts_19Nov2011.root"};
@@ -184,9 +185,14 @@ void MCClosure::Loop(Int_t effSample, Char_t *trigLabel, Bool_t rejectCowboys, B
       hPhi[iFrame][rapForPTIndex_Gen][pTIndex_Gen][GEN]->Fill(thisPhi[iFrame]);
     }
 
-    if(rejectCowboys)
-      if((phiMuNeg_Gen - phiMuPos_Gen) < 0.)
+    
+    Double_t deltaPhi = phiMuNeg_Gen - phiMuPos_Gen;
+    if(rejectCowboys){
+      if(deltaPhi > TMath::Pi()) deltaPhi -= 2.*TMath::Pi();
+      else if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
+      if(deltaPhi < 0.) //reject cowboys
 	continue;
+    }
     
     //if(!(isMuonInAcceptance(LOOSE, pTMuPos_Gen, etaMuPos_Gen) && isMuonInAcceptance(LOOSE, pTMuNeg_Gen, etaMuNeg_Gen)))
     if(!(isMuonInAcceptance(TIGHT, pTMuPos_Gen, etaMuPos_Gen) && isMuonInAcceptance(TIGHT, pTMuNeg_Gen, etaMuNeg_Gen)))
