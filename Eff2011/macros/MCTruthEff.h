@@ -42,6 +42,19 @@ public :
    Double_t        JpsiDistM2;
    Double_t        JpsiDphiM2;
    Double_t        JpsiDrM2;
+   Double_t        muPosPglobalchi2;
+   Double_t        muNegPglobalchi2;
+   Int_t           ismuPosTMOneStationTight;
+   Int_t           ismuNegTMOneStationTight;
+   Int_t           muPosPMuonMatchedStations;
+   Int_t           muNegPMuonMatchedStations;
+   Double_t        muPosPglobalprob;
+   Double_t        muNegPglobalprob;
+   Double_t        muPosPTrackProb;
+   Double_t        muNegPTrackProb;
+   Int_t           muPosPglobalMuonHits;
+   Int_t           muNegPglobalMuonHits;
+   Double_t        DCA;
    Int_t           HLT_Dimuon5_Upsilon_Barrel_v3;
    Int_t           HLT_Dimuon5_Upsilon_Barrel_v3_PreScale;
    Int_t           HLT_Dimuon10_Jpsi_Barrel_v3;
@@ -128,6 +141,19 @@ public :
    TBranch        *b_JpsiDistM2;   //!
    TBranch        *b_JpsiDphiM2;   //!
    TBranch        *b_JpsiDrM2;   //!
+   TBranch        *b_muPosPglobalchi2;   //!
+   TBranch        *b_muNegPglobalchi2;   //!
+   TBranch        *b_ismuPosTMOneStationTight;   //!
+   TBranch        *b_ismuNegTMOneStationTight;   //!
+   TBranch        *b_muPosPMuonMatchedStations;   //!
+   TBranch        *b_muNegPMuonMatchedStations;   //!
+   TBranch        *b_muPosPglobalprob;   //!
+   TBranch        *b_muNegPglobalprob;   //!
+   TBranch        *b_muPosPTrackProb;   //!
+   TBranch        *b_muNegPTrackProb;   //!
+   TBranch        *b_muPosPglobalMuonHits;   //!
+   TBranch        *b_muNegPglobalMuonHits;   //!
+   TBranch        *b_DCA;   //!
    TBranch        *b_HLT_Dimuon5_Upsilon_Barrel_v3;   //!
    TBranch        *b_HLT_Dimuon5_Upsilon_Barrel_v3_PreScale;   //!
    TBranch        *b_HLT_Dimuon10_Jpsi_Barrel_v3;   //!
@@ -201,7 +227,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop(Char_t *trigLabel, Bool_t rejectCowboys);
+   virtual void     Loop(Int_t resonance, Bool_t rejectCowboys, Int_t useSoftMuons);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -299,6 +325,19 @@ void MCTruthEff::Init(TTree *tree)
    fChain->SetBranchAddress("JpsiDistM2", &JpsiDistM2, &b_JpsiDistM2);
    fChain->SetBranchAddress("JpsiDphiM2", &JpsiDphiM2, &b_JpsiDphiM2);
    fChain->SetBranchAddress("JpsiDrM2", &JpsiDrM2, &b_JpsiDrM2);
+   fChain->SetBranchAddress("muPosPglobalchi2", &muPosPglobalchi2, &b_muPosPglobalchi2);
+   fChain->SetBranchAddress("muNegPglobalchi2", &muNegPglobalchi2, &b_muNegPglobalchi2);
+   fChain->SetBranchAddress("ismuPosTMOneStationTight", &ismuPosTMOneStationTight, &b_ismuPosTMOneStationTight);
+   fChain->SetBranchAddress("ismuNegTMOneStationTight", &ismuNegTMOneStationTight, &b_ismuNegTMOneStationTight);
+   fChain->SetBranchAddress("muPosPMuonMatchedStations", &muPosPMuonMatchedStations, &b_muPosPMuonMatchedStations);
+   fChain->SetBranchAddress("muNegPMuonMatchedStations", &muNegPMuonMatchedStations, &b_muNegPMuonMatchedStations);
+   fChain->SetBranchAddress("muPosPglobalprob", &muPosPglobalprob, &b_muPosPglobalprob);
+   fChain->SetBranchAddress("muNegPglobalprob", &muNegPglobalprob, &b_muNegPglobalprob);
+   fChain->SetBranchAddress("muPosPTrackProb", &muPosPTrackProb, &b_muPosPTrackProb);
+   fChain->SetBranchAddress("muNegPTrackProb", &muNegPTrackProb, &b_muNegPTrackProb);
+   fChain->SetBranchAddress("muPosPglobalMuonHits", &muPosPglobalMuonHits, &b_muPosPglobalMuonHits);
+   fChain->SetBranchAddress("muNegPglobalMuonHits", &muNegPglobalMuonHits, &b_muNegPglobalMuonHits);
+   fChain->SetBranchAddress("DCA", &DCA, &b_DCA);
    fChain->SetBranchAddress("HLT_Dimuon5_Upsilon_Barrel_v3", &HLT_Dimuon5_Upsilon_Barrel_v3, &b_HLT_Dimuon5_Upsilon_Barrel_v3);
    fChain->SetBranchAddress("HLT_Dimuon5_Upsilon_Barrel_v3_PreScale", &HLT_Dimuon5_Upsilon_Barrel_v3_PreScale, &b_HLT_Dimuon5_Upsilon_Barrel_v3_PreScale);
    fChain->SetBranchAddress("HLT_Dimuon10_Jpsi_Barrel_v3", &HLT_Dimuon10_Jpsi_Barrel_v3, &b_HLT_Dimuon10_Jpsi_Barrel_v3);

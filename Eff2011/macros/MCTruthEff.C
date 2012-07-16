@@ -94,13 +94,11 @@ void MCTruthEff::Loop(Int_t resonance, Bool_t rejectCowboys, Int_t useSoftMuons)
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
   //for (Long64_t jentry=0; jentry<50;jentry++) {
 
-    //    if(jentry % 100000 == 0) printf("event %d\n", (Int_t) jentry);
-    printf("event %d\n", (Int_t) jentry);
+    if(jentry % 100000 == 0) printf("event %d\n", (Int_t) jentry);
  
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);
-
 
     if(onia_Gen->Pt() > 990. || muPos_Gen->Pt() > 990. || muNeg_Gen->Pt() > 990.){
       printf("found a generated event w/o proper entries: onia=%1.3f, muPos=%1.3f, muNeg=%1.3f\n", 
@@ -255,35 +253,36 @@ void MCTruthEff::Loop(Int_t resonance, Bool_t rejectCowboys, Int_t useSoftMuons)
     if(onia->Pt() < 990. && 
        fabs(onia->Rapidity()) < eff::rapMax && 
        JpsiVprob > 0.01 &&
+       fabs(Jpsict / JpsictErr) < 2.0 &&
        // isMuonInAcceptance(TIGHT, pTMuPos, etaMuPos) &&
        // isMuonInAcceptance(TIGHT, pTMuNeg, etaMuNeg) &&
        // fabs(muPos->Eta()) < 1.6 &&
        // fabs(muNeg->Eta()) < 1.6
-       decisionPos && decisionNeg){      
+       decisionPos && decisionNeg){
       recoPassed = kTRUE;
-      //if(trigValue == 1) //H: disable trigger condition!
+      if(trigValue == 1)
 	totPassed = kTRUE;
     }
 
     if(useSoftMuons > 0){//need to apply the TMOST and "sanity checks"
       //Bool_t tightSelection = kFALSE;
       if(ismuPosTMOneStationTight && ismuNegTMOneStationTight){ //not applied anylonger in the TTree
-	if(muPosPglobalMuonHits > 0 && muNegPglobalMuonHits > 0 &&
-	   muPosPglobalchi2 < 20. && muNegPglobalchi2 < 20.){
+	// if(muPosPglobalMuonHits > 0 && muNegPglobalMuonHits > 0 &&
+	//    muPosPglobalchi2 < 20. && muNegPglobalchi2 < 20.){
 	  recoPassed = kTRUE;
 	  totPassed = kTRUE;
-	}
+	// }
 	// tightSelection = kTRUE;
+      }
+      else{
+	recoPassed = kFALSE;
+	totPassed = kFALSE;
       }
       // if(!tightSelection){ //correct the decision in case we work with "tight muons"
       // 	recoPassed = kFALSE;
       // 	totPassed = kFALSE;
       // }
     }
-    //    if(onia->Pt() < 990. && fabs(onia->Rapidity()) < eff::rapMax && JpsiVprob > 0.01 && trigValue == 1) totPassed = kTRUE;
-
-    // printf("onia pT=%1.3f, y=%1.3f, muPos pT=%1.3f, y=%1.3f, muNeg pT=%1.3f, y=%1.3f; recoPassed=%d, trigValue=%d, totPassed=%d\n",
-    // 	   onia_Gen_pt, fabs(onia_Gen_rap), pTMuPos_Gen, etaMuPos_Gen, pTMuNeg_Gen, etaMuNeg_Gen, recoPassed, trigValue, totPassed);
 
     recoEff_pT->Fill(recoPassed, onia_Gen_pt);
     recoEff2D_pT_rapNP->Fill(recoPassed, onia_Gen_rap, onia_Gen_pt);
@@ -481,7 +480,9 @@ void MCTruthEff::Loop(Int_t resonance, Bool_t rejectCowboys, Int_t useSoftMuons)
       continue;
     if(JpsiVprob < 0.01) //vertex probability cut not applied anylonger
       continue;
-  
+    if(fabs(Jpsict / JpsictErr) > 2.0)
+      continue;
+
     //take muons only within a certain eta range
     // Double_t etaMuPos = muPos->PseudoRapidity();
     // Double_t etaMuNeg = muNeg->PseudoRapidity();
@@ -498,7 +499,6 @@ void MCTruthEff::Loop(Int_t resonance, Bool_t rejectCowboys, Int_t useSoftMuons)
 
     if(!decisionPos || !decisionNeg)
       continue;
-
 
     if(fabs(onia->Rapidity()) > eff::rapMax) 
       continue;

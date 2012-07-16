@@ -5,15 +5,71 @@ void BookHistos();
 void WriteHistos();
 //======================================
 void runMCTruthEff(Char_t *fileNameOut = "MCTruthEff_HLTDimuon10JpsiBarrel_12Nov2011.root",
-		   Char_t *trigLabel = "HLT_Dimuon10_Jpsi_Barrel_v3",
-		   Bool_t rejectCowboys = kTRUE,
-		   Char_t *fileNameIn = "/Users/hwoehri/CMS/Work/Data2011/FlatGen/PGun_HLT1E33_3E33_TTree.root"
+		   Int_t resonance = UPS1S, //JPSI=0, PSIP=1, UPS1S=2, UPS2=3, UPS3S=4
+		   Int_t useSoftMuons = 1, //1 = "soft"
+		   //Char_t *trigLabel = "HLT_Dimuon10_Jpsi_Barrel_v3",//HLT_Dimuon5_Upsilon_Barrel_v3
+		   Bool_t rejectCowboys = kTRUE
 		   ){
+// void runMCTruthEff(Char_t *fileNameOut = "MCTruthEff_HLTDimuon5UpsilonBarrel_19Dec2011.root",
+// 		   Char_t *trigLabel = "HLT_Dimuon5_Upsilon_Barrel_v3",
+// 		   Bool_t rejectCowboys = kTRUE
+// 		   ){
 
-  Char_t *nameDataSet = "data";
-  TFile *fIn = new TFile(fileNameIn);
-  TTree *treeData = (TTree*)fIn->Get(nameDataSet);
-
+  TChain *treeData = new TChain("data");
+  if(resonance == JPSI){
+    printf("preparing TTrees for J/psi processing\n");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_JpsiLowPt_PGun_HLT1E33_3E33.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_Jpsi_Pt9_21_PGun_HLT_1E33_3E33.root");
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_JpsiLowPt_PGun_HLT_1E33_3E33_2.root");
+  }
+  else if(resonance == UPS1S){
+    printf("preparing TTrees for Ups(1S) processing\n");
+    if(useSoftMuons == 0){
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_1.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_2.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_3.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_4.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_5.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_6.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_7.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_8.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_9.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_10.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_11.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_12.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_13.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_14.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/December2011/TTree_Onia2MuMu_v10_UpsiLowPt_PGun_HLT_1E33-3E33_15.root");
+    }
+    else{
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_0pt30_rap1p3_HLT_1E33_3E33_20June2012_0.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_0pt30_rap1p3_HLT_1E33_3E33_20June2012_1.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_0pt30_rap1p3_HLT_1E33_3E33_20June2012_2.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_0pt30_rap1p3_HLT_1E33_3E33_20June2012_3.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_0pt30_rap1p3_HLT_1E33_3E33_20June2012_4.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_0pt30_rap1p3_HLT_1E33_3E33_20June2012_5.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_0pt30_rap1p3_HLT_1E33_3E33_20June2012_6.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_0pt30_rap1p3_HLT_1E33_3E33_20June2012_7.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_0pt30_rap1p3_HLT_1E33_3E33_20June2012_8.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_0pt30_rap1p3_HLT_1E33_3E33_20June2012_9.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_0pt15_rap1p3_HLT_1E33_3E33_20June2012_10.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_0pt15_rap1p3_HLT_1E33_3E33_20June2012_11.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_4pt15_rap1p3_HLT_1E33_3E33_20June2012_12.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_4pt15_rap1p3_HLT_1E33_3E33_20June2012_13.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/FlatGen/June2012/TTree_Ups_PGun_4pt15_rap1p3_HLT_1E33_3E33_20June2012_14.root");
+    }
+  }
+  else if(resonance == UPS2S){
+    printf("preparing TTrees for Ups(2S) processing\n");
+    //treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi2s_measuredPt.root"); //do NOT use (does not contain all GEN events)
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi2s_measuredPt_2April2012.root");
+  }
+  else if(resonance == UPS3S){
+    printf("preparing TTrees for Ups(3S) processing\n");
+    //treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi3s_measuredPt.root"); //do NOT use (does not contain all GEN events)
+    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi3s_measuredPt_2April2012.root");
+  }
   TFile *fOut = new TFile(fileNameOut, "RECREATE");
 
   printf("initializing tree\n");
@@ -23,7 +79,7 @@ void runMCTruthEff(Char_t *fileNameOut = "MCTruthEff_HLTDimuon10JpsiBarrel_12Nov
   BookHistos();
   printf("...done\n");
 
-  tree.Loop(trigLabel, rejectCowboys);
+  tree.Loop(resonance, rejectCowboys, useSoftMuons);
   WriteHistos();
   fOut->Close();
 }
@@ -116,19 +172,19 @@ void BookHistos(){
 	//all events
 	sprintf(name, "totEff2D_Onia_%s_pT%d_NPrap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	totEff2D_pol_pT_rapNP[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
-								 eff::kNbBinsPhiPol, eff::phiPolMin, eff::phiPolMax);
+	totEff2D_pol_pT_rapNP[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT2D, eff::cosTMin, eff::cosTMax,
+								 eff::kNbBinsPhiPol2D, eff::phiPolMin, eff::phiPolMax);
 	//RECO events
 	sprintf(name, "recoEff2D_Onia_%s_pT%d_NPrap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	recoEff2D_pol_pT_rapNP[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
-								eff::kNbBinsPhiPol, eff::phiPolMin, eff::phiPolMax);
+	recoEff2D_pol_pT_rapNP[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT2D, eff::cosTMin, eff::cosTMax,
+								eff::kNbBinsPhiPol2D, eff::phiPolMin, eff::phiPolMax);
 
 	//RECO + triggered events
 	sprintf(name, "trigEff2D_Onia_%s_pT%d_NPrap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	trigEff2D_pol_pT_rapNP[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
-								eff::kNbBinsPhiPol, eff::phiPolMin, eff::phiPolMax);
+	trigEff2D_pol_pT_rapNP[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT2D, eff::cosTMin, eff::cosTMax,
+								eff::kNbBinsPhiPol2D, eff::phiPolMin, eff::phiPolMax);
       }
     }
   }
@@ -140,18 +196,18 @@ void BookHistos(){
 	//all events
 	sprintf(name, "totEff2D_Onia_%s_pT%d_rap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	totEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
-								 eff::kNbBinsPhiPol, eff::phiPolMin, eff::phiPolMax);
+	totEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT2D, eff::cosTMin, eff::cosTMax,
+								 eff::kNbBinsPhiPol2D, eff::phiPolMin, eff::phiPolMax);
 	//RECO events
 	sprintf(name, "recoEff2D_Onia_%s_pT%d_rap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	recoEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
-								 eff::kNbBinsPhiPol, eff::phiPolMin, eff::phiPolMax);
+	recoEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT2D, eff::cosTMin, eff::cosTMax,
+								 eff::kNbBinsPhiPol2D, eff::phiPolMin, eff::phiPolMax);
 	//RECO + trigEff events
 	sprintf(name, "trigEff2D_Onia_%s_pT%d_rap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	sprintf(title, ";cos#theta_{%s};#phi_{%s} [deg]", eff::frameLabel[iFrame], eff::frameLabel[iFrame]);
-	trigEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT, eff::cosTMin, eff::cosTMax,
-								 eff::kNbBinsPhiPol, eff::phiPolMin, eff::phiPolMax);
+	trigEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = new TEfficiency(name, title, eff::kNbBinsCosT2D, eff::cosTMin, eff::cosTMax,
+								 eff::kNbBinsPhiPol2D, eff::phiPolMin, eff::phiPolMax);
 
 	//(2) 4-folding in phi
 	//all events
@@ -200,114 +256,114 @@ void BookHistos(){
     }
   }
 
-  //efficiencies vs. lab coordinates
-  Int_t nBinsDeltaEta = 10, nBinsDeltaPhi = 9;
-  Double_t deltaEtaMin = 0., deltaEtaMax = 2.5;
-  Double_t deltaPhiMin = 0., deltaPhiMax = 180.;
-  Int_t nBinsDeltaR = 32;
-  Double_t deltaRMin = 0., deltaRMax = 3.2;
-  Int_t nBinsDistM2 = 20;
-  Double_t distMin = 0., distMax = 200.;
-  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
-    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+  // //efficiencies vs. lab coordinates
+  // Int_t nBinsDeltaEta = 10, nBinsDeltaPhi = 9;
+  // Double_t deltaEtaMin = 0., deltaEtaMax = 2.5;
+  // Double_t deltaPhiMin = 0., deltaPhiMax = 180.;
+  // Int_t nBinsDeltaR = 32;
+  // Double_t deltaRMin = 0., deltaRMax = 3.2;
+  // Int_t nBinsDistM2 = 20;
+  // Double_t distMin = 0., distMax = 200.;
+  // for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+  //   for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
 
-      //1.) as a function of deltaPhi vs deltaEta
-      //all events
-      sprintf(name, "totEff2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
-      totEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+  //     //1.) as a function of deltaPhi vs deltaEta
+  //     //all events
+  //     sprintf(name, "totEff2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
+  //     totEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
 
-      //RECO events
-      sprintf(name, "recoEff2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
-      recoEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+  //     //RECO events
+  //     sprintf(name, "recoEff2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
+  //     recoEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
 
-      //RECO + TRIG events
-      sprintf(name, "trigEff2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
-      trigEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+  //     //RECO + TRIG events
+  //     sprintf(name, "trigEff2D_deltaPhiVsDeltaEta_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#Delta#eta;#Delta#phi [deg]");
+  //     trigEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaEta, deltaEtaMin, deltaEtaMax, nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
 
-      //2.) as a function of deltaR
-      //all events
-      sprintf(name, "totEff_deltaR_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#DeltaR");
-      totEff_deltaR_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+  //     //2.) as a function of deltaR
+  //     //all events
+  //     sprintf(name, "totEff_deltaR_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#DeltaR");
+  //     totEff_deltaR_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
 
-      //RECO events
-      sprintf(name, "recoEff_deltaR_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#DeltaR");
-      recoEff_deltaR_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+  //     //RECO events
+  //     sprintf(name, "recoEff_deltaR_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#DeltaR");
+  //     recoEff_deltaR_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
 
-      //RECO + TRIG events
-      sprintf(name, "trigEff_deltaR_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#DeltaR");
-      trigEff_deltaR_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+  //     //RECO + TRIG events
+  //     sprintf(name, "trigEff_deltaR_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#DeltaR");
+  //     trigEff_deltaR_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
 
-      //3.) as a function of deltaRM2
-      //all events
-      sprintf(name, "totEff_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#DeltaR(M2)");
-      totEff_deltaRM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+  //     //3.) as a function of deltaRM2
+  //     //all events
+  //     sprintf(name, "totEff_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#DeltaR(M2)");
+  //     totEff_deltaRM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
 
-      //RECO events
-      sprintf(name, "recoEff_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#DeltaR(M2)");
-      recoEff_deltaRM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+  //     //RECO events
+  //     sprintf(name, "recoEff_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#DeltaR(M2)");
+  //     recoEff_deltaRM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
 
-      //RECO + TRIG events
-      sprintf(name, "trigEff_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#DeltaR(M2)");
-      trigEff_deltaRM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
+  //     //RECO + TRIG events
+  //     sprintf(name, "trigEff_deltaRM2_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#DeltaR(M2)");
+  //     trigEff_deltaRM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDeltaR, deltaRMin, deltaRMax);
 
-      //4.) as a function of deltaPhiM2
-      //all events
-      sprintf(name, "totEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#Delta#phi(M2)");
-      totEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+  //     //4.) as a function of deltaPhiM2
+  //     //all events
+  //     sprintf(name, "totEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#Delta#phi(M2)");
+  //     totEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
 
-      //RECO events
-      sprintf(name, "recoEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#Delta#phi(M2)");
-      recoEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+  //     //RECO events
+  //     sprintf(name, "recoEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#Delta#phi(M2)");
+  //     recoEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
 
-      //RECO + TRIG events
-      sprintf(name, "trigEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#Delta#phi(M2)");
-      trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
+  //     //RECO + TRIG events
+  //     sprintf(name, "trigEff_deltaPhiM2_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#Delta#phi(M2)");
+  //     trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaPhi, deltaPhiMin, deltaPhiMax);
 
-      //5.) as a function of deltaEtaM2
-      //all events
-      sprintf(name, "totEff_deltaEtaM2_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#Delta#eta(M2)");
-      totEff_deltaEtaM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaEta, deltaEtaMin, deltaEtaMax);
+  //     //5.) as a function of deltaEtaM2
+  //     //all events
+  //     sprintf(name, "totEff_deltaEtaM2_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#Delta#eta(M2)");
+  //     totEff_deltaEtaM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaEta, deltaEtaMin, deltaEtaMax);
 
-      //RECO events
-      sprintf(name, "recoEff_deltaEtaM2_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#Delta#eta(M2)");
-      recoEff_deltaEtaM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaEta, deltaEtaMin, deltaEtaMax);
+  //     //RECO events
+  //     sprintf(name, "recoEff_deltaEtaM2_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#Delta#eta(M2)");
+  //     recoEff_deltaEtaM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaEta, deltaEtaMin, deltaEtaMax);
 
-      //RECO + TRIG events
-      sprintf(name, "trigEff_deltaEtaM2_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";#Delta#eta(M2)");
-      trigEff_deltaEtaM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaEta, deltaEtaMin, deltaEtaMax);
+  //     //RECO + TRIG events
+  //     sprintf(name, "trigEff_deltaEtaM2_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";#Delta#eta(M2)");
+  //     trigEff_deltaEtaM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, 2*nBinsDeltaEta, deltaEtaMin, deltaEtaMax);
 
-      //6.) as a function of distM2
-      //all events
-      sprintf(name, "totEff_distM2_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";dist(M2) [cm]");
-      totEff_distM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDistM2, distMin, distMax);
+  //     //6.) as a function of distM2
+  //     //all events
+  //     sprintf(name, "totEff_distM2_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";dist(M2) [cm]");
+  //     totEff_distM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDistM2, distMin, distMax);
 
-      //RECO events
-      sprintf(name, "recoEff_distM2_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";dist(M2) [cm]");
-      recoEff_distM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDistM2, distMin, distMax);
+  //     //RECO events
+  //     sprintf(name, "recoEff_distM2_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";dist(M2) [cm]");
+  //     recoEff_distM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDistM2, distMin, distMax);
 
-      //RECO + TRIG events
-      sprintf(name, "trigEff_distM2_pT%d_rap%d", iPTBin, iRapBin);
-      sprintf(title, ";dist(M2) [cm]");
-      trigEff_distM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDistM2, distMin, distMax);
-    }
-  }
+  //     //RECO + TRIG events
+  //     sprintf(name, "trigEff_distM2_pT%d_rap%d", iPTBin, iRapBin);
+  //     sprintf(title, ";dist(M2) [cm]");
+  //     trigEff_distM2_pT_rap[iPTBin][iRapBin] = new TEfficiency(name, title, nBinsDistM2, distMin, distMax);
+  //   }
+  // }
 }
 
 //==========================================
@@ -346,48 +402,48 @@ void WriteHistos(){
       }
     }
   }
-  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
-    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
-      totEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Write();
-      recoEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Write();
-      trigEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Write();
-    }
-  }
-  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
-    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
-      totEff_deltaR_pT_rap[iPTBin][iRapBin]->Write();
-      recoEff_deltaR_pT_rap[iPTBin][iRapBin]->Write();
-      trigEff_deltaR_pT_rap[iPTBin][iRapBin]->Write();
-    }
-  }
-  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
-    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
-      totEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Write();
-      recoEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Write();
-      trigEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Write();
-    }
-  }
-  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
-    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
-      totEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
-      recoEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
-      trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
-    }
-  }
-  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
-    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
-      totEff_deltaEtaM2_pT_rap[iPTBin][iRapBin]->Write();
-      recoEff_deltaEtaM2_pT_rap[iPTBin][iRapBin]->Write();
-      trigEff_deltaEtaM2_pT_rap[iPTBin][iRapBin]->Write();
-    }
-  }
-  for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
-    for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
-      totEff_distM2_pT_rap[iPTBin][iRapBin]->Write();
-      recoEff_distM2_pT_rap[iPTBin][iRapBin]->Write();
-      trigEff_distM2_pT_rap[iPTBin][iRapBin]->Write();
-    }
-  }
+  // for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+  //   for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+  //     totEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Write();
+  //     recoEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Write();
+  //     trigEff2D_deltaPhiVsDeltaEta_pT_rap[iPTBin][iRapBin]->Write();
+  //   }
+  // }
+  // for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+  //   for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+  //     totEff_deltaR_pT_rap[iPTBin][iRapBin]->Write();
+  //     recoEff_deltaR_pT_rap[iPTBin][iRapBin]->Write();
+  //     trigEff_deltaR_pT_rap[iPTBin][iRapBin]->Write();
+  //   }
+  // }
+  // for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+  //   for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+  //     totEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Write();
+  //     recoEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Write();
+  //     trigEff_deltaRM2_pT_rap[iPTBin][iRapBin]->Write();
+  //   }
+  // }
+  // for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+  //   for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+  //     totEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
+  //     recoEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
+  //     trigEff_deltaPhiM2_pT_rap[iPTBin][iRapBin]->Write();
+  //   }
+  // }
+  // for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+  //   for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+  //     totEff_deltaEtaM2_pT_rap[iPTBin][iRapBin]->Write();
+  //     recoEff_deltaEtaM2_pT_rap[iPTBin][iRapBin]->Write();
+  //     trigEff_deltaEtaM2_pT_rap[iPTBin][iRapBin]->Write();
+  //   }
+  // }
+  // for(int iRapBin = 0; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
+  //   for(int iPTBin = 0; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
+  //     totEff_distM2_pT_rap[iPTBin][iRapBin]->Write();
+  //     recoEff_distM2_pT_rap[iPTBin][iRapBin]->Write();
+  //     trigEff_distM2_pT_rap[iPTBin][iRapBin]->Write();
+  //   }
+  // }
 
 
   //efficiencies
