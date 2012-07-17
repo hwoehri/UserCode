@@ -10,20 +10,21 @@ TLorentzVector *pMu_Tk = 0, *pMu_Tk_Fixed = 0;
 Int_t HLT_Dimuon10_Jpsi_Barrel_v3, HLT_Dimuon10_Jpsi_Barrel_v6;
 Int_t HLT_Dimuon0_Jpsi_v3, HLT_Dimuon0_Jpsi_NoVertexing_v3;
 
-Int_t const kNbpT = 17;
-Double_t pTBins[kNbpT+1] = {2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 10., 15., 20., 30., 50.};
+// Int_t const kNbpT = 17;
+// Double_t pTBins[kNbpT+1] = {2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 10., 15., 20., 30., 50.};
 // Int_t const kNbpT = 47;
-// Double_t pTBins[kNbpT+1] = {2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 7.0, 8.0, 9.0, 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 22., 24., 26., 28., 30., 32., 34., 36., 38., 40., 42., 44., 46., 48., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100};
-// Int_t const kNbpT = 65;
-// Double_t pTBins[kNbpT+1] = {2.0, 2.2, 2.4, 2.6, 2.8,   
-// 			    3.0, 3.2, 3.4, 3.6, 3.8,   
-// 			    4.0, 4.2, 4.4, 4.6, 4.8,   
-// 			    5.0, 5.2, 5.4, 5.6, 5.8,   
-// 			    6.0, 6.2, 6.4, 6.6, 6.8,   
-// 			    7.0, 7.25, 7.5, 8.0, 9.0, 10., 11., 12., 13., 14., 
-// 			    15., 16., 17., 18., 19., 20., 22., 24., 26., 28., 
-// 			    30., 32., 34., 36., 38., 40., 42., 44., 46., 48., 
-// 			    50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100.};
+// Double_t pTBins[kNbpT+1] = {2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 7.0, 8.0, 9.0, 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 22., 24., 26., 28., 30., 
+			    // 32., 34., 36., 38., 40., 42., 44., 46., 48., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100};
+Int_t const kNbpT = 65;
+Double_t pTBins[kNbpT+1] = {2.0, 2.2, 2.4, 2.6, 2.8,   
+			    3.0, 3.2, 3.4, 3.6, 3.8,   
+			    4.0, 4.2, 4.4, 4.6, 4.8,   
+			    5.0, 5.2, 5.4, 5.6, 5.8,   
+			    6.0, 6.2, 6.4, 6.6, 6.8,   
+			    7.0, 7.25, 7.5, 8.0, 9.0, 10., 11., 12., 13., 14., 
+			    15., 16., 17., 18., 19., 20., 22., 24., 26., 28., 
+			    30., 32., 34., 36., 38., 40., 42., 44., 46., 48., 
+			    50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100.};
 Int_t const kNbEta = 10;
 Double_t etaBins[kNbEta+1] = {0, 0.2, 0.3, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 2.1, 2.4};
 // Int_t const kNbEta = 18;
@@ -48,14 +49,6 @@ void CalcWeightedAverage();
 //==============================
 void singleMuTruthEff(Char_t *fileNameOut = "singleMuTruthEff_25June2012.root",
 		      Bool_t startFromTrack = kTRUE){
-
-  //Char_t *inputFile = "/Users/hwoehri/CMS/Work/Data2011/FlatGen/January2012/onia2MuMu_tree.root";
-  //Char_t *inputFile = "/Users/hwoehri/CMS/Work/Data2011/FlatGen/January2012/TTree_Onia2MuMu_v10_muFixed20GeVrap1MuFree_11Jan2012.root";
-  //Char_t *inputFile = "/Users/hwoehri/CMS/Work/Data2011/FlatGen/January2012/TTree_Onia2MuMu_v10_muFixed40GeVrap1MuFree_11Jan2012.root";
-  //Char_t *inputFile = "/Users/hwoehri/CMS/Work/Data2011/FlatGen/January2012/TTree_Onia2MuMu_v10_muFixed40GeVrap1_MuFree2PT100GeV_12Jan2012.root";
-  //Char_t *inputFile = "/Users/hwoehri/CMS/Work/Data2011/FlatGen/January2012/TTree_Onia2MuMu_v10_muFixed40GeVrap1_MuFree2PT100GeV_New_12Jan2012.root";
-  //Char_t *inputFile = "/Users/hwoehri/CMS/Work/Data2011/FlatGen/January2012/TTree_Onia2MuMu_v10_muFixed40GeVrap1_MuFree2PT100GeV_New_L1MatchingOnly_12Jan2012.root";
-  //Char_t *inputFile = "/Users/hwoehri/CMS/Work/Data2011/FlatGen/January2012/TTree_Onia2MuMu_v10_muFixed40GeVrap1_MuFree2PT100GeV_New_L2Matching_12Jan2012.root";
 
   data = new TChain("data");
   if(startFromTrack){
@@ -83,7 +76,6 @@ void FillHistos(Bool_t startFromTrack){
 
   Long64_t nbEv = data->GetEntries();
   for(Long64_t iEv = 0; iEv < nbEv; iEv++){
-  //for(Long64_t iEv = 0; iEv < 600000; iEv++){
 
     data->GetEntry(iEv);
     if(iEv % 100000 == 0) 
@@ -95,19 +87,17 @@ void FillHistos(Bool_t startFromTrack){
 
     // if(!(isMuonInAcceptance(TIGHT, ptGen, etaGen)) || !(isMuonInAcceptance(TIGHT, pMu_Gen_Fixed->Pt(), pMu_Gen_Fixed->Eta()))) //take only muons in the fiducial area
     //   continue;
-    // if(etaGen > 1.6 || pMu_Gen_Fixed->Eta() > 1.6)
-    //   continue;
 
     if(pMu_Fixed->Pt() > 990.) //do not introduce inefficiencies, because of the fixed muon
       continue; 
 
     if(startFromTrack){//reject all events w/o a reco track
       if(pMu_Tk->Pt() > 990. || pMu_Tk_Fixed->Pt() > 990.){
-	//printf("rejecting event:  %1.3f (fixed), %1.3f (free)\n", pMu->Pt(), pMu_Fixed->Pt());
+	//printf("rejecting event:  %1.3f (free), %1.3f (fixed)\n", pMu->Pt(), pMu_Fixed->Pt());
 	continue;
       }
     }
-    //printf("pT of recoTrack: %1.3f (fixed), %1.3f (free)\n", pMu->Pt(), pMu_Fixed->Pt());
+    //printf("pT of recoTrack: %1.3f (free), %1.3f (fixed)\n", pMu->Pt(), pMu_Fixed->Pt());
 
     Double_t pt = pMu->Pt();
     Bool_t isRECO = kFALSE;
