@@ -1,0 +1,64 @@
+In order to conduct the efficiency MC closure test the following steps
+need to be accomplished: 
+
+(1) execute runMCTruthEff.C which produces a root output file
+containing the MC truth dimuon efficiencies (using the TEfficiency
+class) w.r.t. generated events with the muons falling into the
+fiducial area. 
+
+(2a) In view of the next step (propagating the single muon
+efficiencies into the dimuon efficiencies), one needs to generate a
+singleMuTruthEff curve. This can be done by executing the macro
+singleMuTruthEff.C with the option "startFromTrack = kFALSE", and
+after adjusting the number of pT bins (and corresponding bin edges) to
+the desired granularity (ideally one wants to have fine bins in the
+turn-on region).
+
+(2b) execute runMCTnPEff.C which produces a root output file containing
+the propagation of the T&P single muon efficiencies. In the standard
+version it only propagates the product of single muon efficiencies,
+not correcting for the dimuon online vertexing efficiencies.
+
+The macro "MCTnPEff.C" propagates the single muon efficiencies into
+the dimuon efficiencies, by looping over *generated* events of a given
+particle gun sample (Y(nS), J/psi, ...) and checking for each event
+whether the product of the single muon efficiencies, corresponding to
+the two muon's kinematics in the given event is smaller or larger than
+a random number. In the case the efficiency is larger than the random
+number, the event is tagged as efficient, while if it is lower, it is
+tagged as inefficient. To get rid of the "randomness" of this
+approach, each event is used 40 times to make this random decision,
+and hence, contributes 40 times to obtain smooth efficiencies. The
+efficiencies are stored as "TEfficiency" objects.
+
+(3) execute compareEff_CosThetaPhi.C providing as inputs the output
+root files of steps (1) and (2). This creates many pdf files
+displaying the rho factor (MC truth / MC T&P dimuon efficiencies) as a
+function of many variables. Moreover, it produces an output file
+called "rhoFactor.root". The latter contains the rho factor as a
+function of (cosTheta, phi) in the various polarization frames.
+It is preferrable to run the macro as
+root -b -q compareEff_CosThetaPhi.C+
+after having first created the subdirectory "Figures".
+
+Note: depending on the resonance, the variables "pTBinMin" and
+"pTBinMax" need to be adjusted to best correspond to the really filled
+pT bins. The pTBins are defined in
+../interface/commonVar.C which is typically included by
+calcPol.C or compareEff_CosThetaPhi.C
+
+(3a) in order to assemble all the produced figures change into
+../latex
+and execute "pdflatex rhoFunc_cosTheta_phiSlices.tex"
+The script needs to be manually adjusted for the HX, PHX and CS
+frames, uncommenting the respective lines at the beginning
+Moreover, also here, the pTMin and pTMax bins need to be adjusted
+manually.
+
+(4) rename the "rhoFactor.root" file and specify it in the macro
+"MCClosure.C", steered by "runMCClosure.C". When executing this
+macro, make sure you activate the flag "useRhoFactor", in case you
+want to correct the product of single muon efficiencies by the
+previously calculated rho factor.
+
+ 
