@@ -1,0 +1,161 @@
+\NeedsTeXFormat{LaTeX2e}[1994/02/01]
+\documentclass[12pt]{article}
+\usepackage{graphicx,rotating,epsfig,ifthen,forloop}
+\usepackage[landscape]{geometry}
+\addtolength{\textheight}{2.8cm}\addtolength{\textwidth}{1.5cm}
+\addtolength{\hoffset}{-1.cm}\addtolength{\voffset}{-1.6cm} 
+\newlength{\digitwidth} \settowidth{\digitwidth}{\rm 0}
+\newcommand{\cinst}[2]{$^{\mathrm{#1)}}$~#2\par}
+\newcommand{\crefi}[1]{$^{\mathrm{#1)}}$}
+\newcommand{\HRule}{\rule{0.4\linewidth}{0.3mm}}
+\newcommand{\mlab}[1]%
+    {\mbox{}\marginpar{\raggedright\hspace{0pt}\footnotesize #1}}
+\newcommand{\pt}{$p_{\mathrm{T}}$}
+\newcommand{\mt}{$m_{\mathrm{T}}$}
+\newcommand{\DDbar}{$D\bar{D}$}
+\newcommand{\ccbar}{$c\bar{c}$}
+\newcommand{\qqbar}{$q\bar{q}$}
+\newcommand{\et}{$E_{\rm T}$}
+\newcommand{\jpsi}{J/$\psi$}
+\newcommand{\psip}{$\psi^\prime$}
+\newcommand{\cost}{$|\cos \theta|$}
+
+\newboolean{Upsilon}
+\setboolean{Upsilon}{true}
+
+%\newcommand{\filename}{ratio_pol_totEff_HX}
+%\newcommand{\filenameTwo}{ratio_pol_totEff_phi_HX}
+%\newcommand{\descr}{$\rho(\cos\vartheta)$ (``MC truth'' / ``MC T\&P'')
+% of the total detection efficiencies (with HLT\_Dimuon10\_Jpsi\_Barrel) in the helicity (HX) frame}
+%\newcommand{\descrTwo}{$\rho(\phi)$ (``MC truth'' / ``MC T\&P'')
+%of the total detection efficiencies (with HLT\_Dimuon10\_Jpsi\_Barrel) in the helicity (HX) frame}
+
+%\newcommand{\filename}{ratio_pol_totEff_PHX}
+%\newcommand{\filenameTwo}{ratio_pol_totEff_phi_PHX}
+%\newcommand{\descr}{$\rho(\cos\vartheta)$ (``MC truth'' / ``MC T\&P'')
+% of the total detection efficiencies (with HLT\_Dimuon10\_Jpsi\_Barrel) in the perpendicular helicity (PHX) frame}
+%\newcommand{\descrTwo}{$\rho(\phi)$ (``MC truth'' / ``MC T\&P'')
+ %of the total detection efficiencies (with HLT\_Dimuon10\_Jpsi\_Barrel) in the perpendicular %helicity (PHX) frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newcommand{\filename}{ratio_pol_totEff_CS}
+%\newcommand{\filenameTwo}{ratio_pol_totEff_phi_CS}
+%\newcommand{\descr}{$\rho(\cos\vartheta)$ (``MC truth'' / ``MC T\&P'')
+% of the total detection efficiencies (with HLT\_Dimuon5\_Upsilon\_Barrel) in the Collins-Soper (CS) frame}
+%\newcommand{\descrTwo}{$\rho(\phi)$ (``MC truth'' / ``MC T\&P'') of the total detection efficiencies (with HLT\_Dimuon5\_Upsilon\_Barrel) in the Collins-Soper (CS) frame}
+
+%usage with MCtruth single muon efficiencies:
+%\newcommand{\filename}{ratio_pol_totEff_CS}
+%\newcommand{\filenameTwo}{ratio_pol_totEff_CS}
+%\newcommand{\theEnd}{_WithErr}
+%\newcommand{\descr}{$\rho(\cos\vartheta) [\epsilon_{\mu\mu}(\rm{MC\,Truth}) / (\epsilon_\mu(\rm{MC\,Truth}))^2]$
+% of the total detection efficiencies (with HLT\_Dimuon5\_Upsilon\_Barrel) in the Collins-Soper (CS) frame}
+%\newcommand{\descrTwo}{$\rho(\varphi) [\epsilon_{\mu\mu}(\rm{MC truth}) / (\epsilon_\mu(\rm{MC Truth}))^2]$ of the total detection efficiencies (with HLT\_Dimuon5\_Upsilon\_Barrel) in the Collins-Soper (CS) frame}
+
+%\newcommand{\filename}{ratio_pol_totEff_HX}
+%\newcommand{\filenameTwo}{ratio_pol_totEff_phi_HX}
+%\newcommand{\descr}{$\rho(\cos\vartheta)$ (``MC truth'' / ``MC T\&P'')
+% of the total detection efficiencies (with HLT\_Dimuon5\_Upsilon\_Barrel) in the helicity (HX) frame}
+%\newcommand{\descrTwo}{$\rho(\phi)$ (``MC truth'' / ``MC T\&P'') of the total detection efficiencies (with HLT\_Dimuon5\_Upsilon\_Barrel) in the helicity (HX) frame,}
+
+
+%usage with MCtruth single muon efficiencies:
+%\newcommand{\filename}{ratio_pol_totEff_HX}
+%\newcommand{\filenameTwo}{ratio_pol_totEff_HX}
+%\newcommand{\theEnd}{_WithErr}
+%\newcommand{\descr}{$\rho(\cos\vartheta) [\epsilon_{\mu\mu}(\rm{MC\,Truth}) / (\epsilon_\mu(\rm{MC\,Truth}))^2]$
+% of the total detection efficiencies (with HLT\_Dimuon5\_Upsilon\_Barrel) in the Helicity (HX) frame}
+%\newcommand{\descrTwo}{$\rho(\varphi) [\epsilon_{\mu\mu}(\rm{MC truth}) / (\epsilon_\mu(\rm{MC Truth}))^2]$ of the total detection efficiencies (with HLT\_Dimuon5\_Upsilon\_Barrel) in the Helicity (HX) frame}
+
+
+%\newcommand{\filename}{ratio_pol_totEff_PHX}
+%\newcommand{\filenameTwo}{ratio_pol_totEff_phi_PHX}
+%\newcommand{\descr}{$\rho(\cos\vartheta)$ (``MC truth'' / ``MC T\&P'')
+% of the total detection efficiencies (with HLT\_Dimuon5\_Upsilon\_Barrel) in the perpendicular helicity (PHX) frame}
+%\newcommand{\descrTwo}{$\rho(\phi)$ (``MC truth'' / ``MC T\&P'') of the total detection efficiencies (with HLT\_Dimuon5\_Upsilon\_Barrel) in the perpendicular helicity (PHX) frame}
+
+%usage with MCtruth single muon efficiencies:
+\newcommand{\filename}{ratio_pol_totEff_PHX}
+\newcommand{\filenameTwo}{ratio_pol_totEff_PHX}
+\newcommand{\theEnd}{_WithErr}
+\newcommand{\descr}{$\rho(\cos\vartheta) [\epsilon_{\mu\mu}(\rm{MC\,Truth}) / (\epsilon_\mu(\rm{MC\,Truth}))^2]$
+ of the total detection efficiencies (with HLT\_Dimuon5\_Upsilon\_Barrel) in the perpendicular Helicity (PHX) frame}
+\newcommand{\descrTwo}{$\rho(\varphi) [\epsilon_{\mu\mu}(\rm{MC truth}) / (\epsilon_\mu(\rm{MC Truth}))^2]$ of the total detection efficiencies (with HLT\_Dimuon5\_Upsilon\_Barrel) in the perpendicular Helicity (PHX) frame}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1.) cosTheta
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\ifthenelse{\boolean{Upsilon}}{
+
+\newcounter{rap}
+\forloop{rap}{1}{\value{rap} < 3}
+{%
+
+\newcounter{pt}
+%\forloop{pt}{6}{\value{pt} < 11}
+\forloop{pt}{6}{\value{pt} < 10}
+{%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap}_pT\arabic{pt}_projCosT_phi1\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap}_pT\arabic{pt}_projCosT_phi2\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap}_pT\arabic{pt}_projCosT_phi3\theEnd.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap}_pT\arabic{pt}_projCosT_phi4\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap}_pT\arabic{pt}_projCosT_phi5\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap}_pT\arabic{pt}_projCosT_phi6\theEnd.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap}_pT\arabic{pt}_projCosT_phi7\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap}_pT\arabic{pt}_projCosT_phi8\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap}_pT\arabic{pt}_projCosT_phi9\theEnd.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap}_pT\arabic{pt}_projCosT_phi10\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap}_pT\arabic{pt}_projCosT_phi11\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap}_pT\arabic{pt}_projCosT_phi12\theEnd.pdf}}
+\caption{\descr.}
+\end{figure}\clearpage
+}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1.) phi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\ifthenelse{\boolean{Upsilon}}{
+
+\newcounter{rap2}
+\forloop{rap2}{1}{\value{rap2} < 3}
+{%
+
+\newcounter{pt2}
+%\forloop{pt2}{6}{\value{pt2} < 11}
+\forloop{pt2}{6}{\value{pt2} < 10}
+{%
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap2}_pT\arabic{pt2}_projPhi_cosTh1\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap2}_pT\arabic{pt2}_projPhi_cosTh2\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap2}_pT\arabic{pt2}_projPhi_cosTh3\theEnd.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap2}_pT\arabic{pt2}_projPhi_cosTh4\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap2}_pT\arabic{pt2}_projPhi_cosTh5\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap2}_pT\arabic{pt2}_projPhi_cosTh6\theEnd.pdf}}
+\resizebox{\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap2}_pT\arabic{pt2}_projPhi_cosTh7\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap2}_pT\arabic{pt2}_projPhi_cosTh8\theEnd.pdf}
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap2}_pT\arabic{pt2}_projPhi_cosTh9\theEnd.pdf}}
+\resizebox{0.33\textwidth}{!}{%
+\includegraphics*{../macros/Figures/\filename_rap\arabic{rap2}_pT\arabic{pt2}_projPhi_cosTh10\theEnd.pdf}}
+\caption{\descrTwo.}
+\end{figure} \clearpage
+}
+}
+
+\end{document}
