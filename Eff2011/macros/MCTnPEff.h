@@ -201,7 +201,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop(Int_t effSample, Int_t resonance, Bool_t rejectCowboys, Bool_t use2DGraph, Bool_t useTEfficiency);
+   virtual void     Loop(Int_t effSample, Int_t resonance, Bool_t rejectCowboys, Bool_t use2DGraph, Bool_t useTEfficiency, Int_t useEventNTimes);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
