@@ -16,6 +16,11 @@ void runMCTruthEffAndAcc(Char_t *fileNameOut = "MCTruthEffAndAcc_HLTDimuon10Jpsi
 // 		   Bool_t rejectCowboys = kTRUE
 // 		   ){
 
+  if(nSigma != 1 && nSigma != 3){
+    printf("nSigma must be either 1 or 3; other options are not yet implemented!\n");
+    exit(0);
+  }
+
   TChain *treeData = new TChain("data");
   if(resonance == JPSI){
     printf("\n\npreparing TTrees for J/psi processing\n");
@@ -167,7 +172,7 @@ void BookHistos(){
     for(int iRapBin = 0; iRapBin < 2*eff::kNbRapBins; iRapBin++){
       Int_t rapIndex = eff::kNbRapBins - iRapBin;
       if(iRapBin >= eff::kNbRapBins) rapIndex = iRapBin - eff::kNbRapBins + 1;
-//       printf("iRapBin %d uses definitions of rapID %d\n", iRapBin, rapIndex);
+      printf("iRapBin %d uses %d pT bins of rapID %d\n", iRapBin, eff::kNbPTBins[rapIndex]+1, rapIndex);
 
       for(int iPTBin = 0; iPTBin < eff::kNbPTBins[rapIndex]+1; iPTBin++){
 

@@ -64,8 +64,8 @@ void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboy
   printf("number of entries = %d\n", (Int_t) nentries);
 
   //loop over the events
-  //for (Long64_t jentry=0; jentry<nentries;jentry++) {
-    for (Long64_t jentry=0; jentry<1000000;jentry++) {
+  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+  //for (Long64_t jentry=0; jentry<10000;jentry++) {
 
     if(jentry % 100000 == 0) printf("event %d\n", (Int_t) jentry);
  
@@ -220,8 +220,14 @@ void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboy
     Double_t onia_mass;
     Bool_t isInMassInterval = kFALSE;
     Double_t deltaPhi = 0.;
-    //1.) check whether the event passes the single muon acceptance cuts:
     if(onia->Pt() < 990.){
+      //1.) make sure that the reconstructed pair also passes the cowboy cuts:
+      deltaPhi = muNeg->Phi() - muPos->Phi();
+      if(deltaPhi > TMath::Pi()) deltaPhi -= 2.*TMath::Pi();
+      else if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
+      if(rejectCowboys && deltaPhi < 0.) //reject cowboys
+	continue;
+      //2.) check whether the event passes the single muon acceptance cuts:
       etaMuPos = muPos->PseudoRapidity();
       etaMuNeg = muNeg->PseudoRapidity();
       pTMuPos = muPos->Pt();
@@ -235,35 +241,39 @@ void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboy
       if(TMath::Abs(etaMuNeg)>1.2 && TMath::Abs(etaMuNeg)<1.4 && pTMuNeg>3.5) decisionNeg=kTRUE;
       if(TMath::Abs(etaMuNeg)>1.4 && TMath::Abs(etaMuNeg)<1.6 && pTMuNeg>3.) decisionNeg=kTRUE;
 
-    //2.) check whether the reconstructed dimuon falls into a n*sigma window
+      //3.) check whether the reconstructed dimuon falls into a n*sigma window
       onia_mass = onia->M();
-
-      // if(onia_mass > (poleMass - nSigma * eff::sigmaMassOnia[rapForPTIndex_Gen]) &&
-      //    onia_mass < (poleMass + nSigma * eff::sigmaMassOnia[rapForPTIndex_Gen]))
-      //   isInMassInterval = kTRUE;
       if(resonance == UPS1S){
-	//printf("mass %1.3f [%d][%d]\n", onia_mass, rapForPTIndex_Gen, pTIndex_Gen);
-	if(onia_mass > eff::massMinUps1S[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps1S[rapForPTIndex_Gen][pTIndex_Gen])
-	  isInMassInterval = kTRUE;
-	//printf("is in interval %d\n", isInMassInterval);
+	if(nSigma == 1){
+	  if(onia_mass > eff::massMinUps1S_1sigma[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps1S_1sigma[rapForPTIndex_Gen][pTIndex_Gen])
+	    isInMassInterval = kTRUE;
+	}
+	else if(nSigma == 3)
+	  if(onia_mass > eff::massMinUps1S_3sigma[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps1S_3sigma[rapForPTIndex_Gen][pTIndex_Gen])
+	    isInMassInterval = kTRUE;
       }
       else if(resonance == UPS2S){
-	if(onia_mass > eff::massMinUps2S[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps2S[rapForPTIndex_Gen][pTIndex_Gen])
-	  isInMassInterval = kTRUE;
+	if(nSigma == 1){
+	  if(onia_mass > eff::massMinUps2S_1sigma[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps2S_1sigma[rapForPTIndex_Gen][pTIndex_Gen])
+	    isInMassInterval = kTRUE;
+	}
+	else if(nSigma == 3){
+	  if(onia_mass > eff::massMinUps2S_3sigma[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps2S_3sigma[rapForPTIndex_Gen][pTIndex_Gen])
+	    isInMassInterval = kTRUE;
+	}
       }
       else if(resonance == UPS3S){
-	if(onia_mass > eff::massMinUps3S[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps3S[rapForPTIndex_Gen][pTIndex_Gen])
-	  isInMassInterval = kTRUE;
-      }
-    
-      //3.) make sure that the reconstructed pair also passes the cowboy cuts:
-      deltaPhi = muNeg->Phi() - muPos->Phi();
-      if(deltaPhi > TMath::Pi()) deltaPhi -= 2.*TMath::Pi();
-      else if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
-      if(rejectCowboys && deltaPhi < 0.){ //reject cowboys
-	continue;
+	if(nSigma == 1){
+	  if(onia_mass > eff::massMinUps3S_1sigma[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps3S_1sigma[rapForPTIndex_Gen][pTIndex_Gen])
+	    isInMassInterval = kTRUE;
+	}
+	else if(nSigma == 3){
+	  if(onia_mass > eff::massMinUps3S_3sigma[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps3S_3sigma[rapForPTIndex_Gen][pTIndex_Gen])
+	    isInMassInterval = kTRUE;
+	}
       }
     }
+
 
     Bool_t recoPassed = kFALSE, totPassed = kFALSE;
     if(onia->Pt() < 990. && 
