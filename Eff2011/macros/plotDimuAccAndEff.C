@@ -6,12 +6,9 @@ TEfficiency *totEff2D_pol_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins][eff::kNbRapF
 void LoadEff(Char_t *fName);
 void PlotEff(Int_t iFrame, Int_t iRapBin, Int_t iPTBin);
 //============================
-void plotDimuAccAndEff(){
+void plotDimuAccAndEff(Char_t *fileNameIn = "MCTruthEffAndAcc_HLTDimuon10JpsiBarrel_2Aug2012.root"){
 
-  //LoadEff("MCTruthEffAndAcc_HLTDimuon10JpsiBarrel_2Aug2012.root");
-  LoadEff("test.root");
-  //LoadEff("MCTruthEffAndAcc_HLTDimuon5UpsilonBarrelV3_1sigma_2Aug2012.root");
-  //LoadEff("MCTruthEffAndAcc_HLTDimuon5UpsilonBarrelV3_2sigma_2Aug2012.root");
+  LoadEff(fileNameIn);
 
   gStyle->SetPaintTextFormat("5.2g");
   //for(int iFrame = 0; iFrame < eff::kNbFrames; iFrame++){
@@ -47,7 +44,7 @@ void LoadEff(Char_t *fName){
     for(int iRapBin = 1; iRapBin < eff::kNbRapForPTBins+1; iRapBin++){
       for(int iPTBin = 1; iPTBin < eff::kNbPTBins[iRapBin]+1; iPTBin++){
 
-	sprintf(name, "totEff2D_Onia_%s_pT%d_NPrap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
+	sprintf(name, "totEff2D_Onia_%s_pT%d_rap%d", eff::frameLabel[iFrame], iPTBin, iRapBin);
 	totEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin] = (TEfficiency *) gDirectory->Get(name);
 	printf("frame %d, rap %d, pT %d, %p\n", iFrame, iRapBin, iPTBin, totEff2D_pol_pT_rap[iFrame][iPTBin][iRapBin]);
 	// totEff2D_pol_pT_rap[iFrame][iRapBin][iPTBin]->SetMarkerColor(index+1);

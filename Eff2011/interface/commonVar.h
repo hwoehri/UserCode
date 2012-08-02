@@ -68,4 +68,35 @@ namespace eff{
   
   //phase space limiting cuts:
   Double_t rapMax = 1.2;
+  //fitted polemass and widths, for the UPS(1S):
+  Double_t polMassOnia[kNbRapForPTBins+1] = {9.45, 9.455, 9.454};//[all rap, rap bin 1-n]
+  Double_t sigmaMassOnia[kNbRapForPTBins+1] = {0.080, 0.070, 0.095};//[all rap, rap bin 1-n]
+
+  Double_t massMinUps1S[kNbRapForPTBins+1][kNbPTMaxBins] = {
+    {0,0,0,0,0, 0,0,0,0,0},
+    {0,0,0,0,0,9.38372, 9.38435, 9.38425, 9.38487, 9.38326},
+    {0,0,0,0,0,9.35644, 9.3574, 9.35555, 9.35522, 9.34896}};
+  Double_t massMaxUps1S[kNbRapForPTBins+1][kNbPTMaxBins] = {
+    {0,0,0,0,0, 0,0,0,0,0},
+    {0,0,0,0,0, 9.518, 9.51711, 9.51826, 9.51701, 9.51941},
+    {0,0,0,0,0, 9.53728, 9.53853, 9.5394, 9.54169, 9.54538}};
+
+  Double_t massMinUps2S[kNbRapForPTBins+1][kNbPTMaxBins] = {
+    {0,0,0,0,0, 0,0,0,0,0},
+    {0,0,0,0,0,9.94218, 9.94285, 9.94275, 9.9434, 9.94169},
+    {0,0,0,0,0,9.91328, 9.91429, 9.91234, 9.91198, 9.90535}};
+  Double_t massMaxUps2S[kNbRapForPTBins+1][kNbPTMaxBins] = {
+    {0,0,0,0,0, 0,0,0,0,0},
+    {0,0,0,0,0, 10.0844, 10.0835, 10.0847, 10.0834, 10.086},
+    {0,0,0,0,0, 10.1049, 10.1062, 10.1071, 10.1096, 10.1135}};
+
+  Double_t massMinUps3S[kNbRapForPTBins+1][kNbPTMaxBins] = {
+    {0,0,0,0,0, 0,0,0,0,0},
+    {0,0,0,0,0,10.2715, 10.2722, 10.2721, 10.2728, 10.271},
+    {0,0,0,0,0,10.2416, 10.2427, 10.2407, 10.2403, 10.2335}};
+  Double_t massMaxUps3S[kNbRapForPTBins+1][kNbPTMaxBins] = {
+    {0,0,0,0,0, 0,0,0,0,0},
+    {0,0,0,0,0, 10.4185, 10.4175, 10.4188, 10.4174, 10.42},
+    {0,0,0,0,0, 10.4396, 10.441, 10.4419, 10.4444, 10.4485}};
+
 }

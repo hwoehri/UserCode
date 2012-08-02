@@ -25,9 +25,9 @@ TEfficiency *totEff2D_pT_rapNP, *totEff2D_pT_rap, *totEff2D_cosTheta_phiPol[eff:
 //2D polarization histos, for various J/psi pT and y
 //=================================================
 // //histos for neg. and pos. rapidity separately:
-TEfficiency *recoEff2D_pol_pT_rapNP[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
-TEfficiency *trigEff2D_pol_pT_rapNP[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
-TEfficiency *totEff2D_pol_pT_rapNP[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TEfficiency *recoEff2D_pol_pT_rapNP[eff::kNbFrames][eff::kNbPTMaxBins+1][2*eff::kNbRapBins+1];
+TEfficiency *trigEff2D_pol_pT_rapNP[eff::kNbFrames][eff::kNbPTMaxBins+1][2*eff::kNbRapBins+1];
+TEfficiency *totEff2D_pol_pT_rapNP[eff::kNbFrames][eff::kNbPTMaxBins+1][2*eff::kNbRapBins+1];
 //histos taking together +y and -y:
 TEfficiency *recoEff2D_pol_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *trigEff2D_pol_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
@@ -46,7 +46,7 @@ TEfficiency *totEff_cosTheta_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kN
 
 enum {LOOSE,TIGHT};//set of muon fiducial cuts
 enum {JPSI, PSIP, UPS1S, UPS2S, UPS3S};
-const Double_t massPDG[5] = {3.096916, 3.68609, 9.460, 10.023, 10.355};
+//const Double_t massPDG[5] = {3.096916, 3.68609, 9.460, 10.023, 10.355};
 Double_t pTMin = 10.; //5 GeV/c for Upsilon; 10 GeV/c for J/psi
 //==============================================
 void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboys, Int_t nSigma, Int_t useSoftMuons){
@@ -64,8 +64,8 @@ void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboy
   printf("number of entries = %d\n", (Int_t) nentries);
 
   //loop over the events
-  for (Long64_t jentry=0; jentry<nentries;jentry++) {
-    //for (Long64_t jentry=0; jentry<1000000;jentry++) {
+  //for (Long64_t jentry=0; jentry<nentries;jentry++) {
+    for (Long64_t jentry=0; jentry<1000000;jentry++) {
 
     if(jentry % 100000 == 0) printf("event %d\n", (Int_t) jentry);
  
@@ -90,11 +90,11 @@ void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboy
     Double_t phiMuPos_Gen = muPos_Gen->Phi();
     Double_t phiMuNeg_Gen = muNeg_Gen->Phi();
 
-    Double_t deltaPhi = phiMuNeg_Gen - phiMuPos_Gen;
-    if(deltaPhi > TMath::Pi()) deltaPhi -= 2.*TMath::Pi();
-    else if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
+    Double_t deltaPhi_Gen = phiMuNeg_Gen - phiMuPos_Gen;
+    if(deltaPhi_Gen > TMath::Pi()) deltaPhi_Gen -= 2.*TMath::Pi();
+    else if(deltaPhi_Gen < -TMath::Pi()) deltaPhi_Gen += 2.*TMath::Pi();
     if(rejectCowboys){
-      if(deltaPhi < 0.) //reject cowboys
+      if(deltaPhi_Gen < 0.) //reject cowboys
 	continue;
     }
 
@@ -127,6 +127,8 @@ void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboy
 
     if(fabs(onia_Gen_rap) > eff::rapMax)
       continue;
+    if(onia_Gen_pt < 10.)
+      continue;
 
     Int_t rapIndex_Gen = -1;
     for(int iRap = 0; iRap < 2*eff::kNbRapBins; iRap++){
@@ -135,6 +137,7 @@ void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboy
 	break;
       }
     }
+
     Int_t rapForPTIndex_Gen = -1;
     for(int iRap2 = 0; iRap2 < eff::kNbRapForPTBins; iRap2++){
       if(TMath::Abs(onia_Gen_rap) > eff::rapForPTRange[iRap2] && 
@@ -174,10 +177,10 @@ void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboy
 
     // printf("rap %1.3f --> rapIndex %d; pT %1.3f --> pTIndex %d\n", onia_Gen_rap, rapForPTIndex_Gen, onia_Gen_pt, pTIndex_Gen);
 
-    Double_t poleMass = 0.;
-    if(resonance >= UPS1S) poleMass = eff::polMassOnia[rapForPTIndex_Gen];
-    if(resonance == UPS2S) poleMass = eff::polMassOnia[rapForPTIndex_Gen] * (massPDG[UPS2S]/massPDG[UPS1S]);
-    if(resonance == UPS3S) poleMass = eff::polMassOnia[rapForPTIndex_Gen] * (massPDG[UPS3S]/massPDG[UPS1S]);
+    // Double_t poleMass = 0.;
+    // if(resonance >= UPS1S) poleMass = eff::polMassOnia[rapForPTIndex_Gen];
+    // if(resonance == UPS2S) poleMass = eff::polMassOnia[rapForPTIndex_Gen] * (massPDG[UPS2S]/massPDG[UPS1S]);
+    // if(resonance == UPS3S) poleMass = eff::polMassOnia[rapForPTIndex_Gen] * (massPDG[UPS3S]/massPDG[UPS1S]);
 
     //==============================
     calcPol(*muPos_Gen, *muNeg_Gen);
@@ -214,7 +217,9 @@ void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboy
     }
     Double_t etaMuPos, etaMuNeg, pTMuPos, pTMuNeg;
     Double_t decisionPos = kFALSE, decisionNeg = kFALSE;
-
+    Double_t onia_mass;
+    Bool_t isInMassInterval = kFALSE;
+    Double_t deltaPhi = 0.;
     //1.) check whether the event passes the single muon acceptance cuts:
     if(onia->Pt() < 990.){
       etaMuPos = muPos->PseudoRapidity();
@@ -229,19 +234,35 @@ void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboy
       if(TMath::Abs(etaMuNeg)<1.2 && pTMuNeg>4.5) decisionNeg=kTRUE;
       if(TMath::Abs(etaMuNeg)>1.2 && TMath::Abs(etaMuNeg)<1.4 && pTMuNeg>3.5) decisionNeg=kTRUE;
       if(TMath::Abs(etaMuNeg)>1.4 && TMath::Abs(etaMuNeg)<1.6 && pTMuNeg>3.) decisionNeg=kTRUE;
-    }
+
     //2.) check whether the reconstructed dimuon falls into a n*sigma window
-    Double_t onia_mass = onia->M();
-    Bool_t isInMassInterval = kFALSE;
-    if(onia_mass > (poleMass - nSigma * eff::sigmaMassOnia[rapForPTIndex_Gen]) &&
-       onia_mass < (poleMass + nSigma * eff::sigmaMassOnia[rapForPTIndex_Gen]))
-      isInMassInterval = kTRUE;
-    //3.) make sure that the reconstructed pair also passes the cowboy cuts:
-    deltaPhi = muNeg->Phi() - muPos->Phi();
-    if(deltaPhi > TMath::Pi()) deltaPhi -= 2.*TMath::Pi();
-    else if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
-    if(rejectCowboys && deltaPhi < 0.){ //reject cowboys
-      continue;
+      onia_mass = onia->M();
+
+      // if(onia_mass > (poleMass - nSigma * eff::sigmaMassOnia[rapForPTIndex_Gen]) &&
+      //    onia_mass < (poleMass + nSigma * eff::sigmaMassOnia[rapForPTIndex_Gen]))
+      //   isInMassInterval = kTRUE;
+      if(resonance == UPS1S){
+	//printf("mass %1.3f [%d][%d]\n", onia_mass, rapForPTIndex_Gen, pTIndex_Gen);
+	if(onia_mass > eff::massMinUps1S[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps1S[rapForPTIndex_Gen][pTIndex_Gen])
+	  isInMassInterval = kTRUE;
+	//printf("is in interval %d\n", isInMassInterval);
+      }
+      else if(resonance == UPS2S){
+	if(onia_mass > eff::massMinUps2S[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps2S[rapForPTIndex_Gen][pTIndex_Gen])
+	  isInMassInterval = kTRUE;
+      }
+      else if(resonance == UPS3S){
+	if(onia_mass > eff::massMinUps3S[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps3S[rapForPTIndex_Gen][pTIndex_Gen])
+	  isInMassInterval = kTRUE;
+      }
+    
+      //3.) make sure that the reconstructed pair also passes the cowboy cuts:
+      deltaPhi = muNeg->Phi() - muPos->Phi();
+      if(deltaPhi > TMath::Pi()) deltaPhi -= 2.*TMath::Pi();
+      else if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
+      if(rejectCowboys && deltaPhi < 0.){ //reject cowboys
+	continue;
+      }
     }
 
     Bool_t recoPassed = kFALSE, totPassed = kFALSE;
