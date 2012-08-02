@@ -14,17 +14,17 @@ namespace eff{
   //rap bins
   Int_t const kNbRapForPTBins = 2;
   Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 0.6, 1.2};
-  Int_t const kNbPTMaxBins = 13;
-  Int_t const kNbPTBins[kNbRapForPTBins+1] = {kNbPTMaxBins, 12, 12};//all y, y1, y2
+  Int_t const kNbPTMaxBins = 10;
+  Int_t const kNbPTBins[kNbRapForPTBins+1] = {kNbPTMaxBins, 10, 10};//all y, y1, y2
   Double_t pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = {
-    {5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 15., 17., 20., 30.0, 50.},//all rapidities
-    {5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 13.0, 15., 17., 20., 30.0, 50.},//0-0.6
-    {5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 13.0, 15., 17., 20., 30.0, 50.}};//0.6-1.2
+    {5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 16., 20., 30.0, 50.},//all rapidities
+    {5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 16., 20., 30.0, 50.},//0-0.6
+    {5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 16., 20., 30.0, 50.}};//0.6-1.2
   //the following values are dummy and need to be filled out at end of analysis
   Double_t pTWCentre_rap[kNbRapForPTBins+1][kNbPTMaxBins+1] = 
-    {{5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 14., 18.5, 25., 40., 75.},
-     {5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 12.0, 14., 18.5, 25., 60.},
-     {5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 12.0, 14., 18.5, 25., 60.}};
+    {{5.5, 6.5, 7.5, 8.5, 9.5, 11.5, 14., 18.5, 25., 40.},
+     {5.5, 6.5, 7.5, 8.5, 9.5, 12.0, 14., 18.5, 25., 40.},
+     {5.5, 6.5, 7.5, 8.5, 9.5, 12.0, 14., 18.5, 25., 40.}};
 
   //number of reference frames
   enum {CS, HX, PHX, sGJ, GJ1, GJ2};
@@ -34,10 +34,13 @@ namespace eff{
 /*   Char_t *frameLabel[kNbFrames] = {"CS", "HX"}; */
 
   //cosTheta 
-  Int_t const kNbBinsCosT = 10;
+  Int_t const kNbBinsCosT = 20;
+  Int_t const kNbBinsCosT2D = 10;
   Double_t cosTMin = -1., cosTMax = 1.;
-  //phi for pol. 
-   Int_t const kNbBinsPhiPol = 9;
+  //phi for pol.
+  //Int_t const kNbBinsPhiPol2D = 9;
+  Int_t const kNbBinsPhiPol2D = 12;
+  Int_t const kNbBinsPhiPol = 18;
   Double_t phiPolMin = -180., phiPolMax = 180.;
 
   //pt
@@ -61,8 +64,6 @@ namespace eff{
 
   //study the negative and positive rapidity sides separately
   Int_t const kNbRapBins = kNbRapForPTBins;
-  /* Double_t rapRange[2*kNbRapBins+1] = {-2.3, -1.9, -1.5, -0.9, 0., 0.9, 1.5, 1.9, 2.3}; */
-  /* Double_t rapRange[2*kNbRapBins+1] = {-2.4, -2.1, -1.6, -1.2, -0.9, 0., 0.9, 1.2, 1.6, 2.1, 2.4}; */
   Double_t rapRange[2*kNbRapBins+1] = {-1.2, -0.6, 0., 0.6, 1.2};
   
   //phase space limiting cuts:
