@@ -18,7 +18,8 @@ enum {SingleMuEff};
 Bool_t useIndivEff = kFALSE;
 Int_t const kNbEff = 1;
 Char_t *effName[kNbEff] = {"SingleMuEff"};
-Char_t *effFileNames[kNbEff] = {"singleMuTruthEff_18Jan2012_40GeVrap1_2pT100GeV_EtaCut_FineBins200MeV.root"};//singleMu MCTruth efficiency
+Char_t *effFileNames[kNbEff] = {"singleMuTruthEff_16July2012_40GeVrap1_2pT100GeV_FineBins200MeV.root"};//singleMu MCTruth efficiency
+//Char_t *effFileNames[kNbEff] = {"singleMuTruthEff_18Jan2012_40GeVrap1_2pT100GeV_EtaCut_FineBins200MeV.root"};//singleMu MCTruth efficiency
 //Char_t *effFileNames[kNbEff] = {"singleMuTruthEff_17Jan2012_40GeVrap1_2pT100GeV_EtaCut_FineBins100MeVand0p1Eta.root"};//singleMu MCTruth efficiency
 //Char_t *effFileNames[kNbEff] = {"singleMuTruthEff_17Jan2012_40GeVrap1_2pT100GeV_EtaCut_FineBins100MeV.root"};//singleMu MCTruth efficiency
 //Char_t *effFileNames[kNbEff] = {"singleMuTruthEff_17Jan2012_40GeVrap1_2pT100GeV_EtaCut_FineBins250MeV.root"};//singleMu MCTruth efficiency
@@ -122,21 +123,21 @@ TEfficiency *totEff2D_cosTheta_phiPol[eff::kNbFrames];
 // TH2D *recoEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 // TH2D *trigEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 // TH2D *totEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
-TEfficiency *recoEff2D_pol_pT_rapNP[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TEfficiency *recoEff2D_pol_pT_rapNP[eff::kNbFrames][eff::kNbPTMaxBins+1][2*eff::kNbRapBins+1];
 TEfficiency *recoEff2D_pol_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *recoEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
 TEfficiency *recoEff_phiPol_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *recoEff_cosTheta_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
-TEfficiency *trigEff2D_pol_pT_rapNP[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TEfficiency *trigEff2D_pol_pT_rapNP[eff::kNbFrames][eff::kNbPTMaxBins+1][2*eff::kNbRapBins+1];
 TEfficiency *trigEff2D_pol_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *trigEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
 TEfficiency *trigEff_phiPol_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *trigEff_cosTheta_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
-TEfficiency *totEff2D_pol_pT_rapNP[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
+TEfficiency *totEff2D_pol_pT_rapNP[eff::kNbFrames][eff::kNbPTMaxBins+1][2*eff::kNbRapBins+1];
 TEfficiency *totEff2D_pol_pT_rap[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 TEfficiency *totEff2D_pol_pT_rap_phiFolded[eff::kNbFrames][eff::kNbPTMaxBins+1][eff::kNbRapForPTBins+1];
 
