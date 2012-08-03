@@ -62,13 +62,24 @@ void runMCTruthEff(Char_t *fileNameOut = "MCTruthEff_HLTDimuon10JpsiBarrel_12Nov
   }
   else if(resonance == UPS2S){
     printf("preparing TTrees for Ups(2S) processing\n");
-    //treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi2s_measuredPt.root"); //do NOT use (does not contain all GEN events)
-    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi2s_measuredPt_2April2012.root");
+    if(!useSoftMuons){
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi2s_measuredPt_2April2012.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi2s_measuredPt30_50_17July2012.root");
+    }
+    else{
+      printf("Ups2S TTrees do not exist with the useSoftMuons option\n\n\n");
+      exit(0);
+    }
   }
   else if(resonance == UPS3S){
     printf("preparing TTrees for Ups(3S) processing\n");
-    //treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi3s_measuredPt.root"); //do NOT use (does not contain all GEN events)
-    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi3s_measuredPt_2April2012.root");
+    if(!useSoftMuons){
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi3s_measuredPt_2April2012.root");
+     }
+    else{
+      printf("Ups3S TTrees do not exist with the useSoftMuons option\n\n\n");
+      exit(0);
+    }
   }
   TFile *fOut = new TFile(fileNameOut, "RECREATE");
 
