@@ -65,7 +65,7 @@ void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboy
 
   //loop over the events
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
-  //for (Long64_t jentry=0; jentry<10000;jentry++) {
+    //for (Long64_t jentry=0; jentry<10000;jentry++) {
 
     if(jentry % 100000 == 0) printf("event %d\n", (Int_t) jentry);
  
@@ -245,30 +245,32 @@ void MCTruthEffAndAcc::Loop(Int_t resonance, Int_t trigTime, Bool_t rejectCowboy
       onia_mass = onia->M();
       if(resonance == UPS1S){
 	if(nSigma == 1){
-	  if(onia_mass > eff::massMinUps1S_1sigma[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps1S_1sigma[rapForPTIndex_Gen][pTIndex_Gen])
+	  if(onia_mass > eff::massMinUps1S_1sigma[rapForPTIndex_Gen][pTIndex_Gen-1] && onia_mass < eff::massMaxUps1S_1sigma[rapForPTIndex_Gen][pTIndex_Gen-1]){
 	    isInMassInterval = kTRUE;
+	    // printf("pT %1.3f, checking pT index %d\n", onia_Gen_pt, pTIndex_Gen-1);
+	  }
 	}
 	else if(nSigma == 3)
-	  if(onia_mass > eff::massMinUps1S_3sigma[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps1S_3sigma[rapForPTIndex_Gen][pTIndex_Gen])
+	  if(onia_mass > eff::massMinUps1S_3sigma[rapForPTIndex_Gen][pTIndex_Gen-1] && onia_mass < eff::massMaxUps1S_3sigma[rapForPTIndex_Gen][pTIndex_Gen-1])
 	    isInMassInterval = kTRUE;
       }
       else if(resonance == UPS2S){
 	if(nSigma == 1){
-	  if(onia_mass > eff::massMinUps2S_1sigma[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps2S_1sigma[rapForPTIndex_Gen][pTIndex_Gen])
+	  if(onia_mass > eff::massMinUps2S_1sigma[rapForPTIndex_Gen][pTIndex_Gen-1] && onia_mass < eff::massMaxUps2S_1sigma[rapForPTIndex_Gen][pTIndex_Gen-1])
 	    isInMassInterval = kTRUE;
 	}
 	else if(nSigma == 3){
-	  if(onia_mass > eff::massMinUps2S_3sigma[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps2S_3sigma[rapForPTIndex_Gen][pTIndex_Gen])
+	  if(onia_mass > eff::massMinUps2S_3sigma[rapForPTIndex_Gen][pTIndex_Gen-1] && onia_mass < eff::massMaxUps2S_3sigma[rapForPTIndex_Gen][pTIndex_Gen-1])
 	    isInMassInterval = kTRUE;
 	}
       }
       else if(resonance == UPS3S){
 	if(nSigma == 1){
-	  if(onia_mass > eff::massMinUps3S_1sigma[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps3S_1sigma[rapForPTIndex_Gen][pTIndex_Gen])
+	  if(onia_mass > eff::massMinUps3S_1sigma[rapForPTIndex_Gen][pTIndex_Gen-1] && onia_mass < eff::massMaxUps3S_1sigma[rapForPTIndex_Gen][pTIndex_Gen-1])
 	    isInMassInterval = kTRUE;
 	}
 	else if(nSigma == 3){
-	  if(onia_mass > eff::massMinUps3S_3sigma[rapForPTIndex_Gen][pTIndex_Gen] && onia_mass < eff::massMaxUps3S_3sigma[rapForPTIndex_Gen][pTIndex_Gen])
+	  if(onia_mass > eff::massMinUps3S_3sigma[rapForPTIndex_Gen][pTIndex_Gen-1] && onia_mass < eff::massMaxUps3S_3sigma[rapForPTIndex_Gen][pTIndex_Gen-1])
 	    isInMassInterval = kTRUE;
 	}
       }
