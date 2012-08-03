@@ -8,7 +8,7 @@ void runMCTruthEffAndAcc(Char_t *fileNameOut = "MCTruthEffAndAcc_HLTDimuon10Jpsi
 			 Int_t nSigma = 1,
 			 Int_t resonance = UPS1S, //JPSI=0, PSIP=1, UPS1S=2, UPS2=3, UPS3S=4
 			 Int_t trigTime = 1,//0...HLT_Dimuon5_Upsilon_Barrel_v3, 1...HLT_Dimuon5_Upsilon_Barrel_v5, 2...HLT_Dimuon7_Upsilon_Barrel_v1, 3...HLT_Dimuon9_Upsilon_Barrel_v1
-			 Int_t useSoftMuons = 1, //1 = "soft"
+			 Int_t useSoftMuons = 0, //1 = "soft"
 			 Bool_t rejectCowboys = kTRUE
 			 ){
 // void runMCTruthEffAndAcc(Char_t *fileNameOut = "MCTruthEffAndAcc_HLTDimuon5UpsilonBarrel_19Dec2011.root",
@@ -70,13 +70,24 @@ void runMCTruthEffAndAcc(Char_t *fileNameOut = "MCTruthEffAndAcc_HLTDimuon10Jpsi
   }
   else if(resonance == UPS2S){
     printf("preparing TTrees for Ups(2S) processing\n");
-    //treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi2s_measuredPt.root"); //do NOT use (does not contain all GEN events)
-    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi2s_measuredPt_2April2012.root");
+    if(!useSoftMuons){
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi2s_measuredPt_2April2012.root");
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi2s_measuredPt30_50_17July2012.root");
+    }
+    else{
+      printf("Ups2S TTrees do not exist with the useSoftMuons option\n\n\n");
+      exit(0);
+    }
   }
   else if(resonance == UPS3S){
     printf("preparing TTrees for Ups(3S) processing\n");
-    //treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi3s_measuredPt.root"); //do NOT use (does not contain all GEN events)
-    treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi3s_measuredPt_2April2012.root");
+    if(!useSoftMuons){
+      treeData->Add("/Users/hwoehri/CMS/Work/Data2011/Gen_DataPTDistribution/TTree_Onia2MuMu_Upsi3s_measuredPt_2April2012.root");
+    }
+    else{
+      printf("Ups3S TTrees do not exist with the useSoftMuons option\n\n\n");
+      exit(0);
+    }
   }
   TFile *fOut = new TFile(fileNameOut, "RECREATE");
 
