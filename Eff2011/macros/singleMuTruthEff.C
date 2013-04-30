@@ -42,13 +42,14 @@ TH1D *yTimesX_eta[kNbpT], *y_eta[kNbpT];
 enum {LOOSE,TIGHT};//set of muon fiducial cuts
 
 void SetBranches(Bool_t startFromTrack);
-void FillHistos(Bool_t startFromTrack);
+void FillHistos(Bool_t startFromTrack, Bool_t useRECOvariables);
 void BookHistos();
 void WriteHistos();
 void CalcWeightedAverage();
 //==============================
 void singleMuTruthEff(Char_t *fileNameOut = "singleMuTruthEff_25June2012.root",
-		      Bool_t startFromTrack = kTRUE){
+		      Bool_t startFromTrack = kTRUE,
+		      Bool_t useRECOvariables = kTRUE){
 
   data = new TChain("data");
   if(startFromTrack){
@@ -61,21 +62,27 @@ void singleMuTruthEff(Char_t *fileNameOut = "singleMuTruthEff_25June2012.root",
   }
   cout << data->GetEntries() << endl;
 
+  if(useRECOvariables && !startFromTrack){
+    printf("don't know how to implement your request: useRECOvariables = kTRUE can only be implemented with startFromTrack = kTRUE\n");
+    exit(0);
+  }
   SetBranches(startFromTrack);
 
   TFile *fOut = new TFile(fileNameOut, "RECREATE");
 
   BookHistos();
-  FillHistos(startFromTrack);
+  FillHistos(startFromTrack, useRECOvariables);
   CalcWeightedAverage();
   WriteHistos();
   fOut->Close();
 }
+
 //===============================
-void FillHistos(Bool_t startFromTrack){
+void FillHistos(Bool_t startFromTrack, Bool_t useRECOvariables){
 
   Long64_t nbEv = data->GetEntries();
   for(Long64_t iEv = 0; iEv < nbEv; iEv++){
+  //for(Long64_t iEv = 0; iEv < 10000; iEv++){
 
     data->GetEntry(iEv);
     if(iEv % 100000 == 0) 
@@ -104,25 +111,20 @@ void FillHistos(Bool_t startFromTrack){
     if(pt < 990.)
       isRECO = kTRUE;
 
-    Bool_t isTRIG = kFALSE;
-    //trigger coding: 0... not fired; -2... only neg. mu fired, 2... only pos. mu fired, 1... both muons fired; 
-    //3... trigger fired in event but none of the muons could be trigger matched (maybe do not pass the selection criteria)
-    TLorentzVector *dimu_Gen = 0;
-    dimu_Gen = &(*pMu_Gen + *pMu_Fixed);
-    Double_t dimuRap = dimu_Gen->Rapidity();
-    Double_t pTGen = dimu_Gen->Pt();
-    // if(pTGen < 10. || fabs(dimuRap) > 1.25) //needed for the Dimuon10 trigger flag
-    //   continue;
+    Double_t deltaPhi;
+    //    printf("will be calculating phi\n");
+    if(useRECOvariables) deltaPhi = pMu_Tk->Phi() - pMu_Tk_Fixed->Phi(); //neg - pos muon
+    else deltaPhi = pMu_Gen->Phi() - pMu_Gen_Fixed->Phi();
+    //printf("done --> deltaPhi = %1.3f\n", deltaPhi);
 
-    Double_t phiMuNeg_Gen = pMu_Gen->Phi();//negative muon
-    Double_t phiMuPos_Gen = pMu_Fixed->Phi();//positive muon
-
-    Double_t deltaPhi = phiMuNeg_Gen - phiMuPos_Gen;
     if(deltaPhi > TMath::Pi()) deltaPhi -= 2.*TMath::Pi();
     else if(deltaPhi < -TMath::Pi()) deltaPhi += 2.*TMath::Pi();
     if(deltaPhi < 0.) //reject cowboys
       continue;
 
+    Bool_t isTRIG = kFALSE;
+    //trigger coding: 0... not fired; -2... only neg. mu fired, 2... only pos. mu fired, 1... both muons fired; 
+    //3... trigger fired in event but none of the muons could be trigger matched (maybe do not pass the selection criteria)
     // if(HLT_Dimuon10_Jpsi_Barrel_v3 == 1 || HLT_Dimuon10_Jpsi_Barrel_v3 == -2) //1.4E33
     //if(HLT_Dimuon10_Jpsi_Barrel_v6 == 1 || HLT_Dimuon10_Jpsi_Barrel_v6 == -2) //L1DoubleMu0_HighQ, no cowboys
     //if(HLT_Dimuon0_Jpsi_v3 == 1 || HLT_Dimuon0_Jpsi_v3 == -2) 
@@ -130,49 +132,66 @@ void FillHistos(Bool_t startFromTrack){
     if(HLT_Dimuon0_Jpsi_NoVertexing_v3 == 1) 
       isTRIG = kTRUE;
 
+    // TLorentzVector *dimu_Gen = 0;
+    // dimu_Gen = &(*pMu_Gen + *pMu_Fixed);
+    // Double_t dimuRapGen = dimu_Gen->Rapidity();
+    // Double_t dimuPTGen = dimu_Gen->Pt();
+    // if(dimuPTGen < 10. || fabs(dimuRapGen) > 1.25) //needed for the Dimuon10 trigger flag
+    //   continue;
+
     Bool_t isUseful = kFALSE;
     if(isRECO && isTRIG)
       isUseful = kTRUE;
 
     Int_t thisPTBin = -1, thisEtaBin = -1;
+    Double_t thePT, theEta, thePhi;
+    if(useRECOvariables){ 
+      thePT = pMu_Tk->Pt(); theEta = pMu_Tk->Eta();
+      thePhi = pMu_Tk->Phi();
+    }
+    else{ 
+      thePT = ptGen; theEta = etaGen;
+      thePhi = phiGen;
+    }
+
     for(int iPT = 0; iPT < kNbpT; iPT++){
-      if(ptGen > pTBins[iPT] && ptGen < pTBins[iPT+1]){
+      if(thePT > pTBins[iPT] && thePT < pTBins[iPT+1]){
 	thisPTBin = iPT;
 	break;
       }
     }
     for(int iEta = 0; iEta < kNbEta; iEta++){
-      if(fabs(etaGen) > etaBins[iEta] && fabs(etaGen) <= etaBins[iEta+1]){
+      if(fabs(theEta) > etaBins[iEta] && fabs(theEta) <= etaBins[iEta+1]){
 	thisEtaBin = iEta;
 	break;
       }
     }
     if(thisEtaBin >= 0){
-      recoEff_pT[thisEtaBin]->Fill(isRECO, ptGen);
-      trigEff_pT[thisEtaBin]->Fill(isTRIG, ptGen);
-      totEff_pT[thisEtaBin]->Fill(isUseful, ptGen);
+      recoEff_pT[thisEtaBin]->Fill(isRECO, thePT);
+      trigEff_pT[thisEtaBin]->Fill(isTRIG, thePT);
+      totEff_pT[thisEtaBin]->Fill(isUseful, thePT);
       if(isUseful){
-	yTimesX_pT[thisEtaBin]->Fill(ptGen, ptGen);
-	y_pT[thisEtaBin]->Fill(ptGen);
+	yTimesX_pT[thisEtaBin]->Fill(thePT, thePT);
+	y_pT[thisEtaBin]->Fill(thePT);
       }
     }
     if(thisPTBin >= 0){
-      recoEff_eta[thisPTBin]->Fill(isRECO, fabs(etaGen));
-      trigEff_eta[thisPTBin]->Fill(isTRIG, fabs(etaGen));
-      totEff_eta[thisPTBin]->Fill(isUseful, fabs(etaGen));
+      recoEff_eta[thisPTBin]->Fill(isRECO, fabs(theEta));
+      trigEff_eta[thisPTBin]->Fill(isTRIG, fabs(theEta));
+      totEff_eta[thisPTBin]->Fill(isUseful, fabs(theEta));
       if(isUseful){
-	yTimesX_eta[thisPTBin]->Fill(fabs(etaGen), fabs(etaGen));
-	y_eta[thisPTBin]->Fill(fabs(etaGen));
+	yTimesX_eta[thisPTBin]->Fill(fabs(theEta), fabs(theEta));
+	y_eta[thisPTBin]->Fill(fabs(theEta));
       }
     }
 
-    recoEff_phi->Fill(isRECO, phiGen);
-    trigEff_phi->Fill(isTRIG, phiGen);
-    totEff_phi->Fill(isUseful, phiGen);
+    recoEff_phi->Fill(isRECO, thePhi);
+    trigEff_phi->Fill(isTRIG, thePhi);
+    totEff_phi->Fill(isUseful, thePhi);
 
-    recoEff_pT_eta->Fill(isRECO, etaGen, ptGen);
-    trigEff_pT_eta->Fill(isTRIG, etaGen, ptGen);
-    totEff_pT_eta->Fill(isUseful, etaGen, ptGen);
+    recoEff_pT_eta->Fill(isRECO, theEta, thePT);
+    trigEff_pT_eta->Fill(isTRIG, theEta, thePT);
+    totEff_pT_eta->Fill(isUseful, theEta, thePT);
   }
 }
 //===============================
